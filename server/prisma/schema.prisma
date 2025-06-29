@@ -1,0 +1,81 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String     @id @default(cuid())
+  email       String     @unique
+  firstName   String?
+  lastName    String?
+  password    String?
+  role        String     @default("USER") // USER, ADMIN, etc.
+  isActive    Boolean    @default(true)
+  phone       String?
+  workspaceId String?
+  workspace   Workspace? @relation(fields: [workspaceId], references: [id])
+  permissions String[]   @default([])
+  leads       Lead[]
+  activities  Activity[] // Added relation field for Activity
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+model Workspace {
+  id        String   @id @default(cuid())
+  name      String
+  users     User[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Lead {
+  id           String     @id @default(cuid())
+  firstName    String
+  lastName     String?
+  email        String
+  phone        String[]   @default([])
+  company      String?
+  jobTitle     String?
+  industry     String?
+  status       String     @default("NEW") // NEW, INPOGRESS, LOST, etc.
+  assignedTo   User       @relation(fields: [assignedToId], references: [id])
+  assignedToId String
+  website      String?
+  address      String?
+  city         String?
+  state        String?
+  zipCode      String?
+  country      String?
+  notes        Note[]
+  activities   Activity[]
+  isActive     Boolean    @default(true)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+}
+
+model Note {
+  id        String   @id @default(cuid())
+  content   String
+  lead      Lead     @relation(fields: [leadId], references: [id])
+  leadId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Activity {
+  id          String   @id @default(cuid())
+  type        String // e.g., "EMAIL", "CALL", "MEETING"
+  description String?
+  lead        Lead     @relation(fields: [leadId], references: [id])
+  leadId      String
+  user        User     @relation(fields: [userId], references: [id])
+  userId      String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
