@@ -2,8 +2,11 @@ import express from "express";
 import dotenv from "dotenv";
 // import cookieParser from "cookie-parser";
 // import cors from "cors";
-// import { appErrorHandler } from "./src/middlewares/errorHandlers.middleware.js";
 import rootRouter from "./routes/index.route";
+import {
+  globalErrorHandler,
+  handleNotFound,
+} from "./middleware/errorHandler.middleware";
 
 const app = express();
 const port = process.env.PORT || 8080;
@@ -20,7 +23,12 @@ app.use(express.json()); // Enable parsing of JSON request bodies from raw strea
 // app.use(cors(corsConfig));
 
 app.use("/api", rootRouter);
-// app.use(appErrorHandler);
+
+// Handle unhandled routes
+app.all("*", handleNotFound);
+
+// Global error handler
+app.use(globalErrorHandler);
 
 app.listen(port, () => {
   console.log(`🚀 Server is running on port ${port}`);
