@@ -11,9 +11,9 @@ datasource db {
 model User {
   id          String     @id @default(cuid())
   email       String     @unique
-  firstName   String?
-  lastName    String?
-  password    String?
+  firstName   String
+  lastName    String
+  password    String
   role        String     @default("USER") // USER, ADMIN, etc.
   isActive    Boolean    @default(true)
   phone       String?
