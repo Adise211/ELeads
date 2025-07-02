@@ -5,8 +5,8 @@
   "main": "server.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node dist/server.js",
-    "dev": "npx tsc && node dist/server.js",
+    "start": "npx tsc && node dist/server.js",
+    "dev": "npx tsc -w && nodemon dist/server.js",
     "build": "npx tsc",
     "dev:watch": "npx tsc -w & nodemon dist/server.js"
   },
@@ -20,7 +20,9 @@
   },
   "dependencies": {
     "@prisma/client": "^6.10.1",
+    "bcrypt": "^6.0.0",
     "dotenv": "^17.0.0",
-    "express": "^5.1.0"
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2"
   }
 }
