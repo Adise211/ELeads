@@ -8,6 +8,7 @@ import {
   workspaceErrorsMsg,
 } from "../utils/errorCodes.js";
 import { AppError } from "../middleware/errorHandler.middleware";
+import { hashPassword } from "../utils/auth.helper";
 
 export const registerUser = async (
   req: Request,
@@ -19,6 +20,8 @@ export const registerUser = async (
       req.body.user;
     const { name }: Workspace = req.body.workspace;
     let _workspaceName = name.toLocaleLowerCase();
+    let _password = await hashPassword(password);
+    console.log("_password:", password, _password);
 
     const isWorkspaceExisting = await getWorkspaceByName(_workspaceName);
     const isUserExisting = await getUserByEmail(email);
@@ -37,7 +40,7 @@ export const registerUser = async (
         firstName,
         lastName,
         email,
-        password,
+        password: _password,
         role,
         phone,
       });
