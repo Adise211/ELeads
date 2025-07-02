@@ -5,7 +5,7 @@ const router = Router();
 // @path: /api/leads
 // @desc: Leads route
 // @access: Private
-router.use("/", (req: Request, res: Response) => {
+router.get("/", (req: Request, res: Response) => {
   res.send("Leads route");
 });
 

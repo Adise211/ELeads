@@ -1,12 +1,12 @@
-import { Router } from "express";
+import express from "express";
 import usersRouter from "./users.route.js";
 import leadsRouter from "./leads.route.js";
 
-const router = Router();
+const app = express();
 
-router.use("/api/users", usersRouter);
-router.use("/api/leads", leadsRouter);
-router.use("/api/notes");
-router.use("/api/workspaces");
+app.use("/users", usersRouter);
+app.use("/leads", leadsRouter);
+// app.use("/notes", notesRouter);
+// app.use("/workspaces", workspacesRouter);
 
-export default router;
+export default app;
