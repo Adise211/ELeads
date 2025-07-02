@@ -25,7 +25,7 @@ app.use(express.json()); // Enable parsing of JSON request bodies from raw strea
 app.use("/api", rootRouter);
 
 // Handle unhandled routes
-app.all("*", handleNotFound);
+// app.all("*", handleNotFound);
 
 // Global error handler
 app.use(globalErrorHandler);
