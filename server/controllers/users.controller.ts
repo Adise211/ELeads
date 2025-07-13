@@ -8,7 +8,11 @@ import {
   workspaceErrorsMsg,
 } from "../utils/errorCodes.js";
 import { AppError } from "../middleware/errorHandler.middleware";
-import { hashPassword } from "../utils/auth.helper";
+import { hashPassword, comparePassword } from "../utils/auth.helper";
+import {
+  generateAccessToken,
+  generateRefreshToken,
+} from "../utils/auth.helper";
 
 export const registerUser = async (
   req: Request,
@@ -57,6 +61,58 @@ export const registerUser = async (
           httpCodes.INTERNAL_SERVER_ERROR
         );
       }
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const loginUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { email, password } = req.body;
+
+    // Check if user exists
+    const user = await getUserByEmail(email);
+    if (!user) {
+      return res
+        .status(httpCodes.UNAUTHORIZED)
+        .json({ message: userErrorsMsg.USER_NOT_FOUND });
+    }
+
+    // Compare passwords
+    const isPasswordCorrect = await comparePassword(password, user.password);
+    if (!isPasswordCorrect) {
+      return res
+        .status(httpCodes.UNAUTHORIZED)
+        .json({ message: userErrorsMsg.INVALID_PASSWORD });
+    } else {
+      // If password is correct, create a payload with user data
+      const payload = {
+        userId: user.id,
+        email: user.email,
+      };
+      // Generate access and refresh tokens
+      const accessToken = generateAccessToken(payload);
+      const refreshToken = generateRefreshToken(payload);
+      const cookieName = process.env.COOKIE_NAME_FOR_TOKEN as string;
+      // set refresh token in cookie
+      res.cookie(cookieName, refreshToken, {
+        httpOnly: true, // accessible only by the web server
+        secure: process.env.NODE_ENV === "production", // HTTPS only in production
+        sameSite: "strict",
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in ms
+      });
+
+      // If login is successful, return user data
+      res.status(httpCodes.SUCCESS).json({
+        success: true,
+        message: "User logged in successfully",
+        data: { user, accessToken },
+      });
     }
   } catch (error) {
     next(error);

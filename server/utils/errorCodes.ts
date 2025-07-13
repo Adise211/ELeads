@@ -2,6 +2,8 @@ const userErrorsMsg = {
   USER_NOT_FOUND: "User not found",
   USER_ALREADY_EXISTS: "User already exists",
   INVALID_USER_DATA: "Invalid user data",
+  INVALID_PASSWORD: "Invalid password",
+  UNAUTHORIZED: "Unauthorized access",
 };
 
 const workspaceErrorsMsg = {

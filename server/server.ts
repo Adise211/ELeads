@@ -1,6 +1,6 @@
 import express from "express";
 import dotenv from "dotenv";
-// import cookieParser from "cookie-parser";
+import cookieParser from "cookie-parser";
 // import cors from "cors";
 import rootRouter from "./routes/index.route";
 import {
@@ -19,7 +19,7 @@ const corsConfig = {
 };
 
 app.use(express.json()); // Enable parsing of JSON request bodies from raw stream
-// app.use(cookieParser());
+app.use(cookieParser());
 // app.use(cors(corsConfig));
 
 app.use("/api", rootRouter);
