@@ -1,19 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-
-// Custom error interface
-interface CustomError extends Error {
-  statusCode?: number;
-  status?: string;
-  isOperational?: boolean;
-}
-
-// Error response interface
-interface ErrorResponse {
-  status: string;
-  message: string;
-  error?: any;
-  stack?: string;
-}
+import { CustomError, ErrorResponse } from "../server.types";
 
 // Create custom error class
 export class AppError extends Error implements CustomError {
