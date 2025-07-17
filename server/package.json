@@ -5,10 +5,10 @@
   "main": "server.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "npx tsc && node dist/server.js",
-    "dev": "npx tsc -w & nodemon dist/server.js",
+    "start": "NODE_ENV=production npx tsc && node dist/server.js",
+    "dev": "NODE_ENV=development npx tsc -w & nodemon dist/server.js",
     "build": "npx tsc",
-    "dev:watch": "npx tsc -w & nodemon dist/server.js"
+    "dev:watch": "NODE_ENV=development npx tsc -w & nodemon dist/server.js"
   },
   "author": "Adise",
   "license": "ISC",
@@ -27,6 +27,7 @@
     "cookie-parser": "^1.4.7",
     "dotenv": "^17.0.0",
     "express": "^5.1.0",
+    "express-validator": "^7.2.1",
     "jsonwebtoken": "^9.0.2"
   }
 }

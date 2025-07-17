@@ -8,10 +8,17 @@ import {
   handleNotFound,
 } from "./middleware/errorHandler.middleware";
 
+// Load environment variables based on NODE_ENV
+if (process.env.NODE_ENV === "production") {
+  dotenv.config({ path: ".env.production" });
+} else {
+  dotenv.config({ path: ".env" });
+}
+
 const app = express();
 const port = process.env.PORT || 8080;
-dotenv.config();
 console.log("Server is starting...");
+console.log(`Environment: ${process.env.NODE_ENV}`);
 
 const corsConfig = {
   origin: process.env.FRONTEND_ORIGIN_DEV,
