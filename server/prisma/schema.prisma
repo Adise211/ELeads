@@ -8,13 +8,18 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum UserRole {
+  USER
+  ADMIN
+}
+
 model User {
   id          String     @id @default(cuid())
   email       String     @unique
   firstName   String
   lastName    String
   password    String
-  role        String     @default("USER") // USER, ADMIN, etc.
+  role        UserRole   @default(USER)
   isActive    Boolean    @default(true)
   phone       String?
   workspaceId String?
@@ -34,6 +39,12 @@ model Workspace {
   updatedAt DateTime @updatedAt
 }
 
+enum LeadStatus {
+  NEW
+  INPOGRESS
+  LOST
+}
+
 model Lead {
   id           String     @id @default(cuid())
   firstName    String
@@ -43,7 +54,7 @@ model Lead {
   company      String?
   jobTitle     String?
   industry     String?
-  status       String     @default("NEW") // NEW, INPOGRESS, LOST, etc.
+  status       LeadStatus @default(NEW)
   assignedTo   User       @relation(fields: [assignedToId], references: [id])
   assignedToId String
   website      String?
@@ -68,9 +79,18 @@ model Note {
   updatedAt DateTime @updatedAt
 }
 
+enum ActivityType {
+  EMAIL
+  CALL
+  MEETING
+  TASK
+  NOTE
+  OTHER
+}
+
 model Activity {
   id          String   @id @default(cuid())
-  type        String // e.g., "EMAIL", "CALL", "MEETING"
+  type        ActivityType @default(EMAIL)
   description String?
   lead        Lead     @relation(fields: [leadId], references: [id])
   leadId      String
