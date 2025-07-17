@@ -14,6 +14,7 @@ import {
   generateRefreshToken,
 } from "../utils/auth.helper";
 import { validationResult } from "express-validator";
+import { SuccessResponse } from "../server.types";
 
 export const registerUser = async (
   req: Request,
@@ -83,46 +84,61 @@ export const loginUser = async (
   next: NextFunction
 ) => {
   try {
-    const { email, password } = req.body;
+    const validation = validationResult(req);
 
-    // Check if user exists
-    const user = await getUserByEmail(email);
-    if (!user) {
-      return res
-        .status(httpCodes.UNAUTHORIZED)
-        .json({ message: userErrorsMsg.USER_NOT_FOUND });
-    }
-
-    // Compare passwords
-    const isPasswordCorrect = await comparePassword(password, user.password);
-    if (!isPasswordCorrect) {
-      return res
-        .status(httpCodes.UNAUTHORIZED)
-        .json({ message: userErrorsMsg.INVALID_PASSWORD });
+    if (!validation.isEmpty()) {
+      const error = new AppError("Validation failed", 400);
+      error.name = "ValidationError";
+      (error as any).errors = validation.array();
+      throw error;
     } else {
-      // If password is correct, create a payload with user data
-      const payload = {
-        userId: user.id,
-        email: user.email,
-      };
-      // Generate access and refresh tokens
-      const accessToken = generateAccessToken(payload);
-      const refreshToken = generateRefreshToken(payload);
-      const cookieName = process.env.COOKIE_NAME_FOR_TOKEN as string;
-      // set refresh token in cookie
-      res.cookie(cookieName, refreshToken, {
-        httpOnly: true, // accessible only by the web server
-        secure: process.env.NODE_ENV === "production", // HTTPS only in production
-        sameSite: "strict",
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in ms
-      });
+      const { email, password } = req.body;
 
-      // If login is successful, return user data
-      res.status(httpCodes.SUCCESS).json({
-        success: true,
-        message: "User logged in successfully",
-        data: { user, accessToken },
-      });
+      // Check if user exists
+      const user: User | null = await getUserByEmail(email);
+      if (!user) {
+        throw new AppError(
+          userErrorsMsg.USER_NOT_FOUND,
+          httpCodes.UNAUTHORIZED
+        );
+      } else {
+        // Compare passwords
+        const isPasswordCorrect = await comparePassword(
+          password,
+          user.password
+        );
+        if (!isPasswordCorrect) {
+          throw new AppError(
+            userErrorsMsg.INCORRECT_PASSWORD,
+            httpCodes.UNAUTHORIZED
+          );
+        }
+
+        // If password is correct, create a payload with user data
+        const payload = {
+          userId: user.id,
+          email: user.email,
+        };
+        // Generate access and refresh tokens
+        const accessToken = generateAccessToken(payload);
+        const refreshToken = generateRefreshToken(payload);
+        const cookieName = process.env.COOKIE_NAME_FOR_TOKEN as string;
+
+        // set refresh token in cookie
+        res.cookie(cookieName, refreshToken, {
+          httpOnly: true, // accessible only by the web server
+          secure: process.env.NODE_ENV === "production", // HTTPS only in production
+          sameSite: "strict",
+          maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in ms
+        });
+        // If login is successful, return user data
+        const successResponse: SuccessResponse = {
+          success: true,
+          message: "User logged in successfully",
+          data: { user, accessToken },
+        };
+        res.status(httpCodes.SUCCESS).json(successResponse);
+      }
     }
   } catch (error) {
     next(error);

@@ -3,6 +3,8 @@ const userErrorsMsg = {
   USER_ALREADY_EXISTS: "User already exists",
   INVALID_USER_DATA: "Invalid user data",
   INVALID_PASSWORD: "Invalid password",
+  INVALID_EMAIL: "Invalid email",
+  INCORRECT_PASSWORD: "Incorrect password",
   UNAUTHORIZED: "Unauthorized access",
 };
 

@@ -13,3 +13,9 @@ export interface ErrorResponse {
   error?: any;
   stack?: string;
 }
+
+export interface SuccessResponse {
+  success: boolean;
+  message: string;
+  data?: any;
+}

@@ -1,5 +1,5 @@
 import { Router, Request, Response } from "express";
-import { registerUser } from "../controllers/users.controller";
+import { loginUser, registerUser } from "../controllers/users.controller";
 import { body } from "express-validator";
 
 const router = Router();
@@ -31,8 +31,11 @@ router.post(
 // @path: /api/users/login
 // @desc: Users login route
 // @access: Public
-router.post("/login", (req: Request, res: Response) => {
-  res.send("Users login route");
-});
+router.post(
+  "/login",
+  body("email", "Invalid email").isEmail(),
+  body("password", "Invalid password").isLength({ min: 8 }),
+  loginUser
+);
 
 export default router;
