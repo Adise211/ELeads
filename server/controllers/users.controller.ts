@@ -13,6 +13,7 @@ import {
   generateAccessToken,
   generateRefreshToken,
 } from "../utils/auth.helper";
+import { validationResult } from "express-validator";
 
 export const registerUser = async (
   req: Request,
@@ -20,46 +21,55 @@ export const registerUser = async (
   next: NextFunction
 ) => {
   try {
-    const { firstName, lastName, email, password, role, phone }: User =
-      req.body.user;
-    const { name }: Workspace = req.body.workspace;
-    const hashedPassword = await hashPassword(password);
-    let _workspaceName = name.toLocaleLowerCase();
+    const validation = validationResult(req);
 
-    const isWorkspaceExisting = await getWorkspaceByName(_workspaceName);
-    const isUserExisting = await getUserByEmail(email);
-    // Check if workspace or user already exists
-    if (isWorkspaceExisting) {
-      res
-        .status(httpCodes.BAD_REQUEST)
-        .json({ message: workspaceErrorsMsg.WORKSPACE_ALREADY_EXISTS });
-    } else if (isUserExisting) {
-      res
-        .status(httpCodes.BAD_REQUEST)
-        .json({ message: userErrorsMsg.USER_ALREADY_EXISTS });
+    if (!validation.isEmpty()) {
+      const error = new AppError("Validation failed", 400);
+      error.name = "ValidationError";
+      (error as any).errors = validation.array();
+      throw error;
     } else {
-      // If workspace and user do not exist, create a new user and workspace
-      const user = await createUser({
-        firstName,
-        lastName,
-        email,
-        password: hashedPassword,
-        role,
-        phone,
-      });
-      // If user is created successfully, create a workspace for the user
-      if (user) {
-        const workspace = await createWorkspace(_workspaceName, user.id);
-        res.status(httpCodes.CREATED).json({
-          success: true,
-          message: "User registered successfully",
-          data: { user, workspace },
-        });
+      const { firstName, lastName, email, password, role, phone }: User =
+        req.body.user;
+      const { name }: Workspace = req.body.workspace;
+      const hashedPassword = await hashPassword(password);
+      let _workspaceName = name.toLocaleLowerCase();
+
+      const isWorkspaceExisting = await getWorkspaceByName(_workspaceName);
+      const isUserExisting = await getUserByEmail(email);
+      // Check if workspace or user already exists
+      if (isWorkspaceExisting) {
+        res
+          .status(httpCodes.BAD_REQUEST)
+          .json({ message: workspaceErrorsMsg.WORKSPACE_ALREADY_EXISTS });
+      } else if (isUserExisting) {
+        res
+          .status(httpCodes.BAD_REQUEST)
+          .json({ message: userErrorsMsg.USER_ALREADY_EXISTS });
       } else {
-        throw new AppError(
-          userErrorsMsg.INVALID_USER_DATA,
-          httpCodes.INTERNAL_SERVER_ERROR
-        );
+        // If workspace and user do not exist, create a new user and workspace
+        const user = await createUser({
+          firstName,
+          lastName,
+          email,
+          password: hashedPassword,
+          role,
+          phone,
+        });
+        // If user is created successfully, create a workspace for the user
+        if (user) {
+          const workspace = await createWorkspace(_workspaceName, user.id);
+          res.status(httpCodes.CREATED).json({
+            success: true,
+            message: "User registered successfully",
+            data: { user, workspace },
+          });
+        } else {
+          throw new AppError(
+            userErrorsMsg.INVALID_USER_DATA,
+            httpCodes.INTERNAL_SERVER_ERROR
+          );
+        }
       }
     }
   } catch (error) {

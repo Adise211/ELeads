@@ -1,5 +1,6 @@
 import { Router, Request, Response } from "express";
 import { registerUser } from "../controllers/users.controller";
+import { body } from "express-validator";
 
 const router = Router();
 
@@ -13,7 +14,19 @@ router.get("/", (req: Request, res: Response) => {
 // @path: /api/users/register
 // @desc: Users registration route
 // @access: Public
-router.post("/register", registerUser);
+router.post(
+  "/register",
+  body([
+    "user.firstName",
+    "user.lastName",
+    "user.email",
+    "user.password",
+    "user.role",
+    "user.phone",
+    "workspace.name",
+  ]).notEmpty(),
+  registerUser
+);
 
 // @path: /api/users/login
 // @desc: Users login route

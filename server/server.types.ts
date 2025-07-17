@@ -7,6 +7,7 @@ export interface CustomError extends Error {
 
 // Error response interface
 export interface ErrorResponse {
+  success: boolean;
   status: string;
   message: string;
   error?: any;

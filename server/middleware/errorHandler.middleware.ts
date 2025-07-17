@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { CustomError, ErrorResponse } from "../server.types";
+import { httpCodes } from "../utils/errorCodes";
 
 // Create custom error class
 export class AppError extends Error implements CustomError {
@@ -20,45 +21,54 @@ export class AppError extends Error implements CustomError {
 // Handle Prisma errors
 const handlePrismaError = (error: any): AppError => {
   if (error.code === "P2002") {
-    return new AppError("Duplicate field value entered", 400);
+    return new AppError("Duplicate field value entered", httpCodes.BAD_REQUEST);
   }
   if (error.code === "P2014") {
-    return new AppError("Invalid ID: no record found", 400);
+    return new AppError("Invalid ID: no record found", httpCodes.BAD_REQUEST);
   }
   if (error.code === "P2003") {
-    return new AppError("Invalid input data", 400);
+    return new AppError("Invalid input data", httpCodes.BAD_REQUEST);
   }
   if (error.code === "P2025") {
-    return new AppError("Record not found", 404);
+    return new AppError("Record not found", httpCodes.NOT_FOUND);
   }
 
-  return new AppError("Database operation failed", 500);
+  return new AppError(
+    "Database operation failed",
+    httpCodes.INTERNAL_SERVER_ERROR
+  );
 };
 
 // Handle validation errors
 const handleValidationError = (error: any): AppError => {
-  const errors = Object.values(error.errors).map((val: any) => val.message);
-  const message = `Invalid input data. ${errors.join(". ")}`;
-  return new AppError(message, 400);
+  const errors = error.errors.map((val: any) => `'${val.path}'`);
+  const message = `Invalid value for: ${errors.join(", ")}`;
+  return new AppError(message, httpCodes.BAD_REQUEST);
 };
 
 // Handle JWT errors
 const handleJWTError = (): AppError =>
-  new AppError("Invalid token. Please log in again!", 401);
+  new AppError("Invalid token. Please log in again!", httpCodes.UNAUTHORIZED);
 
 const handleJWTExpiredError = (): AppError =>
-  new AppError("Your token has expired! Please log in again.", 401);
+  new AppError(
+    "Your token has expired! Please log in again.",
+    httpCodes.UNAUTHORIZED
+  );
 
 // Send error response for development
 const sendErrorDev = (err: CustomError, res: Response): void => {
   const errorResponse: ErrorResponse = {
+    success: false,
     status: err.status || "error",
     message: err.message,
     error: err,
     stack: err.stack,
   };
 
-  res.status(err.statusCode || 500).json(errorResponse);
+  res
+    .status(err.statusCode || httpCodes.INTERNAL_SERVER_ERROR)
+    .json(errorResponse);
 };
 
 // Send error response for production
@@ -66,6 +76,7 @@ const sendErrorProd = (err: CustomError, res: Response): void => {
   // Operational, trusted error: send message to client
   if (err.isOperational) {
     const errorResponse: ErrorResponse = {
+      success: false,
       status: err.status || "error",
       message: err.message,
     };
@@ -76,11 +87,12 @@ const sendErrorProd = (err: CustomError, res: Response): void => {
     console.error("ERROR 💥:", err);
 
     const errorResponse: ErrorResponse = {
+      success: false,
       status: "error",
       message: "Something went wrong!",
     };
 
-    res.status(500).json(errorResponse);
+    res.status(httpCodes.INTERNAL_SERVER_ERROR).json(errorResponse);
   }
 };
 
@@ -133,7 +145,7 @@ export const handleNotFound = (
 ): void => {
   const err = new AppError(
     `Can't find ${req.originalUrl} on this server!`,
-    404
+    httpCodes.NOT_FOUND
   );
   next(err);
 };
