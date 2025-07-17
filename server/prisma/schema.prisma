@@ -41,7 +41,7 @@ model Workspace {
 
 enum LeadStatus {
   NEW
-  INPOGRESS
+  INPROGRESS
   LOST
 }
 
@@ -89,13 +89,13 @@ enum ActivityType {
 }
 
 model Activity {
-  id          String   @id @default(cuid())
+  id          String       @id @default(cuid())
   type        ActivityType @default(EMAIL)
   description String?
-  lead        Lead     @relation(fields: [leadId], references: [id])
+  lead        Lead         @relation(fields: [leadId], references: [id])
   leadId      String
-  user        User     @relation(fields: [userId], references: [id])
+  user        User         @relation(fields: [userId], references: [id])
   userId      String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
 }
