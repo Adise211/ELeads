@@ -6,9 +6,10 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "NODE_ENV=production npx tsc && node dist/server.js",
-    "dev": "NODE_ENV=development npx tsc -w & nodemon dist/server.js",
+    "dev": "NODE_ENV=development npx tsc && node dist/server.js",
     "build": "npx tsc",
-    "dev:watch": "NODE_ENV=development npx tsc -w & nodemon dist/server.js"
+    "dev:watch": "NODE_ENV=development npx tsc -w & nodemon dist/server.js",
+    "generate:enums": "node scripts/generate-enums.js"
   },
   "author": "Adise",
   "license": "ISC",
