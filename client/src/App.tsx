@@ -1,13 +1,12 @@
 import "@mantine/core/styles.css";
 import "./App.css";
 import { MantineProvider } from "@mantine/core";
-import { Button } from "@mantine/core";
+import DefaultLayout from "./layouts/DefaultLayout";
 
 function App() {
   return (
     <MantineProvider>
-      <div>Hello World</div>
-      <Button>Click me</Button>
+      <DefaultLayout />
     </MantineProvider>
   );
 }
