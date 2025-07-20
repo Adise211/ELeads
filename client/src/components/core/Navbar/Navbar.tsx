@@ -12,6 +12,7 @@ import { useState } from "react";
 // } from "@tabler/icons-react";
 import { Code, Group } from "@mantine/core";
 import classes from "./Navbar.module.css";
+import IconLogout from "../../../assets/icons/IconLogout";
 
 const data = [
   { link: "", label: "Notifications" },
@@ -59,7 +60,7 @@ const Navbar = () => {
         </a>
 
         <a href="#" className={classes.link} onClick={(event) => event.preventDefault()}>
-          {/* <IconLogout className={classes.linkIcon} stroke={1.5} /> */}
+          <IconLogout className={classes.linkIcon} stroke={1.5} />
           <span>Logout</span>
         </a>
       </div>
