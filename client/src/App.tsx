@@ -1,12 +1,13 @@
 import "@mantine/core/styles.css";
 import "./App.css";
 import { MantineProvider } from "@mantine/core";
-import DefaultLayout from "./layouts/DefaultLayout";
+import { RouterProvider } from "react-router-dom";
+import { router } from "./routes";
 
 function App() {
   return (
     <MantineProvider>
-      <DefaultLayout />
+      <RouterProvider router={router} />
     </MantineProvider>
   );
 }
