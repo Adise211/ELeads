@@ -13,15 +13,18 @@ import { useState } from "react";
 import { Code, Group } from "@mantine/core";
 import classes from "./Navbar.module.css";
 import IconLogout from "../../../assets/icons/IconLogout";
+import IconHome from "../../../assets/icons/IconHome";
+import IconReciept from "../../../assets/icons/IconReciept";
+import IconOffice from "../../../assets/icons/IconOffice";
+import IconBriefcase from "../../../assets/icons/IconBriefcase";
+import IconSettings from "../../../assets/icons/IconSettings";
 
 const data = [
-  { link: "", label: "Notifications" },
-  { link: "", label: "Billing" },
-  { link: "", label: "Security" },
-  { link: "", label: "SSH Keys" },
-  { link: "", label: "Databases" },
-  { link: "", label: "Authentication" },
-  { link: "", label: "Other Settings" },
+  { link: "", label: "Home", icon: IconHome },
+  { link: "", label: "Billing", icon: IconReciept },
+  { link: "", label: "Clients", icon: IconOffice },
+  { link: "", label: "Leads", icon: IconBriefcase },
+  { link: "", label: "Settings", icon: IconSettings },
 ];
 
 const Navbar = () => {
@@ -38,7 +41,7 @@ const Navbar = () => {
         setActive(item.label);
       }}
     >
-      {/* <item.icon className={classes.linkIcon} stroke={1.5} /> */}
+      {item.icon && <item.icon className={classes.linkIcon} />}
       <span>{item.label}</span>
     </a>
   ));
@@ -54,10 +57,10 @@ const Navbar = () => {
       </div>
 
       <div className={classes.footer}>
-        <a href="#" className={classes.link} onClick={(event) => event.preventDefault()}>
-          {/* <IconSwitchHorizontal className={classes.linkIcon} stroke={1.5} /> */}
+        {/* <a href="#" className={classes.link} onClick={(event) => event.preventDefault()}>
+          <IconSwitchHorizontal className={classes.linkIcon} stroke={1.5} />
           <span>Change account</span>
-        </a>
+        </a> */}
 
         <a href="#" className={classes.link} onClick={(event) => event.preventDefault()}>
           <IconLogout className={classes.linkIcon} stroke={1.5} />
