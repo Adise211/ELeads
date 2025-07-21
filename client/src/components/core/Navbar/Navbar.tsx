@@ -12,12 +12,12 @@ import { useState } from "react";
 // } from "@tabler/icons-react";
 import { Code, Group } from "@mantine/core";
 import classes from "./Navbar.module.css";
-import IconLogout from "../../../assets/icons/IconLogout";
-import IconHome from "../../../assets/icons/IconHome";
-import IconReciept from "../../../assets/icons/IconReciept";
-import IconOffice from "../../../assets/icons/IconOffice";
-import IconBriefcase from "../../../assets/icons/IconBriefcase";
-import IconSettings from "../../../assets/icons/IconSettings";
+import IconLogout from "@/assets/icons/IconLogout";
+import IconHome from "@/assets/icons/IconHome";
+import IconReciept from "@/assets/icons/IconReciept";
+import IconOffice from "@/assets/icons/IconOffice";
+import IconBriefcase from "@/assets/icons/IconBriefcase";
+import IconSettings from "@/assets/icons/IconSettings";
 
 const data = [
   { link: "", label: "Home", icon: IconHome },

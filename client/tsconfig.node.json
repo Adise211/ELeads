@@ -22,7 +22,7 @@
     "noUncheckedSideEffectImports": true,
 
     /* Vite types */
-    "types": ["vite/client"]
+    "types": ["vite/client", "node"]
   },
   "include": ["vite.config.ts"]
 }
