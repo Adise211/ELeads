@@ -102,16 +102,42 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
           sameSite: "strict",
           maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in ms
         });
-        // If login is successful, return user data
-        const safeUser = omitFields(user, ["password"]);
+        // If login is successful
         const successResponse: SuccessResponse = {
           success: true,
           message: "User logged in successfully",
-          data: { user: safeUser, accessToken },
         };
         res.status(httpCodes.SUCCESS).json(successResponse);
       }
     }
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getAuthenticatedUser = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const user = await getUserByEmail(req.body.email);
+    if (!user) {
+      throw new AppError(userErrorsMsg.USER_NOT_FOUND, httpCodes.NOT_FOUND);
+    } else {
+      const safeUser = omitFields(user, ["password"]);
+      res.status(httpCodes.SUCCESS).json({ user: safeUser });
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const logoutUser = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const cookieName = process.env.COOKIE_NAME_FOR_TOKEN as string;
+    res.clearCookie(cookieName);
+    const successResponse: SuccessResponse = {
+      success: true,
+      message: "User logged out successfully",
+    };
+    res.status(httpCodes.SUCCESS).json(successResponse);
   } catch (error) {
     next(error);
   }

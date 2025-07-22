@@ -1,6 +1,12 @@
 import { Router, Request, Response } from "express";
-import { loginUser, registerUser } from "../controllers/users.controller";
+import {
+  getAuthenticatedUser,
+  loginUser,
+  logoutUser,
+  registerUser,
+} from "../controllers/users.controller";
 import { body } from "express-validator";
+import { authenticateToken } from "../middleware/auth.middleware";
 
 const router = Router();
 
@@ -37,5 +43,15 @@ router.post(
   body("password", "Invalid password").isLength({ min: 8 }),
   loginUser
 );
+
+// @path: /api/users/me
+// @desc: Get current authenticated user
+// @access: Private
+router.get("/me", authenticateToken, getAuthenticatedUser);
+
+// @path: /api/users/logout
+// @desc: Logout user
+// @access: Public
+router.get("/logout", logoutUser);
 
 export default router;
