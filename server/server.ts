@@ -1,12 +1,9 @@
 import express from "express";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
-// import cors from "cors";
+import cors from "cors";
 import rootRouter from "./routes/index.route";
-import {
-  globalErrorHandler,
-  handleNotFound,
-} from "./middleware/errorHandler.middleware";
+import { globalErrorHandler, handleNotFound } from "./middleware/errorHandler.middleware";
 
 // Load environment variables based on NODE_ENV
 if (process.env.NODE_ENV === "production") {
@@ -21,13 +18,13 @@ console.log("Server is starting...");
 console.log(`Environment: ${process.env.NODE_ENV}`);
 
 const corsConfig = {
-  origin: process.env.FRONTEND_ORIGIN_DEV,
+  origin: process.env.FRONTEND_ORIGIN,
   credentials: true, // Allow cookies (important)
 };
 
 app.use(express.json()); // Enable parsing of JSON request bodies from raw stream
 app.use(cookieParser());
-// app.use(cors(corsConfig));
+app.use(cors(corsConfig)); // This is important for enabling secure communication between the frontend and backend,
 
 app.use("/api", rootRouter);
 

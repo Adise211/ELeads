@@ -1,9 +1,9 @@
 import axios from "axios";
-import { httpCodes } from "@shared/types";
+import { httpCodes } from "../../../shared/constants";
 
 const request = axios.create({
-  baseURL: import.meta.env.VITE_BACKEND_ORIGIN_DEV || "/api",
-  withCredentials: true,
+  baseURL: import.meta.env.VITE_BACKEND_ORIGIN,
+  withCredentials: true, // Allow cookies (important)
 });
 
 // Add a response interceptor

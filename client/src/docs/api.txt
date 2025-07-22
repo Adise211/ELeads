@@ -1,0 +1,9 @@
+# Using 'fetch'
+---------------
+A proxy was configured in the vite.config.ts file to redirect requests from the frontend to the backend origin.
+Example: localhost:5173/api/login -> localhost:8080/api/login.
+
+
+# Using Axios
+--------------
+Global error handling and global config for requests were set in the following path: 'services/httpConfig.ts'
