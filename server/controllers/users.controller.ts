@@ -2,25 +2,15 @@ import { Request, Response, NextFunction } from "express";
 import { User, Workspace } from "../generated/prisma";
 import { getWorkspaceByName, createWorkspace } from "../models/workspace.model";
 import { getUserByEmail, createUser } from "../models/users.model";
-import {
-  httpCodes,
-  userErrorsMsg,
-  workspaceErrorsMsg,
-} from "../utils/errorCodes.js";
+import { httpCodes, userErrorsMsg, workspaceErrorsMsg } from "../utils/errorCodes.js";
 import { AppError } from "../middleware/errorHandler.middleware";
 import { hashPassword, comparePassword } from "../utils/auth.helper";
-import {
-  generateAccessToken,
-  generateRefreshToken,
-} from "../utils/auth.helper";
+import { generateAccessToken, generateRefreshToken } from "../utils/auth.helper";
 import { validationResult } from "express-validator";
 import { SuccessResponse } from "../server.types";
+import { omitFields } from "../utils/data.helper";
 
-export const registerUser = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+export const registerUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const validation = validationResult(req);
 
@@ -30,8 +20,7 @@ export const registerUser = async (
       (error as any).errors = validation.array();
       throw error;
     } else {
-      const { firstName, lastName, email, password, role, phone }: User =
-        req.body.user;
+      const { firstName, lastName, email, password, role, phone }: User = req.body.user;
       const { name }: Workspace = req.body.workspace;
       const hashedPassword = await hashPassword(password);
       let _workspaceName = name.toLocaleLowerCase();
@@ -44,9 +33,7 @@ export const registerUser = async (
           .status(httpCodes.BAD_REQUEST)
           .json({ message: workspaceErrorsMsg.WORKSPACE_ALREADY_EXISTS });
       } else if (isUserExisting) {
-        res
-          .status(httpCodes.BAD_REQUEST)
-          .json({ message: userErrorsMsg.USER_ALREADY_EXISTS });
+        res.status(httpCodes.BAD_REQUEST).json({ message: userErrorsMsg.USER_ALREADY_EXISTS });
       } else {
         // If workspace and user do not exist, create a new user and workspace
         const user = await createUser({
@@ -66,10 +53,7 @@ export const registerUser = async (
             data: { user, workspace },
           });
         } else {
-          throw new AppError(
-            userErrorsMsg.INVALID_USER_DATA,
-            httpCodes.INTERNAL_SERVER_ERROR
-          );
+          throw new AppError(userErrorsMsg.INVALID_USER_DATA, httpCodes.INTERNAL_SERVER_ERROR);
         }
       }
     }
@@ -78,11 +62,7 @@ export const registerUser = async (
   }
 };
 
-export const loginUser = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+export const loginUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const validation = validationResult(req);
 
@@ -97,21 +77,12 @@ export const loginUser = async (
       // Check if user exists
       const user: User | null = await getUserByEmail(email);
       if (!user) {
-        throw new AppError(
-          userErrorsMsg.USER_NOT_FOUND,
-          httpCodes.UNAUTHORIZED
-        );
+        throw new AppError(userErrorsMsg.USER_NOT_FOUND, httpCodes.UNAUTHORIZED);
       } else {
         // Compare passwords
-        const isPasswordCorrect = await comparePassword(
-          password,
-          user.password
-        );
+        const isPasswordCorrect = await comparePassword(password, user.password);
         if (!isPasswordCorrect) {
-          throw new AppError(
-            userErrorsMsg.INCORRECT_PASSWORD,
-            httpCodes.UNAUTHORIZED
-          );
+          throw new AppError(userErrorsMsg.INCORRECT_PASSWORD, httpCodes.UNAUTHORIZED);
         }
 
         // If password is correct, create a payload with user data
@@ -132,10 +103,11 @@ export const loginUser = async (
           maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in ms
         });
         // If login is successful, return user data
+        const safeUser = omitFields(user, ["password"]);
         const successResponse: SuccessResponse = {
           success: true,
           message: "User logged in successfully",
-          data: { user, accessToken },
+          data: { user: safeUser, accessToken },
         };
         res.status(httpCodes.SUCCESS).json(successResponse);
       }
