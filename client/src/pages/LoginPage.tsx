@@ -12,8 +12,10 @@ import {
   Text,
 } from "@mantine/core";
 import api from "@/services/httpConfig";
+import { useNavigate } from "react-router-dom";
 
 const LoginPage = () => {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -27,7 +29,8 @@ const LoginPage = () => {
         password,
       });
       if (response.data.success) {
-        // handle success
+        // Redirect to home page
+        navigate("/home");
       }
     } catch (error) {
       // error is handled globally in httpConfig.ts
