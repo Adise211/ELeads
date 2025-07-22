@@ -1,11 +1,10 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-
-export type User = unknown; // TODO: Replace with the actual user type
+import type { UserDTO } from "../../../shared/types";
 
 type AuthState = {
-  user: User | null;
-  setUser: (user: User | null) => void;
+  user: UserDTO | null;
+  setUser: (user: UserDTO | null) => void;
   logout: () => void;
 };
 

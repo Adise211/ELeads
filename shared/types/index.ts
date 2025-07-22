@@ -1,5 +1,9 @@
 import { ActivityType, UserRole } from "./prisma-enums";
 
+// DTO stands for Data Transfer Object.
+// It is a simple object used to transfer data between different layers or parts of an application,
+// typically without any business logic.
+
 export type UserDTO = {
   id?: string;
   email: string;
