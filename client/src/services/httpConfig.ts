@@ -2,13 +2,13 @@ import axios from "axios";
 import { httpCodes } from "../../../shared/constants";
 import { showErrorToast } from "@/utils/toast";
 
-const request = axios.create({
+const api = axios.create({
   baseURL: import.meta.env.VITE_BACKEND_ORIGIN,
   withCredentials: true, // Allow cookies (important)
 });
 
 // Add a response interceptor
-request.interceptors.response.use(
+api.interceptors.response.use(
   (response) => response,
   (error) => {
     // Log the error
@@ -37,4 +37,4 @@ request.interceptors.response.use(
   }
 );
 
-export default request;
+export default api;

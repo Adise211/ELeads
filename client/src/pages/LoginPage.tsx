@@ -11,7 +11,7 @@ import {
   Title,
   Text,
 } from "@mantine/core";
-import request from "@/services/httpConfig";
+import api from "@/services/httpConfig";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
@@ -22,9 +22,13 @@ const LoginPage = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      const response = await request.post("/users/login", { email, password });
-      // if (response?.sucsses)
-      console.log(response);
+      const response = await api.post("/users/login", {
+        email,
+        password,
+      });
+      if (response.data.success) {
+        // handle success
+      }
     } catch (error) {
       // error is handled globally in httpConfig.ts
       console.error(error);
@@ -44,7 +48,7 @@ const LoginPage = () => {
         width: "100%",
       }}
     >
-      <Container size={600} style={{ width: "30%", height: "100%" }}>
+      <Container size={450} style={{ width: "100%", height: "100%" }}>
         <Paper
           withBorder
           shadow="md"
