@@ -1,5 +1,6 @@
 import axios from "axios";
 import { httpCodes } from "../../../shared/constants";
+import { showErrorToast } from "@/utils/toast";
 
 const request = axios.create({
   baseURL: import.meta.env.VITE_BACKEND_ORIGIN,
@@ -17,13 +18,15 @@ request.interceptors.response.use(
     if (error.response) {
       switch (error.response.status) {
         case httpCodes.UNAUTHORIZED:
-          // Optionally handle unauthorized globally
-          // e.g., redirect to login
+          showErrorToast("Unauthorized");
+          // redirect to login
+          window.location.href = "/login";
           break;
         case httpCodes.INTERNAL_SERVER_ERROR:
-          // Optionally handle server errors
+          showErrorToast("Internal Server Error");
           break;
         default:
+          showErrorToast("Something went wrong");
           break;
       }
     }
