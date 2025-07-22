@@ -7,3 +7,9 @@ Example: localhost:5173/api/login -> localhost:8080/api/login.
 # Using Axios
 --------------
 Global error handling and global config for requests were set in the following path: 'services/httpConfig.ts'
+
+
+
+# Http Global Error handling
+----------------------------
+HTTP errors are handled globally in httpConfig.ts - no need to handle them locally!

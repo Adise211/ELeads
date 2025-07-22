@@ -23,8 +23,10 @@ const LoginPage = () => {
     setLoading(true);
     try {
       const response = await request.post("/users/login", { email, password });
+      // if (response?.sucsses)
       console.log(response);
     } catch (error) {
+      // error is handled globally in httpConfig.ts
       console.error(error);
     } finally {
       setLoading(false);
