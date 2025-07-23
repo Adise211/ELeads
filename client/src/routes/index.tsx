@@ -4,6 +4,10 @@ import BlankLayout from "@/layouts/BlankLayout";
 import LoginPage from "@/pages/LoginPage";
 import HomePage from "@/pages/HomePage";
 import ProtectedRoute from "@/components/core/ProtectedRoute";
+import BillingPage from "@/pages/BillingPage";
+import ClientsPage from "@/pages/ClientsPage";
+import SettingsPage from "@/pages/SettingsPage";
+import LeadsPage from "@/pages/LeadsPage";
 
 export const router = createBrowserRouter([
   {
@@ -23,6 +27,42 @@ export const router = createBrowserRouter([
       </ProtectedRoute>
     ),
     children: [{ index: true, element: <HomePage /> }],
+  },
+  {
+    path: "/billing",
+    element: (
+      <ProtectedRoute>
+        <DefaultLayout />
+      </ProtectedRoute>
+    ),
+    children: [{ index: true, element: <BillingPage /> }],
+  },
+  {
+    path: "/clients",
+    element: (
+      <ProtectedRoute>
+        <DefaultLayout />
+      </ProtectedRoute>
+    ),
+    children: [{ index: true, element: <ClientsPage /> }],
+  },
+  {
+    path: "/settings",
+    element: (
+      <ProtectedRoute>
+        <DefaultLayout />
+      </ProtectedRoute>
+    ),
+    children: [{ index: true, element: <SettingsPage /> }],
+  },
+  {
+    path: "/leads",
+    element: (
+      <ProtectedRoute>
+        <DefaultLayout />
+      </ProtectedRoute>
+    ),
+    children: [{ index: true, element: <LeadsPage /> }],
   },
 ]);
 

@@ -22,15 +22,15 @@ import api from "@/services/httpConfig";
 import { useNavigate } from "react-router-dom";
 
 const data = [
-  { link: "", label: "Home", icon: IconHome },
-  { link: "", label: "Billing", icon: IconReciept },
-  { link: "", label: "Clients", icon: IconOffice },
-  { link: "", label: "Leads", icon: IconBriefcase },
-  { link: "", label: "Settings", icon: IconSettings },
+  { link: "/home", label: "Home", icon: IconHome },
+  { link: "/billing", label: "Billing", icon: IconReciept },
+  { link: "/clients", label: "Clients", icon: IconOffice },
+  { link: "/leads", label: "Leads", icon: IconBriefcase },
+  { link: "/settings", label: "Settings", icon: IconSettings },
 ];
 
 const Navbar = () => {
-  const [active, setActive] = useState("home");
+  const [active, setActive] = useState("Home");
   const navigate = useNavigate();
 
   const links = data.map((item) => (
@@ -42,6 +42,7 @@ const Navbar = () => {
       onClick={(event) => {
         event.preventDefault();
         setActive(item.label);
+        navigate(item.link); // This will change the route
       }}
     >
       {item.icon && <item.icon className={classes.linkIcon} />}
