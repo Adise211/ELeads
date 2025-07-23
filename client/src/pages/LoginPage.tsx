@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useState } from "react";
 import {
   TextInput,
@@ -19,6 +20,21 @@ const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    // check if user is logged in
+    // if user is logged in, redirect to home page
+    api
+      .get("/users/me")
+      .then((res) => {
+        if (res.data?.user) {
+          navigate("/home");
+        }
+      })
+      .catch(() => {
+        // Not logged in, do nothing
+      });
+  }, [navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

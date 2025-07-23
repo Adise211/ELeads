@@ -18,7 +18,7 @@ api.interceptors.response.use(
     if (error.response) {
       switch (error.response.status) {
         case httpCodes.UNAUTHORIZED:
-          showErrorToast("Unauthorized");
+          // showErrorToast("Unauthorized");
           // redirect to login
           break;
         case httpCodes.INTERNAL_SERVER_ERROR:
