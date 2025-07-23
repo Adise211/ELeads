@@ -93,15 +93,25 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
         // Generate access and refresh tokens
         const accessToken = generateAccessToken(payload);
         const refreshToken = generateRefreshToken(payload);
-        const cookieName = process.env.COOKIE_NAME_FOR_TOKEN as string;
+        const accessTokenCookieName = process.env.COOKIE_ACCESS_TOKEN_NAME as string;
+        const refreshTokenCookieName = process.env.COOKIE_REFRESH_TOKEN_NAME as string;
+
+        // set access token in cookie
+        res.cookie(accessTokenCookieName, accessToken, {
+          httpOnly: true, // accessible only by the web server
+          secure: process.env.NODE_ENV === "production", // HTTPS only in production
+          sameSite: "strict",
+          maxAge: 1 * 60 * 60 * 1000, // 1 hour in ms
+        });
 
         // set refresh token in cookie
-        res.cookie(cookieName, refreshToken, {
+        res.cookie(refreshTokenCookieName, refreshToken, {
           httpOnly: true, // accessible only by the web server
           secure: process.env.NODE_ENV === "production", // HTTPS only in production
           sameSite: "strict",
           maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in ms
         });
+
         // If login is successful
         const successResponse: SuccessResponse = {
           success: true,
@@ -117,7 +127,7 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
 
 export const getAuthenticatedUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const user = await getUserByEmail(req.body.email);
+    const user = await getUserByEmail((req as any).user.email);
     if (!user) {
       throw new AppError(userErrorsMsg.USER_NOT_FOUND, httpCodes.NOT_FOUND);
     } else {
@@ -131,8 +141,22 @@ export const getAuthenticatedUser = async (req: Request, res: Response, next: Ne
 
 export const logoutUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const cookieName = process.env.COOKIE_NAME_FOR_TOKEN as string;
-    res.clearCookie(cookieName);
+    const accessTokenCookieName = process.env.COOKIE_ACCESS_TOKEN_NAME as string;
+    const refreshTokenCookieName = process.env.COOKIE_REFRESH_TOKEN_NAME as string;
+
+    // clear access token cookie
+    res.clearCookie(accessTokenCookieName, {
+      httpOnly: true,
+      sameSite: "strict",
+      secure: process.env.NODE_ENV === "production",
+    });
+    // clear refresh token cookie
+    res.clearCookie(refreshTokenCookieName, {
+      httpOnly: true,
+      sameSite: "strict",
+      secure: process.env.NODE_ENV === "production",
+    });
+
     const successResponse: SuccessResponse = {
       success: true,
       message: "User logged out successfully",
