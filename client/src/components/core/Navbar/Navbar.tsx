@@ -18,6 +18,8 @@ import IconReciept from "@/assets/icons/IconReciept";
 import IconOffice from "@/assets/icons/IconOffice";
 import IconBriefcase from "@/assets/icons/IconBriefcase";
 import IconSettings from "@/assets/icons/IconSettings";
+import api from "@/services/httpConfig";
+import { useNavigate } from "react-router-dom";
 
 const data = [
   { link: "", label: "Home", icon: IconHome },
@@ -28,7 +30,8 @@ const data = [
 ];
 
 const Navbar = () => {
-  const [active, setActive] = useState("Billing");
+  const [active, setActive] = useState("home");
+  const navigate = useNavigate();
 
   const links = data.map((item) => (
     <a
@@ -46,6 +49,18 @@ const Navbar = () => {
     </a>
   ));
 
+  const logoutUser = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
+    api
+      .get("/users/logout")
+      .then(() => {
+        navigate("/login");
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  };
+
   return (
     <nav className={classes.navbar}>
       <div className={classes.navbarMain}>
@@ -62,7 +77,7 @@ const Navbar = () => {
           <span>Change account</span>
         </a> */}
 
-        <a href="#" className={classes.link} onClick={(event) => event.preventDefault()}>
+        <a href="#" className={classes.link} onClick={(event) => logoutUser(event)}>
           <IconLogout className={classes.linkIcon} stroke={1.5} />
           <span>Logout</span>
         </a>

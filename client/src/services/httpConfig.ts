@@ -20,7 +20,6 @@ api.interceptors.response.use(
         case httpCodes.UNAUTHORIZED:
           showErrorToast("Unauthorized");
           // redirect to login
-          window.location.href = "/login";
           break;
         case httpCodes.INTERNAL_SERVER_ERROR:
           showErrorToast("Internal Server Error");
