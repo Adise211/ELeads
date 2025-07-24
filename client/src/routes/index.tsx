@@ -8,6 +8,7 @@ import BillingPage from "@/pages/BillingPage";
 import ClientsPage from "@/pages/ClientsPage";
 import SettingsPage from "@/pages/SettingsPage";
 import LeadsPage from "@/pages/LeadsPage";
+import ErrorPage from "@/pages/ErrorPage";
 
 export const router = createBrowserRouter([
   {
@@ -63,6 +64,10 @@ export const router = createBrowserRouter([
       </ProtectedRoute>
     ),
     children: [{ index: true, element: <LeadsPage /> }],
+  },
+  {
+    path: "*",
+    element: <ErrorPage />,
   },
 ]);
 
