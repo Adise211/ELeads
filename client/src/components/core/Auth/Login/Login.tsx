@@ -43,6 +43,7 @@ export function Login({ loading, formProps, handleSubmit, errorMessage }: LoginP
             radius="md"
             {...formProps.getInputProps("password")}
           />
+          {/* TODO: Handle keep me logged in checkbox */}
           <Checkbox label="Keep me logged in" mt="xl" size="md" />
           <Button fullWidth mt="xl" size="md" radius="md" loading={loading} type="submit">
             Login
