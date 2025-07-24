@@ -1,6 +1,8 @@
 import IconExclamationTriangle from "@/assets/icons/IconExclamationTriangle";
 import { Alert } from "@mantine/core";
 import IconInfoCircle from "@/assets/icons/IconInfoCircle";
+import IconShieldExclamation from "@/assets/icons/IconShieldExclamation";
+import IconCheck from "@/assets/icons/IconCheck";
 
 interface AppAlertProps {
   title?: string;
@@ -13,7 +15,7 @@ const AppAlert = ({ title, message, type, icon }: AppAlertProps) => {
   const options = {
     success: {
       color: "green",
-      icon: <IconInfoCircle className="size-6" />, // or your success icon
+      icon: <IconCheck className="size-6" />,
     },
     error: {
       color: "red",
@@ -21,7 +23,7 @@ const AppAlert = ({ title, message, type, icon }: AppAlertProps) => {
     },
     warning: {
       color: "yellow",
-      icon: <IconExclamationTriangle className="size-6" />,
+      icon: <IconShieldExclamation className="size-6" />,
     },
     info: {
       color: "blue",
