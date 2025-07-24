@@ -9,6 +9,7 @@ import type { LoginFormValues } from "../../client.types";
 const LoginPage = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const formProps = useForm<LoginFormValues>({
     mode: "uncontrolled",
@@ -56,6 +57,7 @@ const LoginPage = () => {
     } catch (error) {
       if (error instanceof AxiosError) {
         console.error(error.response?.data.message);
+        setErrorMessage(error.response?.data.message);
       } else {
         console.error(error);
       }
@@ -64,7 +66,14 @@ const LoginPage = () => {
     }
   };
 
-  return <Login formProps={formProps} loading={loading} handleSubmit={handleSubmit} />;
+  return (
+    <Login
+      formProps={formProps}
+      loading={loading}
+      handleSubmit={handleSubmit}
+      errorMessage={errorMessage}
+    />
+  );
 };
 
 export default LoginPage;

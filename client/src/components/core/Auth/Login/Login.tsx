@@ -11,14 +11,16 @@ import {
 import classes from "./Login.module.css";
 import type { UseFormReturnType } from "@mantine/form";
 import type { LoginFormValues } from "@/../client.types";
+import AppAlert from "@/components/ui/AppAlert";
 
 type LoginProps = {
   formProps: UseFormReturnType<LoginFormValues>;
   loading: boolean;
   handleSubmit: (values: LoginFormValues) => void;
+  errorMessage: string;
 };
 
-export function Login({ loading, formProps, handleSubmit }: LoginProps) {
+export function Login({ loading, formProps, handleSubmit, errorMessage }: LoginProps) {
   return (
     <div className={classes.wrapper}>
       <Paper className={classes.form}>
@@ -46,13 +48,14 @@ export function Login({ loading, formProps, handleSubmit }: LoginProps) {
             Login
           </Button>
 
-          <Text ta="center" mt="md">
+          <Text ta="center" mt="md" mb="md">
             Don&apos;t have an account?{" "}
             <Anchor href="#" fw={500} onClick={(event) => event.preventDefault()}>
               Register
             </Anchor>
           </Text>
         </form>
+        {errorMessage && <AppAlert message={errorMessage} type="error" />}
       </Paper>
     </div>
   );
