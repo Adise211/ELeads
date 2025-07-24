@@ -3,12 +3,31 @@ import { useNavigate } from "react-router-dom";
 import api from "@/services/httpConfig";
 import Login from "@/components/core/Auth/Login/Login";
 import { AxiosError } from "axios";
+import { isEmail, isNotEmpty, hasLength, useForm } from "@mantine/form";
+import type { LoginFormValues } from "../../client.types";
 
 const LoginPage = () => {
   const navigate = useNavigate();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const formProps = useForm<LoginFormValues>({
+    mode: "uncontrolled",
+    initialValues: {
+      email: "",
+      password: "",
+    },
+    validate: {
+      email: (value) => {
+        return isNotEmpty("Email is required")(value) || isEmail("Invalid email")(value);
+      },
+      password: (value) => {
+        return (
+          isNotEmpty("Password is required")(value) ||
+          hasLength({ min: 6 }, "Password must be at least 6 characters long")(value)
+        );
+      },
+    },
+  });
 
   useEffect(() => {
     // check if user is logged in
@@ -24,10 +43,13 @@ const LoginPage = () => {
       });
   }, [navigate]);
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (values: typeof formProps.values) => {
     setLoading(true);
     try {
-      const response = await api.post("/users/login", { email, password });
+      const response = await api.post("/users/login", {
+        email: values.email,
+        password: values.password,
+      });
       if (response.data.success) {
         navigate("/home");
       }
@@ -42,16 +64,7 @@ const LoginPage = () => {
     }
   };
 
-  return (
-    <Login
-      email={email}
-      password={password}
-      loading={loading}
-      onEmailChange={setEmail}
-      onPasswordChange={setPassword}
-      onSubmit={handleSubmit}
-    />
-  );
+  return <Login formProps={formProps} loading={loading} handleSubmit={handleSubmit} />;
 };
 
 export default LoginPage;
