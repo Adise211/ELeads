@@ -19,7 +19,8 @@ import IconOffice from "@/assets/icons/IconOffice";
 import IconBriefcase from "@/assets/icons/IconBriefcase";
 import IconSettings from "@/assets/icons/IconSettings";
 import api from "@/services/httpConfig";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
+import { capitalizeFirstLetter } from "@/utils/utilFunc";
 
 const data = [
   { link: "/home", label: "Home", icon: IconHome },
@@ -30,7 +31,9 @@ const data = [
 ];
 
 const Navbar = () => {
-  const [active, setActive] = useState("Home");
+  const location = useLocation();
+  const currentPath = location.pathname.split("/")[1];
+  const [active, setActive] = useState(capitalizeFirstLetter(currentPath));
   const navigate = useNavigate();
 
   const links = data.map((item) => (
