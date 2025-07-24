@@ -1,8 +1,11 @@
 import { Button, Container, Group, Text, Title } from "@mantine/core";
 import Illustration from "@/assets/icons/Illustration";
 import classes from "./NothingFoundBg.module.css";
+import { useNavigate } from "react-router-dom";
 
 const NothingFoundBg = () => {
+  const navigate = useNavigate();
+
   return (
     <Container className={`${classes.root} ${classes.fullScreen}`}>
       <div className={classes.inner}>
@@ -14,7 +17,9 @@ const NothingFoundBg = () => {
             page has been moved to another URL. If you think this is an error contact support.
           </Text>
           <Group justify="center">
-            <Button size="md">Take me back to home page</Button>
+            <Button size="md" onClick={() => navigate("/home")}>
+              Take me back to home page
+            </Button>
           </Group>
         </div>
       </div>
