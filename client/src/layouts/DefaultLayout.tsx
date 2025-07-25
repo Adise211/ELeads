@@ -1,23 +1,45 @@
 import Navbar from "@/components/core/Navbar/Navbar";
+import TopMenu from "@/components/core/TopMenu/TopMenu";
+import { Layout } from "antd";
 import { Outlet } from "react-router-dom";
+
+const { Sider, Header, Content } = Layout;
 
 const DefaultLayout = () => {
   return (
-    <div style={{ height: "100vh", width: "100vw", display: "flex" }}>
-      <Navbar />
-      <div
-        className="main-content"
+    <Layout style={{ height: "100vh", width: "100vw" }}>
+      <Sider
+        width={300}
         style={{
-          width: "100%",
-          height: "100%",
-          padding: "50px",
-          overflow: "auto",
-          background: "var(--mantine-color-gray-0)",
+          background: "#fff",
+          borderRight: "1px solid #f0f0f0",
         }}
       >
-        <Outlet />
-      </div>
-    </div>
+        <Navbar />
+      </Sider>
+      <Layout>
+        <Header
+          style={{
+            background: "#fff",
+            borderBottom: "1px solid #f0f0f0",
+            padding: 0,
+            height: "64px",
+            lineHeight: "64px",
+          }}
+        >
+          <TopMenu />
+        </Header>
+        <Content
+          style={{
+            padding: "24px",
+            overflow: "auto",
+            background: "#f8f9fa",
+          }}
+        >
+          <Outlet />
+        </Content>
+      </Layout>
+    </Layout>
   );
 };
 

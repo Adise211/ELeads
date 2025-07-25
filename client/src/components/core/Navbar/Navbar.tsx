@@ -1,34 +1,21 @@
 import { useState } from "react";
-// import {
-//   Icon2fa,
-//   IconBellRinging,
-//   IconDatabaseImport,
-//   IconFingerprint,
-//   IconKey,
-//   IconLogout,
-//   IconReceipt2,
-//   IconSettings,
-//   IconSwitchHorizontal,
-// } from "@tabler/icons-react";
-import { Flex, Code } from "@radix-ui/themes";
-import classes from "./Navbar.module.css";
-import IconLogout from "@/assets/icons/IconLogout";
-import IconHome from "@/assets/icons/IconHome";
-import IconReciept from "@/assets/icons/IconReciept";
-import IconOffice from "@/assets/icons/IconOffice";
-import IconBriefcase from "@/assets/icons/IconBriefcase";
-import IconSettings from "@/assets/icons/IconSettings";
-import api from "@/services/httpConfig";
+import { Menu, Typography } from "antd";
+import type { MenuProps } from "antd";
+import {
+  HomeOutlined,
+  UserOutlined,
+  TeamOutlined,
+  SettingOutlined,
+  LogoutOutlined,
+  FileTextOutlined,
+} from "@ant-design/icons";
 import { useNavigate, useLocation } from "react-router-dom";
 import { capitalizeFirstLetter } from "@/utils/utilFunc";
+import api from "@/services/httpConfig";
 
-const data = [
-  { link: "/home", label: "Home", icon: IconHome },
-  { link: "/billing", label: "Billing", icon: IconReciept },
-  { link: "/clients", label: "Clients", icon: IconOffice },
-  { link: "/leads", label: "Leads", icon: IconBriefcase },
-  { link: "/settings", label: "Settings", icon: IconSettings },
-];
+const { Title } = Typography;
+
+type MenuItem = Required<MenuProps>["items"][number];
 
 const Navbar = () => {
   const location = useLocation();
@@ -36,25 +23,55 @@ const Navbar = () => {
   const [active, setActive] = useState(capitalizeFirstLetter(currentPath));
   const navigate = useNavigate();
 
-  const links = data.map((item) => (
-    <a
-      className={classes.link}
-      data-active={item.label === active || undefined}
-      href={item.link}
-      key={item.label}
-      onClick={(event) => {
-        event.preventDefault();
-        setActive(item.label);
-        navigate(item.link); // This will change the route
-      }}
-    >
-      {item.icon && <item.icon className={classes.linkIcon} />}
-      <span>{item.label}</span>
-    </a>
-  ));
+  const navItems: MenuItem[] = [
+    {
+      key: "home",
+      label: "Home",
+      icon: <HomeOutlined />,
+    },
+    {
+      key: "billing",
+      label: "Billing",
+      icon: <FileTextOutlined />,
+    },
+    {
+      key: "clients",
+      label: "Clients",
+      icon: <UserOutlined />,
+    },
+    {
+      key: "leads",
+      label: "Leads",
+      icon: <TeamOutlined />,
+    },
+    {
+      key: "settings",
+      label: "Settings",
+      icon: <SettingOutlined />,
+    },
+  ];
 
-  const logoutUser = (event: React.MouseEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
+  const logoutItem: MenuItem[] = [
+    {
+      type: "divider",
+    },
+    {
+      key: "logout",
+      label: "Logout",
+      icon: <LogoutOutlined />,
+    },
+  ];
+
+  const handleMenuClick: MenuProps["onClick"] = (e) => {
+    if (e.key === "logout") {
+      logoutUser();
+    } else {
+      setActive(e.key);
+      navigate(`/${e.key}`);
+    }
+  };
+
+  const logoutUser = () => {
     api
       .get("/users/logout")
       .then(() => {
@@ -66,21 +83,38 @@ const Navbar = () => {
   };
 
   return (
-    <nav className={classes.navbar}>
-      <div className={classes.navbarMain}>
-        <Flex className={classes.header} justify="between">
-          <Code weight="bold">v3.1.2</Code>
-        </Flex>
-        {links}
+    <div style={{ height: "100%", display: "flex", flexDirection: "column" }}>
+      <div style={{ padding: "18px", textAlign: "center", borderBottom: "1px solid #f0f0f0" }}>
+        <Title level={4} style={{ margin: 0, color: "#1677ff" }}>
+          EdgarLeads
+        </Title>
       </div>
 
-      <div className={classes.footer}>
-        <a href="#" className={classes.link} onClick={(event) => logoutUser(event)}>
-          <IconLogout className={classes.linkIcon} stroke={1.5} />
-          <span>Logout</span>
-        </a>
+      <div
+        style={{
+          flex: 1,
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "space-between",
+        }}
+      >
+        <Menu
+          mode="inline"
+          selectedKeys={[active.toLowerCase()]}
+          items={navItems}
+          onClick={handleMenuClick}
+          style={{ borderRight: 0, flex: 1 }}
+        />
+
+        <Menu
+          mode="inline"
+          items={logoutItem}
+          onClick={handleMenuClick}
+          style={{ borderRight: 0, marginBottom: 0 }}
+          selectable={false}
+        />
       </div>
-    </nav>
+    </div>
   );
 };
 
