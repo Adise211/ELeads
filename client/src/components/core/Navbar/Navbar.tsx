@@ -10,7 +10,7 @@ import { useState } from "react";
 //   IconSettings,
 //   IconSwitchHorizontal,
 // } from "@tabler/icons-react";
-import { Code, Group } from "@mantine/core";
+import { Flex, Code } from "@radix-ui/themes";
 import classes from "./Navbar.module.css";
 import IconLogout from "@/assets/icons/IconLogout";
 import IconHome from "@/assets/icons/IconHome";
@@ -68,19 +68,13 @@ const Navbar = () => {
   return (
     <nav className={classes.navbar}>
       <div className={classes.navbarMain}>
-        <Group className={classes.header} justify="space-between">
-          {/* <MantineLogo size={28} /> */}
-          <Code fw={700}>v3.1.2</Code>
-        </Group>
+        <Flex className={classes.header} justify="between">
+          <Code weight="bold">v3.1.2</Code>
+        </Flex>
         {links}
       </div>
 
       <div className={classes.footer}>
-        {/* <a href="#" className={classes.link} onClick={(event) => event.preventDefault()}>
-          <IconSwitchHorizontal className={classes.linkIcon} stroke={1.5} />
-          <span>Change account</span>
-        </a> */}
-
         <a href="#" className={classes.link} onClick={(event) => logoutUser(event)}>
           <IconLogout className={classes.linkIcon} stroke={1.5} />
           <span>Logout</span>
