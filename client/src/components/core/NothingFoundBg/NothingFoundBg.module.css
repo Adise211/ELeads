@@ -48,4 +48,13 @@
   margin: auto;
   margin-top: var(--mantine-spacing-xl);
   margin-bottom: calc(var(--mantine-spacing-xl) * 1.5);
+  text-align: center;
+  color: #868e96;
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 1.5;
+  letter-spacing: 0.02em;
+  text-align: center;
+  text-wrap: balance;
+  text-wrap: balance;
 }
