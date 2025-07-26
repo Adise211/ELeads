@@ -15,7 +15,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
       .then((response) => {
         // user is authorized
         setIsAuthorized(true);
-        setUser(response.data.data?.user || null);
+        setUser(response.data.user || null);
       })
       .catch(() => {
         // user is not authorized
