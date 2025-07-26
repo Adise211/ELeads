@@ -8,7 +8,7 @@ import type { LoginFormValues } from "@/../client.types";
 // import { Alert, AlertTitle } from "@/components/ui/alert";
 // import IconExclamationTriangle from "@/assets/icons/IconExclamationTriangle";
 // import { OctagonAlert } from "lucide-react";
-import AppAlert from "@/components/ui/AppAlert";
+import AppAlert from "@/components/ui/app-alert";
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 
