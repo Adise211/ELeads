@@ -1,7 +1,8 @@
-import { Flex, Button } from "@radix-ui/themes";
+import { Flex } from "@radix-ui/themes";
 import Illustration from "@/assets/icons/Illustration";
 import classes from "./NothingFoundBg.module.css";
 import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 
 const NothingFoundBg = () => {
   const navigate = useNavigate();
@@ -17,7 +18,7 @@ const NothingFoundBg = () => {
             page has been moved to another URL. If you think this is an error contact support.
           </div>
           <Flex justify="center">
-            <Button size="3" onClick={() => navigate("/home")}>
+            <Button size="lg" onClick={() => navigate("/home")}>
               Take me back to home page
             </Button>
           </Flex>
