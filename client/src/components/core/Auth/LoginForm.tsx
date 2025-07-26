@@ -2,6 +2,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { ButtonIcon } from "@/components/ui/button-icon";
 import type { UseFormReturnType } from "@mantine/form";
 import type { LoginFormValues } from "@/../client.types";
 // import { Alert, AlertTitle } from "@/components/ui/alert";
@@ -57,23 +58,19 @@ const LoginForm = ({
               Forgot your password?
             </a>
           </div>
-          <div className="relative">
-            <Input
-              id="password"
-              type={showPassword ? "text" : "password"}
-              {...formProps.getInputProps("password")}
-            />
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-              onClick={() => setShowPassword(!showPassword)}
-            >
-              {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              <span className="sr-only">{showPassword ? "Hide password" : "Show password"}</span>
-            </Button>
-          </div>
+          <Input
+            id="password"
+            type={showPassword ? "text" : "password"}
+            icon={
+              <ButtonIcon
+                type="button"
+                icon={showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                onClick={() => setShowPassword(!showPassword)}
+                className="size-6"
+              />
+            }
+            {...formProps.getInputProps("password")}
+          />
         </div>
         <Button type="submit" className="w-full" disabled={loading}>
           Login
