@@ -1,8 +1,8 @@
 import IconExclamationTriangle from "@/assets/icons/IconExclamationTriangle";
-import { Alert } from "@mantine/core";
 import IconInfoCircle from "@/assets/icons/IconInfoCircle";
 import IconShieldExclamation from "@/assets/icons/IconShieldExclamation";
 import IconCheck from "@/assets/icons/IconCheck";
+import { Callout } from "@radix-ui/themes";
 
 interface AppAlertProps {
   title?: string;
@@ -32,9 +32,11 @@ const AppAlert = ({ title, message, type, icon }: AppAlertProps) => {
   };
 
   return (
-    <Alert title={title} color={options[type].color} icon={options[type].icon || icon}>
-      {message}
-    </Alert>
+    <Callout.Root color={options[type].color as "green" | "red" | "yellow" | "blue"}>
+      <Callout.Icon>{icon ?? options[type].icon}</Callout.Icon>
+      {title && <div className="font-semibold mb-1">{title}</div>}
+      <Callout.Text>{message}</Callout.Text>
+    </Callout.Root>
   );
 };
 

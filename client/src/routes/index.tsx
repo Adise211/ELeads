@@ -3,7 +3,7 @@ import DefaultLayout from "@/layouts/DefaultLayout";
 import BlankLayout from "@/layouts/BlankLayout";
 import LoginPage from "@/pages/LoginPage";
 import HomePage from "@/pages/HomePage";
-import ProtectedRoute from "@/components/core/ProtectedRoute";
+import ProtectedRoute from "@/components/providers/ProtectedRoute";
 import BillingPage from "@/pages/BillingPage";
 import ClientsPage from "@/pages/ClientsPage";
 import SettingsPage from "@/pages/SettingsPage";
