@@ -8,6 +8,8 @@ import type { LoginFormValues } from "@/../client.types";
 // import IconExclamationTriangle from "@/assets/icons/IconExclamationTriangle";
 // import { OctagonAlert } from "lucide-react";
 import AppAlert from "@/components/ui/AppAlert";
+import { useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
 
 interface LoginFormProps extends React.ComponentProps<"form"> {
   formProps: UseFormReturnType<LoginFormValues>;
@@ -24,6 +26,8 @@ const LoginForm = ({
   errorMessage,
   ...props
 }: LoginFormProps) => {
+  const [showPassword, setShowPassword] = useState(false);
+
   return (
     <form
       className={cn("flex flex-col gap-6", className)}
@@ -43,7 +47,6 @@ const LoginForm = ({
             id="email"
             type="email"
             placeholder="me@example.com"
-            required
             {...formProps.getInputProps("email")}
           />
         </div>
@@ -54,7 +57,23 @@ const LoginForm = ({
               Forgot your password?
             </a>
           </div>
-          <Input id="password" type="password" required {...formProps.getInputProps("password")} />
+          <div className="relative">
+            <Input
+              id="password"
+              type={showPassword ? "text" : "password"}
+              {...formProps.getInputProps("password")}
+            />
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              <span className="sr-only">{showPassword ? "Hide password" : "Show password"}</span>
+            </Button>
+          </div>
         </div>
         <Button type="submit" className="w-full" disabled={loading}>
           Login
