@@ -14,17 +14,11 @@
   align-items: center;
 }
 
-.actionsContainer {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
 .notificationIcon {
-  font-size: 20px;
+  font-size: 18px;
   color: #666;
   cursor: pointer;
-  padding: 8px;
+  padding: 6px;
   border-radius: 4px;
   display: flex;
   align-items: center;
@@ -39,4 +33,9 @@
 .userAvatar {
   cursor: pointer;
   background-color: #1677ff;
+  transition: transform 0.2s ease;
+}
+
+.userAvatar:hover {
+  transform: scale(1.05);
 }
