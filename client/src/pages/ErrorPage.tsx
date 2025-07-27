@@ -1,4 +1,4 @@
-import NothingFoundBg from "@/components/core/NothingFoundBg/NothingFoundBg";
+import NothingFoundBg from "@/components/core/NothingFoundBg";
 
 const ErrorPage = () => {
   return <NothingFoundBg />;
