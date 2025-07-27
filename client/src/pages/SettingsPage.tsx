@@ -163,7 +163,7 @@ const TestPage = () => {
         </Card>
 
         {/* Lower Card - Tabbed Settings */}
-        <Card className="shadow-elegant border-border/50 overflow-hidden h-[600px]">
+        <Card className="shadow-elegant border-border/50 overflow-hidden h-[520px]">
           <Tabs defaultValue="account" className="w-full h-full">
             <div className="px-6 pt-6">
               <TabsList className="grid w-full grid-cols-4 bg-muted/50">
