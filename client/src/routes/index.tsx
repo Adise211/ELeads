@@ -9,6 +9,7 @@ import ClientsPage from "@/pages/ClientsPage";
 import SettingsPage from "@/pages/SettingsPage";
 import LeadsPage from "@/pages/LeadsPage";
 import ErrorPage from "@/pages/ErrorPage";
+import SignupPage from "@/pages/SignupPage";
 
 export const router = createBrowserRouter([
   {
@@ -19,6 +20,11 @@ export const router = createBrowserRouter([
     path: "/login",
     element: <BlankLayout />,
     children: [{ index: true, element: <LoginPage /> }],
+  },
+  {
+    path: "/signup",
+    element: <BlankLayout />,
+    children: [{ index: true, element: <SignupPage /> }],
   },
   {
     path: "/home",
