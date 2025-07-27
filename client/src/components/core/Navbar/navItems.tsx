@@ -14,12 +14,15 @@ import { useAuthStore } from "@/stores/authStore";
 
 export const useNavItems = () => {
   const user = useAuthStore((state) => state.user);
+  const firstName = user?.firstName || "Guest";
+  const lastName = user?.lastName || "Guest";
+  const placeholderAvatar = `https://ui-avatars.com/api/?name=${firstName}+${lastName}`;
 
   const navItems = {
     user: {
-      name: user?.firstName + " " + user?.lastName || "Guest",
+      name: firstName + " " + lastName,
       email: user?.email || "guest@example.com",
-      avatar: user?.avatarUrl || "https://ui-avatars.com/api/?name=John+Doe",
+      avatar: user?.avatarUrl || placeholderAvatar,
     },
     navMain: [
       {
