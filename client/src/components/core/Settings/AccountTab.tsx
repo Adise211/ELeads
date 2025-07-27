@@ -4,25 +4,11 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Mail, Phone, Lock, Save } from "lucide-react";
 import { showSuccessToast } from "@/utils/toast";
-
-interface User {
-  id: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  role: string;
-  avatarUrl: string;
-  isActive: boolean;
-  phone: string;
-  workspaceId: string;
-  permissions: string[];
-  createdAt: Date;
-  updatedAt: Date;
-}
+import type { UserDTO } from "../../../../../shared/types/index";
 
 interface AccountTabProps {
-  user: User;
-  setUser: (user: User) => void;
+  user: UserDTO;
+  setUser: (user: UserDTO) => void;
   isLoading: boolean;
   setIsLoading: (loading: boolean) => void;
 }

@@ -11,23 +11,25 @@ import {
   NotificationsTab,
   PreferenceTab,
 } from "@/components/core/Settings";
+import { useAuthStore } from "@/stores/authStore";
+import type { UserDTO } from "../../../shared/types";
 
 // Mock data - replace with actual API calls
-const mockUser = {
-  id: "user-123",
-  email: "john.doe@company.com",
-  firstName: "John",
-  lastName: "Doe",
-  role: "ADMIN",
-  avatarUrl:
-    "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
-  isActive: true,
-  phone: "+1 (555) 123-4567",
-  workspaceId: "workspace-456",
-  permissions: ["read:users", "write:users", "admin:workspace"],
-  createdAt: new Date("2024-01-15"),
-  updatedAt: new Date("2024-01-20"),
-};
+// const mockUser = {
+//   id: "user-123",
+//   email: "john.doe@company.com",
+//   firstName: "John",
+//   lastName: "Doe",
+//   role: "ADMIN",
+//   avatarUrl:
+//     "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
+//   isActive: true,
+//   phone: "+1 (555) 123-4567",
+//   workspaceId: "workspace-456",
+//   permissions: ["read:users", "write:users", "admin:workspace"],
+//   createdAt: new Date("2024-01-15"),
+//   updatedAt: new Date("2024-01-20"),
+// };
 
 // const mockWorkspace = {
 //   id: "workspace-456",
@@ -70,7 +72,8 @@ const mockWorkspaceUsers = [
 ];
 
 const TestPage = () => {
-  const [user, setUser] = useState(mockUser);
+  const { user, setUser } = useAuthStore();
+
   // const [workspace, setWorkspace] = useState(mockWorkspace);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -112,10 +115,13 @@ const TestPage = () => {
             <div className="flex items-center gap-6">
               <div className="relative">
                 <Avatar className="h-20 w-20 border-4 border-primary/20">
-                  <AvatarImage src={user.avatarUrl} alt={`${user.firstName} ${user.lastName}`} />
+                  <AvatarImage
+                    src={`https://ui-avatars.com/api/?name=${user?.firstName}+${user?.lastName}`}
+                    alt={`${user?.firstName} ${user?.lastName}`}
+                  />
                   <AvatarFallback className="text-lg bg-gradient-primary text-primary-foreground">
-                    {user.firstName[0]}
-                    {user.lastName[0]}
+                    {user?.firstName[0]}
+                    {user?.lastName[0]}
                   </AvatarFallback>
                 </Avatar>
                 <Button
@@ -129,22 +135,26 @@ const TestPage = () => {
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-2">
                   <h2 className="text-2xl font-bold">
-                    {user.firstName} {user.lastName}
+                    {user?.firstName} {user?.lastName}
                   </h2>
-                  <Badge variant="secondary">{user.role}</Badge>
+                  <Badge variant="secondary">{user?.role}</Badge>
                 </div>
                 <div className="flex items-center gap-2 text-muted-foreground mb-1">
                   <Mail className="h-4 w-4" />
-                  <span>{user.email}</span>
+                  <span>{user?.email}</span>
                 </div>
                 <div className="grid grid-cols-2 gap-4 mt-4 text-sm">
                   <div>
                     <span className="text-muted-foreground">Member Since:</span>
-                    <p className="font-medium">{user.createdAt.toLocaleDateString()}</p>
+                    <p className="font-medium">
+                      {new Date(user?.createdAt || "").toLocaleDateString()}
+                    </p>
                   </div>
                   <div>
                     <span className="text-muted-foreground">Last Update:</span>
-                    <p className="font-medium">{user.updatedAt.toLocaleDateString()}</p>
+                    <p className="font-medium">
+                      {new Date(user?.updatedAt || "").toLocaleDateString()}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -182,7 +192,7 @@ const TestPage = () => {
               className="px-6 pb-6 space-y-6 h-[calc(600px-120px)] overflow-y-auto"
             >
               <AccountTab
-                user={user}
+                user={user as UserDTO}
                 setUser={setUser}
                 isLoading={isLoading}
                 setIsLoading={setIsLoading}
