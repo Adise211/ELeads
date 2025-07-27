@@ -1,22 +1,16 @@
-import {
-  LifeBuoy,
-  Map,
-  PieChart,
-  Send,
-  Settings,
-  Frame,
-  Home,
-  Users,
-  BriefcaseBusiness,
-  Receipt,
-} from "lucide-react";
+import { LifeBuoy, Send, Settings, Home, Users, BriefcaseBusiness, Receipt } from "lucide-react";
 import { useAuthStore } from "@/stores/authStore";
+import { useLocation } from "react-router-dom";
 
 export const useNavItems = () => {
   const user = useAuthStore((state) => state.user);
   const firstName = user?.firstName || "Guest";
   const lastName = user?.lastName || "Guest";
   const placeholderAvatar = `https://ui-avatars.com/api/?name=${firstName}+${lastName}`;
+  const location = useLocation();
+  const setIsActive = (url: string) => {
+    return location.pathname === url;
+  };
 
   const navItems = {
     user: {
@@ -29,27 +23,31 @@ export const useNavItems = () => {
         title: "Home",
         url: "/home",
         icon: Home,
-        isActive: true,
+        isActive: setIsActive("/home"),
       },
       {
         title: "Clients",
         url: "/clients",
         icon: Users,
+        isActive: setIsActive("/clients"),
       },
       {
         title: "Leads",
         url: "/leads",
         icon: BriefcaseBusiness,
+        isActive: setIsActive("/leads"),
       },
       {
         title: "Billing",
         url: "/billing",
         icon: Receipt,
+        isActive: setIsActive("/billing"),
       },
       {
         title: "Settings",
         url: "/settings",
         icon: Settings,
+        isActive: setIsActive("/settings"),
       },
     ],
     navSecondary: [
@@ -57,28 +55,13 @@ export const useNavItems = () => {
         title: "Support",
         url: "#",
         icon: LifeBuoy,
+        isActive: setIsActive("/support"),
       },
       {
         title: "Feedback",
         url: "#",
         icon: Send,
-      },
-    ],
-    projects: [
-      {
-        name: "Design Engineering",
-        url: "#",
-        icon: Frame,
-      },
-      {
-        name: "Sales & Marketing",
-        url: "#",
-        icon: PieChart,
-      },
-      {
-        name: "Travel",
-        url: "#",
-        icon: Map,
+        isActive: setIsActive("/feedback"),
       },
     ],
   };
