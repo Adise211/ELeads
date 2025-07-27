@@ -1,322 +1,222 @@
+import { useState } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Camera, User, Shield, Bell, Palette, Mail } from "lucide-react";
 import {
-  Container,
-  Card,
-  Avatar,
-  Text,
-  Group,
-  Badge,
-  Tabs,
-  Grid,
-  Stack,
-  Button,
-  TextInput,
-  Select,
-  Switch,
-  Divider,
-} from "@mantine/core";
+  AccountTab,
+  PermissionsTab,
+  NotificationsTab,
+  PreferenceTab,
+} from "@/components/core/Settings";
 
-// Mock user data
+// Mock data - replace with actual API calls
 const mockUser = {
-  name: "John Doe",
+  id: "user-123",
   email: "john.doe@company.com",
-  role: "Admin",
-  memberSince: "January 2022",
-  lastUpdated: "2 hours ago",
-  avatar:
-    "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=400&h=400&fit=crop&crop=face",
+  firstName: "John",
+  lastName: "Doe",
+  role: "ADMIN",
+  avatarUrl:
+    "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
+  isActive: true,
+  phone: "+1 (555) 123-4567",
+  workspaceId: "workspace-456",
+  permissions: ["read:users", "write:users", "admin:workspace"],
+  createdAt: new Date("2024-01-15"),
+  updatedAt: new Date("2024-01-20"),
 };
 
-const SettingsPage = () => {
+// const mockWorkspace = {
+//   id: "workspace-456",
+//   name: "Acme Corporation",
+//   createdAt: new Date("2024-01-01"),
+//   updatedAt: new Date("2024-01-20"),
+// };
+
+const mockWorkspaceUsers = [
+  {
+    id: "user-123",
+    email: "john.doe@company.com",
+    firstName: "John",
+    lastName: "Doe",
+    role: "ADMIN",
+    avatarUrl:
+      "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
+    permissions: ["read:users", "write:users", "admin:workspace"],
+  },
+  {
+    id: "user-124",
+    email: "jane.smith@company.com",
+    firstName: "Jane",
+    lastName: "Smith",
+    role: "USER",
+    avatarUrl:
+      "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face",
+    permissions: ["read:users"],
+  },
+  {
+    id: "user-125",
+    email: "mike.wilson@company.com",
+    firstName: "Mike",
+    lastName: "Wilson",
+    role: "MANAGER",
+    avatarUrl:
+      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
+    permissions: ["read:users", "write:users"],
+  },
+];
+
+const TestPage = () => {
+  const [user, setUser] = useState(mockUser);
+  // const [workspace, setWorkspace] = useState(mockWorkspace);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // const handleSaveWorkspace = async () => {
+  //   setIsLoading(true);
+  //   // Simulate API call
+  //   setTimeout(() => {
+  //     setIsLoading(false);
+  //     showSuccessToast("Workspace settings have been successfully updated.");
+  //   }, 1000);
+  // };
+
+  // const handlePasswordChange = async () => {
+  //   setIsLoading(true);
+  //   // Simulate API call
+  //   setTimeout(() => {
+  //     setIsLoading(false);
+  //     showSuccessToast("Your password has been successfully changed.");
+  //   }, 1000);
+  // };
+
   return (
-    <div className="min-h-[calc(100vh-3rem)] bg-gray-50">
-      <Container size="md" py="xl">
-        <Stack gap="xl">
-          {/* User Info Card */}
-          <Card shadow="sm" padding="lg" radius="md" withBorder>
-            <Group justify="space-between" mb="md">
-              <Text size="lg" fw={600}>
-                User Information
-              </Text>
-              <Button variant="light" size="sm">
-                Edit Profile
-              </Button>
-            </Group>
+    <div className="min-h-screen bg-gradient-subtle p-6">
+      <div className="max-w-4xl mx-auto space-y-6">
+        {/* Header */}
+        {/* <div className="flex items-center gap-3 mb-8">
+          <div className="p-2 bg-gradient-primary rounded-lg shadow-glow">
+            <SettingsIcon className="h-6 w-6 text-primary-foreground" />
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold text-foreground">Settings</h1>
+            <p className="text-muted-foreground">Manage your account and workspace preferences</p>
+          </div>
+        </div> */}
 
-            <Grid>
-              <Grid.Col span={{ base: 12, sm: 4 }}>
-                <Stack align="center" gap="sm">
-                  <Avatar src={mockUser.avatar} size={120} radius="md" />
-                  <Badge color="blue" variant="light">
-                    {mockUser.role}
-                  </Badge>
-                </Stack>
-              </Grid.Col>
-
-              <Grid.Col span={{ base: 12, sm: 8 }}>
-                <Stack gap="md">
-                  <Group>
-                    <div>
-                      <Text size="sm" c="dimmed">
-                        Full Name
-                      </Text>
-                      <Text fw={500}>{mockUser.name}</Text>
-                    </div>
-                  </Group>
-
-                  <Group>
-                    <div>
-                      <Text size="sm" c="dimmed">
-                        Email Address
-                      </Text>
-                      <Text fw={500}>{mockUser.email}</Text>
-                    </div>
-                  </Group>
-
-                  <Group>
-                    <div>
-                      <Text size="sm" c="dimmed">
-                        Member Since
-                      </Text>
-                      <Text fw={500}>{mockUser.memberSince}</Text>
-                    </div>
-                  </Group>
-
-                  <Group>
-                    <div>
-                      <Text size="sm" c="dimmed">
-                        Last Updated
-                      </Text>
-                      <Text fw={500}>{mockUser.lastUpdated}</Text>
-                    </div>
-                  </Group>
-                </Stack>
-              </Grid.Col>
-            </Grid>
-          </Card>
-
-          {/* Settings Card with Tabs */}
-          <Card shadow="sm" padding="lg" radius="md" withBorder>
-            <Tabs defaultValue="account">
-              <Tabs.List>
-                <Tabs.Tab value="account">Account</Tabs.Tab>
-                <Tabs.Tab value="permissions">Permissions</Tabs.Tab>
-                <Tabs.Tab value="notifications">Notifications</Tabs.Tab>
-              </Tabs.List>
-
-              <Tabs.Panel value="account" pt="xl">
-                <Stack gap="md">
-                  <Text size="lg" fw={600} mb="md">
-                    Account Settings
-                  </Text>
-
-                  <Grid>
-                    <Grid.Col span={{ base: 12, sm: 6 }}>
-                      <TextInput
-                        label="First Name"
-                        placeholder="Enter your first name"
-                        defaultValue="John"
-                      />
-                    </Grid.Col>
-                    <Grid.Col span={{ base: 12, sm: 6 }}>
-                      <TextInput
-                        label="Last Name"
-                        placeholder="Enter your last name"
-                        defaultValue="Doe"
-                      />
-                    </Grid.Col>
-                  </Grid>
-
-                  <TextInput
-                    label="Email Address"
-                    placeholder="Enter your email"
-                    defaultValue={mockUser.email}
-                  />
-
-                  <Select
-                    label="Time Zone"
-                    placeholder="Select your time zone"
-                    data={[
-                      "UTC-8 (Pacific Time)",
-                      "UTC-5 (Eastern Time)",
-                      "UTC+0 (Greenwich Mean Time)",
-                      "UTC+1 (Central European Time)",
-                    ]}
-                    defaultValue="UTC-5 (Eastern Time)"
-                  />
-
-                  <Select
-                    label="Language"
-                    placeholder="Select your language"
-                    data={["English", "Spanish", "French", "German", "Italian"]}
-                    defaultValue="English"
-                  />
-
-                  <Group justify="flex-end" pt="md">
-                    <Button variant="outline">Cancel</Button>
-                    <Button>Save Changes</Button>
-                  </Group>
-                </Stack>
-              </Tabs.Panel>
-
-              <Tabs.Panel value="permissions" pt="xl">
-                <Stack gap="md">
-                  <Text size="lg" fw={600} mb="md">
-                    User Permissions
-                  </Text>
-
-                  <Card withBorder p="md">
-                    <Group justify="space-between">
-                      <div>
-                        <Text fw={500}>Admin Access</Text>
-                        <Text size="sm" c="dimmed">
-                          Full system administration rights
-                        </Text>
-                      </div>
-                      <Switch defaultChecked />
-                    </Group>
-                  </Card>
-
-                  <Card withBorder p="md">
-                    <Group justify="space-between">
-                      <div>
-                        <Text fw={500}>User Management</Text>
-                        <Text size="sm" c="dimmed">
-                          Create, edit, and delete user accounts
-                        </Text>
-                      </div>
-                      <Switch defaultChecked />
-                    </Group>
-                  </Card>
-
-                  <Card withBorder p="md">
-                    <Group justify="space-between">
-                      <div>
-                        <Text fw={500}>Content Management</Text>
-                        <Text size="sm" c="dimmed">
-                          Manage and moderate content
-                        </Text>
-                      </div>
-                      <Switch />
-                    </Group>
-                  </Card>
-
-                  <Card withBorder p="md">
-                    <Group justify="space-between">
-                      <div>
-                        <Text fw={500}>Analytics Access</Text>
-                        <Text size="sm" c="dimmed">
-                          View system analytics and reports
-                        </Text>
-                      </div>
-                      <Switch defaultChecked />
-                    </Group>
-                  </Card>
-
-                  <Card withBorder p="md">
-                    <Group justify="space-between">
-                      <div>
-                        <Text fw={500}>API Access</Text>
-                        <Text size="sm" c="dimmed">
-                          Access to system APIs and integrations
-                        </Text>
-                      </div>
-                      <Switch />
-                    </Group>
-                  </Card>
-
-                  <Group justify="flex-end" pt="md">
-                    <Button variant="outline">Reset to Default</Button>
-                    <Button>Update Permissions</Button>
-                  </Group>
-                </Stack>
-              </Tabs.Panel>
-
-              <Tabs.Panel value="notifications" pt="xl">
-                <Stack gap="md">
-                  <Text size="lg" fw={600} mb="md">
-                    Notification Preferences
-                  </Text>
-
+        {/* Upper Card - Current User Info */}
+        <Card className="shadow-elegant border-border/50">
+          <CardContent className="p-6">
+            <div className="flex items-center gap-6">
+              <div className="relative">
+                <Avatar className="h-20 w-20 border-4 border-primary/20">
+                  <AvatarImage src={user.avatarUrl} alt={`${user.firstName} ${user.lastName}`} />
+                  <AvatarFallback className="text-lg bg-gradient-primary text-primary-foreground">
+                    {user.firstName[0]}
+                    {user.lastName[0]}
+                  </AvatarFallback>
+                </Avatar>
+                <Button
+                  size="sm"
+                  className="absolute -bottom-2 -right-2 h-8 w-8 rounded-full p-0 shadow-glow"
+                  variant="default"
+                >
+                  <Camera className="h-4 w-4" />
+                </Button>
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center gap-3 mb-2">
+                  <h2 className="text-2xl font-bold">
+                    {user.firstName} {user.lastName}
+                  </h2>
+                  <Badge variant="secondary">{user.role}</Badge>
+                </div>
+                <div className="flex items-center gap-2 text-muted-foreground mb-1">
+                  <Mail className="h-4 w-4" />
+                  <span>{user.email}</span>
+                </div>
+                <div className="grid grid-cols-2 gap-4 mt-4 text-sm">
                   <div>
-                    <Text fw={500} mb="sm">
-                      Email Notifications
-                    </Text>
-                    <Stack gap="sm">
-                      <Group justify="space-between">
-                        <Text size="sm">Security alerts</Text>
-                        <Switch defaultChecked />
-                      </Group>
-                      <Group justify="space-between">
-                        <Text size="sm">Account updates</Text>
-                        <Switch defaultChecked />
-                      </Group>
-                      <Group justify="space-between">
-                        <Text size="sm">Marketing emails</Text>
-                        <Switch />
-                      </Group>
-                      <Group justify="space-between">
-                        <Text size="sm">Weekly digest</Text>
-                        <Switch defaultChecked />
-                      </Group>
-                    </Stack>
+                    <span className="text-muted-foreground">Member Since:</span>
+                    <p className="font-medium">{user.createdAt.toLocaleDateString()}</p>
                   </div>
-
-                  <Divider />
-
                   <div>
-                    <Text fw={500} mb="sm">
-                      Push Notifications
-                    </Text>
-                    <Stack gap="sm">
-                      <Group justify="space-between">
-                        <Text size="sm">Important system updates</Text>
-                        <Switch defaultChecked />
-                      </Group>
-                      <Group justify="space-between">
-                        <Text size="sm">Task reminders</Text>
-                        <Switch defaultChecked />
-                      </Group>
-                      <Group justify="space-between">
-                        <Text size="sm">Team mentions</Text>
-                        <Switch defaultChecked />
-                      </Group>
-                      <Group justify="space-between">
-                        <Text size="sm">New messages</Text>
-                        <Switch />
-                      </Group>
-                    </Stack>
+                    <span className="text-muted-foreground">Last Update:</span>
+                    <p className="font-medium">{user.updatedAt.toLocaleDateString()}</p>
                   </div>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
-                  <Divider />
+        {/* Lower Card - Tabbed Settings */}
+        <Card className="shadow-elegant border-border/50 overflow-hidden h-[600px]">
+          <Tabs defaultValue="account" className="w-full h-full">
+            <div className="px-6 pt-6">
+              <TabsList className="grid w-full grid-cols-4 bg-muted/50">
+                <TabsTrigger value="account" className="flex items-center gap-2">
+                  <User className="h-4 w-4" />
+                  Account
+                </TabsTrigger>
+                <TabsTrigger value="permissions" className="flex items-center gap-2">
+                  <Shield className="h-4 w-4" />
+                  Permissions
+                </TabsTrigger>
+                <TabsTrigger value="notifications" className="flex items-center gap-2">
+                  <Bell className="h-4 w-4" />
+                  Notifications
+                </TabsTrigger>
+                <TabsTrigger value="preference" className="flex items-center gap-2">
+                  <Palette className="h-4 w-4" />
+                  Preference
+                </TabsTrigger>
+              </TabsList>
+            </div>
 
-                  <div>
-                    <Text fw={500} mb="sm">
-                      SMS Notifications
-                    </Text>
-                    <Stack gap="sm">
-                      <Group justify="space-between">
-                        <Text size="sm">Critical security alerts</Text>
-                        <Switch defaultChecked />
-                      </Group>
-                      <Group justify="space-between">
-                        <Text size="sm">Login notifications</Text>
-                        <Switch />
-                      </Group>
-                    </Stack>
-                  </div>
+            {/* Account Tab */}
+            <TabsContent
+              value="account"
+              className="px-6 pb-6 space-y-6 h-[calc(600px-120px)] overflow-y-auto"
+            >
+              <AccountTab
+                user={user}
+                setUser={setUser}
+                isLoading={isLoading}
+                setIsLoading={setIsLoading}
+              />
+            </TabsContent>
 
-                  <Group justify="flex-end" pt="md">
-                    <Button variant="outline">Reset to Default</Button>
-                    <Button>Save Preferences</Button>
-                  </Group>
-                </Stack>
-              </Tabs.Panel>
-            </Tabs>
-          </Card>
-        </Stack>
-      </Container>
+            {/* Permissions Tab */}
+            <TabsContent
+              value="permissions"
+              className="px-6 pb-6 space-y-6 h-[calc(600px-120px)] overflow-y-auto"
+            >
+              <PermissionsTab workspaceUsers={mockWorkspaceUsers} />
+            </TabsContent>
+
+            {/* Notifications Tab */}
+            <TabsContent
+              value="notifications"
+              className="px-6 pb-6 space-y-6 h-[calc(600px-120px)] overflow-y-auto"
+            >
+              <NotificationsTab />
+            </TabsContent>
+
+            {/* Preference Tab */}
+            <TabsContent
+              value="preference"
+              className="px-6 pb-6 space-y-6 h-[calc(600px-120px)] overflow-y-auto"
+            >
+              <PreferenceTab />
+            </TabsContent>
+          </Tabs>
+        </Card>
+      </div>
     </div>
   );
 };
 
-export default SettingsPage;
+export default TestPage;

@@ -6,7 +6,7 @@ export default function DefaultLayout() {
   return (
     <SidebarProvider>
       <SideNavbar />
-      <main>
+      <main className="w-full">
         <SidebarTrigger />
         <Outlet />
       </main>
