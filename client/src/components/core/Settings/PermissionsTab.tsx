@@ -149,7 +149,7 @@ const PermissionsTab = ({ workspaceUsers }: PermissionsTabProps) => {
                         src={workspaceUser.avatarUrl}
                         alt={`${workspaceUser.firstName} ${workspaceUser.lastName}`}
                       />
-                      <AvatarFallback className="text-xs bg-gradient-primary text-primary-foreground">
+                      <AvatarFallback className="text-xs">
                         {workspaceUser.firstName[0]}
                         {workspaceUser.lastName[0]}
                       </AvatarFallback>
@@ -210,7 +210,7 @@ const PermissionsTab = ({ workspaceUsers }: PermissionsTabProps) => {
                   src={editingUser.avatarUrl}
                   alt={`${editingUser.firstName} ${editingUser.lastName}`}
                 />
-                <AvatarFallback className="bg-gradient-primary text-primary-foreground">
+                <AvatarFallback>
                   {editingUser.firstName[0]}
                   {editingUser.lastName[0]}
                 </AvatarFallback>
