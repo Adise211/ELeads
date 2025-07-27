@@ -4,11 +4,12 @@ import { getWorkspaceByName, createWorkspace } from "../models/workspace.model";
 import { getUserByEmail, createUser } from "../models/users.model";
 import { httpCodes, userErrorsMsg, workspaceErrorsMsg } from "../utils/errorCodes.js";
 import { AppError } from "../middleware/errorHandler.middleware";
-import { hashPassword, comparePassword } from "../utils/auth.helper";
+import { hashPassword, comparePassword, rolePermissionMap } from "../utils/auth.helper";
 import { generateAccessToken, generateRefreshToken } from "../utils/auth.helper";
 import { validationResult } from "express-validator";
 import { SuccessResponse } from "../server.types";
 import { omitFields } from "../utils/data.helper";
+import { UserRole } from "@prisma/client";
 
 export const registerUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -20,7 +21,7 @@ export const registerUser = async (req: Request, res: Response, next: NextFuncti
       (error as any).errors = validation.array();
       throw error;
     } else {
-      const { firstName, lastName, email, password, role, phone }: User = req.body.user;
+      const { firstName, lastName, email, password, phone }: User = req.body.user;
       const { name }: Workspace = req.body.workspace;
       const hashedPassword = await hashPassword(password);
       let _workspaceName = name.toLocaleLowerCase();
@@ -41,8 +42,9 @@ export const registerUser = async (req: Request, res: Response, next: NextFuncti
           lastName,
           email,
           password: hashedPassword,
-          role,
+          role: UserRole.ADMIN,
           phone,
+          permissions: rolePermissionMap[UserRole.ADMIN],
         });
         // If user is created successfully, create a workspace for the user
         if (user) {
