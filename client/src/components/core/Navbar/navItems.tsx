@@ -19,7 +19,7 @@ export const useNavItems = () => {
     user: {
       name: user?.firstName + " " + user?.lastName || "Guest",
       email: user?.email || "guest@example.com",
-      avatar: "", // TODO:UserDTO doesn't have avatar property
+      avatar: user?.avatarUrl || "https://ui-avatars.com/api/?name=John+Doe",
     },
     navMain: [
       {

@@ -10,6 +10,7 @@ export type UserDTO = {
   firstName: string;
   lastName: string;
   role: UserRole;
+  avatarUrl: string | null;
   isActive: boolean;
   phone: string;
   workspaceId: string;
