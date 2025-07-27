@@ -13,23 +13,35 @@ enum UserRole {
   ADMIN
 }
 
+enum Permission {
+  MANAGE_OWN_LEADS // crud own leads
+  EDIT_WORKSPACE_LEADS // edit leads in workspace of all users
+  DELETE_WORKSPACE_LEADS // delete leads in workspace of all users
+  ASSIGN_LEADS // assign leads to users in workspace
+  MANAGE_USERS // crud users in workspace
+  VIEW_BILLING
+  CREATE_BILLING
+  EDIT_BILLING
+  DELETE_BILLING
+}
+
 model User {
-  id          String     @id @default(cuid())
-  email       String     @unique
+  id          String       @id @default(cuid())
+  email       String       @unique
   firstName   String
   lastName    String
   password    String
-  role        UserRole   @default(USER)
-  avatarUrl   String?    
-  isActive    Boolean    @default(true)
+  role        UserRole     @default(USER)
+  avatarUrl   String?
+  isActive    Boolean      @default(true)
   phone       String?
   workspaceId String?
-  workspace   Workspace? @relation(fields: [workspaceId], references: [id])
-  permissions String[]   @default([])
+  workspace   Workspace?   @relation(fields: [workspaceId], references: [id])
+  permissions Permission[] @default([])
   leads       Lead[]
   activities  Activity[] // Added relation field for Activity
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
 }
 
 model Workspace {
