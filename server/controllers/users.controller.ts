@@ -4,11 +4,11 @@ import { getWorkspaceByName, createWorkspace } from "../models/workspace.model";
 import { getUserByEmail, createUser } from "../models/users.model";
 import { httpCodes, userErrorsMsg, workspaceErrorsMsg } from "../utils/errorCodes.js";
 import { AppError } from "../middleware/errorHandler.middleware";
-import { hashPassword, comparePassword, rolePermissionMap } from "../utils/auth.helper";
-import { generateAccessToken, generateRefreshToken } from "../utils/auth.helper";
+import { hashPassword, comparePassword, rolePermissionMap } from "../lib/auth.helper";
+import { generateAccessToken, generateRefreshToken } from "../lib/auth.helper";
 import { validationResult } from "express-validator";
 import { SuccessResponse } from "../server.types";
-import { omitFields } from "../utils/data.helper";
+import { omitFields } from "../lib/data.helper";
 import { UserRole } from "@prisma/client";
 
 export const registerUser = async (req: Request, res: Response, next: NextFunction) => {

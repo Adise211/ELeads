@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { verifyAccessToken } from "../utils/auth.helper.js";
+import { verifyAccessToken } from "../lib/auth.helper.js";
 import { AppError } from "../middleware/errorHandler.middleware.js";
 import { httpCodes } from "../utils/errorCodes.js";
 
