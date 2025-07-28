@@ -33,10 +33,7 @@ const handlePrismaError = (error: any): AppError => {
     return new AppError("Record not found", httpCodes.NOT_FOUND);
   }
 
-  return new AppError(
-    "Database operation failed",
-    httpCodes.INTERNAL_SERVER_ERROR
-  );
+  return new AppError("Database operation failed", httpCodes.INTERNAL_SERVER_ERROR);
 };
 
 // Handle validation errors
@@ -51,10 +48,13 @@ const handleJWTError = (): AppError =>
   new AppError("Invalid token. Please log in again!", httpCodes.UNAUTHORIZED);
 
 const handleJWTExpiredError = (): AppError =>
-  new AppError(
-    "Your token has expired! Please log in again.",
-    httpCodes.UNAUTHORIZED
-  );
+  new AppError("Your token has expired! Please log in again.", httpCodes.UNAUTHORIZED);
+
+const handleZodError = (error: any): AppError => {
+  const errorPath = error.errors.map((val: any) => `'${val.path.join(".")}'`);
+  const message = `Invalid value for: ${errorPath}`;
+  return new AppError(message, httpCodes.BAD_REQUEST);
+};
 
 // Send error response for development
 const sendErrorDev = (err: CustomError, res: Response): void => {
@@ -66,9 +66,7 @@ const sendErrorDev = (err: CustomError, res: Response): void => {
     stack: err.stack,
   };
 
-  res
-    .status(err.statusCode || httpCodes.INTERNAL_SERVER_ERROR)
-    .json(errorResponse);
+  res.status(err.statusCode || httpCodes.INTERNAL_SERVER_ERROR).json(errorResponse);
 };
 
 // Send error response for production
@@ -125,6 +123,9 @@ export const globalErrorHandler = (
     if (error.name === "TokenExpiredError") {
       error = handleJWTExpiredError();
     }
+    if (error.name === "ZodError") {
+      error = handleZodError(error);
+    }
 
     sendErrorProd(error, res);
   }
@@ -138,15 +139,8 @@ export const catchAsync = (fn: Function) => {
 };
 
 // Handle unhandled routes
-export const handleNotFound = (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): void => {
-  const err = new AppError(
-    `Can't find ${req.originalUrl} on this server!`,
-    httpCodes.NOT_FOUND
-  );
+export const handleNotFound = (req: Request, res: Response, next: NextFunction): void => {
+  const err = new AppError(`Can't find ${req.originalUrl} on this server!`, httpCodes.NOT_FOUND);
   next(err);
 };
 

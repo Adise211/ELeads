@@ -66,61 +66,51 @@ export const registerUser = async (req: Request, res: Response, next: NextFuncti
 
 export const loginUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const validation = validationResult(req);
-
-    if (!validation.isEmpty()) {
-      const error = new AppError("Validation failed", 400);
-      error.name = "ValidationError";
-      (error as any).errors = validation.array();
-      throw error;
+    const { email, password } = req.body;
+    // Check if user exists
+    const user: User | null = await getUserByEmail(email);
+    if (!user) {
+      throw new AppError(userErrorsMsg.USER_NOT_FOUND, httpCodes.UNAUTHORIZED);
     } else {
-      const { email, password } = req.body;
-
-      // Check if user exists
-      const user: User | null = await getUserByEmail(email);
-      if (!user) {
-        throw new AppError(userErrorsMsg.USER_NOT_FOUND, httpCodes.UNAUTHORIZED);
-      } else {
-        // Compare passwords
-        const isPasswordCorrect = await comparePassword(password, user.password);
-        if (!isPasswordCorrect) {
-          throw new AppError(userErrorsMsg.INCORRECT_PASSWORD, httpCodes.UNAUTHORIZED);
-        }
-
-        // If password is correct, create a payload with user data
-        const payload = {
-          userId: user.id,
-          email: user.email,
-        };
-        // Generate access and refresh tokens
-        const accessToken = generateAccessToken(payload);
-        const refreshToken = generateRefreshToken(payload);
-        const accessTokenCookieName = process.env.COOKIE_ACCESS_TOKEN_NAME as string;
-        const refreshTokenCookieName = process.env.COOKIE_REFRESH_TOKEN_NAME as string;
-
-        // set access token in cookie
-        res.cookie(accessTokenCookieName, accessToken, {
-          httpOnly: true, // accessible only by the web server
-          secure: process.env.NODE_ENV === "production", // HTTPS only in production
-          sameSite: "strict",
-          maxAge: 1 * 60 * 60 * 1000, // 1 hour in ms
-        });
-
-        // set refresh token in cookie
-        res.cookie(refreshTokenCookieName, refreshToken, {
-          httpOnly: true, // accessible only by the web server
-          secure: process.env.NODE_ENV === "production", // HTTPS only in production
-          sameSite: "strict",
-          maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in ms
-        });
-
-        // If login is successful
-        const successResponse: SuccessResponse = {
-          success: true,
-          message: "User logged in successfully",
-        };
-        res.status(httpCodes.SUCCESS).json(successResponse);
+      // Compare passwords
+      const isPasswordCorrect = await comparePassword(password, user.password);
+      if (!isPasswordCorrect) {
+        throw new AppError(userErrorsMsg.INCORRECT_PASSWORD, httpCodes.UNAUTHORIZED);
       }
+
+      // If password is correct, create a payload with user data
+      const payload = {
+        userId: user.id,
+        email: user.email,
+      };
+      // Generate access and refresh tokens
+      const accessToken = generateAccessToken(payload);
+      const refreshToken = generateRefreshToken(payload);
+      const accessTokenCookieName = process.env.COOKIE_ACCESS_TOKEN_NAME as string;
+      const refreshTokenCookieName = process.env.COOKIE_REFRESH_TOKEN_NAME as string;
+
+      // set access token in cookie
+      res.cookie(accessTokenCookieName, accessToken, {
+        httpOnly: true, // accessible only by the web server
+        secure: process.env.NODE_ENV === "production", // HTTPS only in production
+        sameSite: "strict",
+        maxAge: 1 * 60 * 60 * 1000, // 1 hour in ms
+      });
+
+      // set refresh token in cookie
+      res.cookie(refreshTokenCookieName, refreshToken, {
+        httpOnly: true, // accessible only by the web server
+        secure: process.env.NODE_ENV === "production", // HTTPS only in production
+        sameSite: "strict",
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in ms
+      });
+
+      // If login is successful
+      const successResponse: SuccessResponse = {
+        success: true,
+        message: "User logged in successfully",
+      };
+      res.status(httpCodes.SUCCESS).json(successResponse);
     }
   } catch (error) {
     next(error);
