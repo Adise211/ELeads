@@ -5,10 +5,9 @@ import {
   logoutUser,
   registerUser,
 } from "../controllers/users.controller";
-import { body } from "express-validator";
 import { authenticateToken } from "../middleware/auth.middleware";
 import { validate } from "../middleware/validation.middleware";
-import { loginUserSchema } from "../lib/validation-schema";
+import { loginUserSchema, registerUserSchema } from "../lib/validation-schema";
 
 const router = Router();
 
@@ -22,18 +21,7 @@ router.get("/", (req: Request, res: Response) => {
 // @path: /api/users/register
 // @desc: Users registration route
 // @access: Public
-router.post(
-  "/register",
-  body([
-    "user.firstName",
-    "user.lastName",
-    "user.email",
-    "user.password",
-    "user.phone",
-    "workspace.name",
-  ]).notEmpty(),
-  registerUser
-);
+router.post("/register", validate(registerUserSchema), registerUser);
 
 // @path: /api/users/login
 // @desc: Users login route

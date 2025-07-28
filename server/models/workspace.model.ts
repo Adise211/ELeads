@@ -3,7 +3,15 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 // Create a new workspace
-export const createWorkspace = async (name: string, userId: string) => {
+export const createWorkspace = async (name: string) => {
+  const workspace = await prisma.workspace.create({
+    data: { name },
+  });
+  return workspace;
+};
+
+// Create a new workspace with a user
+export const createWorkspaceWithUser = async (name: string, userId: string) => {
   const workspace = await prisma.workspace.create({
     data: {
       name,
@@ -55,10 +63,7 @@ export const deleteWorkspace = async (workspaceId: string) => {
 };
 
 // Add a user to a workspace (admin role only)
-export const addUserToWorkspace = async (
-  workspaceId: string,
-  userId: string
-) => {
+export const addUserToWorkspace = async (workspaceId: string, userId: string) => {
   const workspace = await prisma.workspace.update({
     where: { id: workspaceId },
     data: {
@@ -71,10 +76,7 @@ export const addUserToWorkspace = async (
 };
 
 // Remove a user from a workspace (admin role only)
-export const removeUserFromWorkspace = async (
-  workspaceId: string,
-  userId: string
-) => {
+export const removeUserFromWorkspace = async (workspaceId: string, userId: string) => {
   const workspace = await prisma.workspace.update({
     where: { id: workspaceId },
     data: {

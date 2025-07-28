@@ -19,3 +19,17 @@ export interface SuccessResponse {
   message: string;
   data?: any;
 }
+
+export interface RegisterUserFields {
+  user: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    password: string;
+    phone?: string;
+  };
+  workspace: {
+    name?: string;
+    id?: string;
+  };
+}
