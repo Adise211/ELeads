@@ -3,21 +3,14 @@ import { Link } from "react-router-dom";
 import PersonalInfoStep from "@/components/core/Auth/PersonalInfoStep";
 import WorkspaceStep from "@/components/core/Auth/WorkspaceStep";
 import { ChevronRight } from "lucide-react";
-
-interface SignupFormData {
-  // Personal Info
-  firstName: string;
-  lastName: string;
-  email: string;
-  password: string;
-  phone: string;
-  // Workspace Info
-  workspaceType: "new" | "existing";
-  workspaceName: string;
-  workspaceId?: string;
-}
+import type { SignupFormData } from "../../client.types";
+import { signupFormSchema } from "@/lib/form-validation-schema";
+import api from "@/services/httpConfig";
+import { showSuccessToast } from "@/utils/toast";
+import { useNavigate } from "react-router-dom";
 
 const SignupPage = () => {
+  const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<SignupFormData>({
     firstName: "",
@@ -42,10 +35,48 @@ const SignupPage = () => {
     setCurrentStep(1);
   };
 
-  const handleComplete = () => {
-    // Here you would typically submit the form data to your backend
-    console.log("Signup data:", formData);
-    alert("Signup completed! In a real app, this would create the user account.");
+  const handleComplete = async () => {
+    const validationResult = signupFormSchema.safeParse(formData);
+
+    if (!validationResult.success) {
+      console.log("Validation errors:", validationResult.error);
+    } else {
+      const {
+        firstName,
+        lastName,
+        email,
+        password,
+        phone,
+        workspaceName,
+        workspaceType,
+        workspaceId,
+      } = formData;
+
+      let workspace = {};
+      if (workspaceType === "new") {
+        workspace = {
+          name: workspaceName,
+        };
+      } else {
+        workspace = {
+          id: workspaceId,
+        };
+      }
+
+      try {
+        const data = {
+          user: { firstName, lastName, email, password, phone },
+          workspace,
+        };
+        const response = await api.post("/users/register", data);
+        if (response.data.success) {
+          showSuccessToast(response.data.message);
+          navigate("/login");
+        }
+      } catch (error) {
+        console.log("Error in signup user", error);
+      }
+    }
   };
   const signupBg =
     "https://images.unsplash.com/photo-1484242857719-4b9144542727?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1280&q=80";
@@ -122,8 +153,8 @@ const SignupPage = () => {
         {currentStep === 2 && (
           <WorkspaceStep
             formData={{
-              workspaceType: formData.workspaceType,
-              workspaceName: formData.workspaceName,
+              workspaceType: formData.workspaceType ?? "new",
+              workspaceName: formData.workspaceName ?? "",
               workspaceId: formData.workspaceId,
             }}
             onUpdate={updateFormData}

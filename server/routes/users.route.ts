@@ -27,7 +27,6 @@ router.post(
     "user.lastName",
     "user.email",
     "user.password",
-    "user.role",
     "user.phone",
     "workspace.name",
   ]).notEmpty(),
