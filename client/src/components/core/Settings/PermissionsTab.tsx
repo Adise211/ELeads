@@ -16,6 +16,9 @@ import {
 } from "@/components/ui/table";
 import { Edit, MoreHorizontal, Save, X, UserPlus } from "lucide-react";
 import { useState } from "react";
+import { permissionsOptions } from "../../../../../shared/constants";
+import { useAuthStore } from "@/stores/authStore";
+import type { Permission } from "../../../../../shared/types/prisma-enums";
 
 interface WorkspaceUser {
   id: string;
@@ -37,7 +40,7 @@ const PermissionsTab = ({ workspaceUsers }: PermissionsTabProps) => {
   const [selectedRole, setSelectedRole] = useState<string>("");
   const [selectedPermission, setSelectedPermission] = useState<string>("");
   const [currentPermissions, setCurrentPermissions] = useState<string[]>([]);
-
+  const { isUserHasPermission } = useAuthStore();
   // Invite friend states
   const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
 
@@ -136,7 +139,9 @@ const PermissionsTab = ({ workspaceUsers }: PermissionsTabProps) => {
               <TableHead>Email</TableHead>
               <TableHead>Role</TableHead>
               <TableHead>Permissions</TableHead>
-              <TableHead className="w-[50px]">Actions</TableHead>
+              {isUserHasPermission([permissionsOptions.MANAGE_USERS] as Permission[]) && (
+                <TableHead className="w-[50px]">Actions</TableHead>
+              )}
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -165,11 +170,13 @@ const PermissionsTab = ({ workspaceUsers }: PermissionsTabProps) => {
                 </TableCell>
                 <TableCell>{renderPermissions(workspaceUser.permissions)}</TableCell>
                 <TableCell>
-                  <ButtonIcon
-                    onClick={() => handleEditUser(workspaceUser.id)}
-                    icon={<Edit className="h-4 w-4" />}
-                    className="h-8 w-8 text-muted-foreground hover:text-foreground transition-colors"
-                  />
+                  {isUserHasPermission([permissionsOptions.MANAGE_USERS] as Permission[]) && (
+                    <ButtonIcon
+                      onClick={() => handleEditUser(workspaceUser.id)}
+                      icon={<Edit className="h-4 w-4" />}
+                      className="h-8 w-8 text-muted-foreground hover:text-foreground transition-colors"
+                    />
+                  )}
                 </TableCell>
               </TableRow>
             ))}
