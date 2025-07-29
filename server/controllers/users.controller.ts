@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { User, Workspace } from "../generated/prisma";
+import { User, Workspace } from "@prisma/client";
 import { createWorkspace, getWorkspaceById, addUserToWorkspace } from "../models/workspace.model";
 import { getUserByEmail, createUser } from "../models/users.model";
 import { httpCodes, userErrorsMsg, workspaceErrorsMsg } from "../utils/errorCodes.js";
