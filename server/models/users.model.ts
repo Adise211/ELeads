@@ -1,4 +1,4 @@
-import { PrismaClient, User } from "@prisma/client";
+import { Permission, PrismaClient, User } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
@@ -55,4 +55,12 @@ export const getUsersByWorkspaceId = async (workspaceId: string) => {
     where: { workspaceId },
   });
   return users;
+};
+
+export const updateUserPermissions = async (userId: string, permissions: Permission[]) => {
+  const user = await prisma.user.update({
+    where: { id: userId },
+    data: { permissions },
+  });
+  return user;
 };

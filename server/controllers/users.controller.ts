@@ -16,6 +16,8 @@ export const registerUser = async (req: Request, res: Response, next: NextFuncti
     const { firstName, lastName, email, password, phone } = user;
     let createdUser: User | null = null;
     let createdWorkspace: Workspace | null = null;
+    // Default user role is admin
+    // TODO: make this dynamic based on the workspace (new -> admin, existing -> by link)
     let userRole: UserRole = UserRole.ADMIN;
 
     const hashedPassword = await hashPassword(password);
@@ -54,7 +56,7 @@ export const registerUser = async (req: Request, res: Response, next: NextFuncti
         res.status(httpCodes.CREATED).json({
           success: true,
           message: "User registered successfully",
-          data: { user: createdUser, workspace: createdWorkspace },
+          data: {},
         });
       }
     }
@@ -81,6 +83,7 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
       const payload = {
         userId: user.id,
         email: user.email,
+        permissions: user.permissions,
       };
       // Generate access and refresh tokens
       const accessToken = generateAccessToken(payload);

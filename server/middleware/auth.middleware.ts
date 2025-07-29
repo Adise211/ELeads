@@ -1,7 +1,8 @@
 import { Request, Response, NextFunction } from "express";
-import { verifyAccessToken } from "../lib/auth.helper.js";
+import { hasPermission, verifyAccessToken } from "../lib/auth.helper.js";
 import { AppError } from "../middleware/errorHandler.middleware.js";
-import { httpCodes } from "../utils/errorCodes.js";
+import { httpCodes, userErrorsMsg } from "../utils/errorCodes.js";
+import { Permission } from "@prisma/client";
 
 export function authenticateToken(req: Request, res: Response, next: NextFunction) {
   try {
@@ -17,10 +18,28 @@ export function authenticateToken(req: Request, res: Response, next: NextFunctio
       next(new AppError("No token provided", httpCodes.UNAUTHORIZED));
     } else {
       const user = verifyAccessToken(token);
-      (req as any).user = user; // attach user to request
-      next();
+      const reqAction: Permission | undefined | null = req.body?.action || null;
+      const requiredPermission = !!reqAction;
+
+      if (requiredPermission) {
+        // Check if user has permission to perform the action
+        const isUserHasPermission = hasPermission(user, reqAction);
+        // If user does not have permission, return 403 Forbidden
+        if (!isUserHasPermission) {
+          next(new AppError(userErrorsMsg.USER_NOT_AUTHORIZED, httpCodes.FORBIDDEN));
+        } else {
+          // user has permission, attach the user to the request
+          (req as any).user = user;
+          next();
+        }
+      } else {
+        // no permission required, attach the user to the request
+        (req as any).user = user;
+        next();
+      }
     }
   } catch (err) {
+    console.log("FFF", err);
     next(new AppError("Invalid or expired token", httpCodes.FORBIDDEN));
   }
 }

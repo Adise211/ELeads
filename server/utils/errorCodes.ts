@@ -6,6 +6,7 @@ const userErrorsMsg = {
   INVALID_EMAIL: "Invalid email",
   INCORRECT_PASSWORD: "Incorrect password",
   UNAUTHORIZED: "Unauthorized access",
+  USER_NOT_AUTHORIZED: "User not authorized to perform this action",
 };
 
 const workspaceErrorsMsg = {
@@ -50,10 +51,4 @@ const httpCodes = {
   INTERNAL_SERVER_ERROR: 500,
 };
 
-export {
-  userErrorsMsg,
-  workspaceErrorsMsg,
-  commonErrorsMsg,
-  prismaErrorCodes,
-  httpCodes,
-};
+export { userErrorsMsg, workspaceErrorsMsg, commonErrorsMsg, prismaErrorCodes, httpCodes };
