@@ -1,6 +1,6 @@
-# EdgarLeads
+# ELeads
 
-A modern lead management system built with React, TypeScript, and Node.js. EdgarLeads helps businesses track, manage, and convert leads with a comprehensive dashboard, user management, and activity tracking.
+A modern lead management system built with React, TypeScript, and Node.js. ELeads helps businesses track, manage, and convert leads with a comprehensive dashboard, user management, and activity tracking.
 
 ## 🚀 Features
 
@@ -41,7 +41,7 @@ A modern lead management system built with React, TypeScript, and Node.js. Edgar
 ## 📁 Project Structure
 
 ```
-edgarLeads/
+ELeads/
 ├── client/                 # React frontend
 │   ├── src/
 │   │   ├── components/    # UI components
@@ -73,7 +73,7 @@ edgarLeads/
 
    ```bash
    git clone <repository-url>
-   cd edgarLeads
+   cd ELeads
    ```
 
 2. **Install dependencies**
