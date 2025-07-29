@@ -1,0 +1,116 @@
+generator client {
+  provider = "prisma-client-js"
+  // output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  USER
+  ADMIN
+  MANAGER
+}
+
+enum Permission {
+  MANAGE_OWN_LEADS
+  MANAGE_USERS
+  MANAGE_BILLING
+  EDIT_WORKSPACE_LEADS
+  DELETE_WORKSPACE_LEADS
+  ASSIGN_LEADS
+  VIEW_BILLING
+  CREATE_BILLING
+  EDIT_BILLING
+  DELETE_BILLING
+}
+
+model User {
+  id          String       @id @default(cuid())
+  email       String       @unique
+  firstName   String
+  lastName    String
+  password    String
+  role        UserRole     @default(USER)
+  avatarUrl   String?
+  isActive    Boolean      @default(true)
+  phone       String?
+  workspaceId String?
+  workspace   Workspace?   @relation(fields: [workspaceId], references: [id])
+  permissions Permission[] @default([])
+  leads       Lead[]
+  activities  Activity[] // Added relation field for Activity
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model Workspace {
+  id        String   @id @default(cuid())
+  name      String
+  users     User[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum LeadStatus {
+  NEW
+  INPROGRESS
+  LOST
+}
+
+model Lead {
+  id           String     @id @default(cuid())
+  firstName    String
+  lastName     String?
+  email        String
+  phone        String[]   @default([])
+  company      String?
+  jobTitle     String?
+  industry     String?
+  status       LeadStatus @default(NEW)
+  assignedTo   User       @relation(fields: [assignedToId], references: [id])
+  assignedToId String
+  website      String?
+  address      String?
+  city         String?
+  state        String?
+  zipCode      String?
+  country      String?
+  notes        Note[]
+  activities   Activity[]
+  isActive     Boolean    @default(true)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+}
+
+model Note {
+  id        String   @id @default(cuid())
+  content   String
+  lead      Lead     @relation(fields: [leadId], references: [id])
+  leadId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum ActivityType {
+  EMAIL
+  CALL
+  MEETING
+  TASK
+  NOTE
+  OTHER
+}
+
+model Activity {
+  id          String       @id @default(cuid())
+  type        ActivityType @default(EMAIL)
+  description String?
+  lead        Lead         @relation(fields: [leadId], references: [id])
+  leadId      String
+  user        User         @relation(fields: [userId], references: [id])
+  userId      String
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}

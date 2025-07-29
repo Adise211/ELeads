@@ -9,6 +9,11 @@
   "license": "ISC",
   "description": "",
   "devDependencies": {
+    "@types/node": "^24.0.15",
+    "prettier": "^3.6.2",
     "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "zod": "^4.0.10"
   }
 }

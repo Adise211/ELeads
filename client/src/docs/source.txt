@@ -1,0 +1,28 @@
+Heroicons - icons
+------------------
+https://heroicons.com/outline
+
+
+-------------------------------------------------------------------
+
+express-validator - backend
+---------------------------
+
+https://express-validator.github.io/docs
+
+
+-------------------------------------------------------------------
+
+react-toastify - for toast popup
+--------------
+
+https://fkhadra.github.io/react-toastify
+
+
+-------------------------------------------------------------------
+
+zustand - for state management
+
+https://zustand.docs.pmnd.rs/
+
+-------------------------------------------------------------------
