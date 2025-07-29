@@ -15,11 +15,12 @@ enum UserRole {
 }
 
 enum Permission {
-  MANAGE_OWN_LEADS // crud own leads
-  EDIT_WORKSPACE_LEADS // edit leads in workspace of all users
-  DELETE_WORKSPACE_LEADS // delete leads in workspace of all users
-  ASSIGN_LEADS // assign leads to users in workspace
-  MANAGE_USERS // crud users in workspace
+  MANAGE_OWN_LEADS
+  MANAGE_USERS
+  MANAGE_BILLING
+  EDIT_WORKSPACE_LEADS
+  DELETE_WORKSPACE_LEADS
+  ASSIGN_LEADS
   VIEW_BILLING
   CREATE_BILLING
   EDIT_BILLING
