@@ -1,0 +1,13 @@
+### Get Current User (Authenticated)
+GET http://localhost:8080/api/users/me
+Content-Type: application/json
+Cookie: token=your_jwt_token_here
+
+### Get Current User (No Token)
+GET http://localhost:8080/api/users/me
+Content-Type: application/json
+
+### Get Current User (Invalid Token)
+GET http://localhost:8080/api/users/me
+Content-Type: application/json
+Cookie: token=invalid_token_here 

@@ -1,0 +1,35 @@
+### Register User
+POST http://localhost:8080/api/users/register
+Content-Type: application/json
+
+{
+  "firstName": "John",
+  "lastName": "Doe",
+  "email": "john.doe@example.com",
+  "password": "password123",
+  "workspaceName": "My Company",
+  "workspaceDomain": "mycompany.com"
+}
+
+### Register User (Invalid Email)
+POST http://localhost:8080/api/users/register
+Content-Type: application/json
+
+{
+  "firstName": "Jane",
+  "lastName": "Smith",
+  "email": "invalid-email",
+  "password": "password123",
+  "workspaceName": "Test Company",
+  "workspaceDomain": "testcompany.com"
+}
+
+### Register User (Missing Required Fields)
+POST http://localhost:8080/api/users/register
+Content-Type: application/json
+
+{
+  "firstName": "John",
+  "lastName": "Doe",
+  "email": "john.doe@example.com"
+} 

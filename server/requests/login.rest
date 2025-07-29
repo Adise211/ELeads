@@ -1,0 +1,25 @@
+### Login User
+POST http://localhost:8080/api/users/login
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "password123"
+}
+
+### Login User (Invalid Credentials)
+POST http://localhost:8080/api/users/login
+Content-Type: application/json
+
+{
+  "email": "invalid@example.com",
+  "password": "wrongpassword"
+}
+
+### Login User (Missing Fields)
+POST http://localhost:8080/api/users/login
+Content-Type: application/json
+
+{
+  "email": "test@example.com"
+} 

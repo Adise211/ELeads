@@ -1,0 +1,8 @@
+### Logout User
+GET http://localhost:8080/api/users/logout
+Content-Type: application/json
+Cookie: token=your_jwt_token_here
+
+### Logout User (No Token)
+GET http://localhost:8080/api/users/logout
+Content-Type: application/json 
