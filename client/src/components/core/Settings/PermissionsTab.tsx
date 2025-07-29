@@ -19,6 +19,7 @@ import { useState } from "react";
 import { permissionsOptions } from "../../../../../shared/constants";
 import { useAuthStore } from "@/stores/authStore";
 import type { Permission } from "../../../../../shared/types/prisma-enums";
+import ProtectedUI from "@/components/providers/ProtectedUI";
 
 interface WorkspaceUser {
   id: string;
@@ -170,13 +171,15 @@ const PermissionsTab = ({ workspaceUsers }: PermissionsTabProps) => {
                 </TableCell>
                 <TableCell>{renderPermissions(workspaceUser.permissions)}</TableCell>
                 <TableCell>
-                  {isUserHasPermission([permissionsOptions.MANAGE_USERS] as Permission[]) && (
+                  <ProtectedUI
+                    allowedPermissions={[permissionsOptions.MANAGE_USERS] as Permission[]}
+                  >
                     <ButtonIcon
                       onClick={() => handleEditUser(workspaceUser.id)}
                       icon={<Edit className="h-4 w-4" />}
                       className="h-8 w-8 text-muted-foreground hover:text-foreground transition-colors"
                     />
-                  )}
+                  </ProtectedUI>
                 </TableCell>
               </TableRow>
             ))}

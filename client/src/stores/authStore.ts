@@ -1,14 +1,16 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { UserDTO } from "../../../shared/types";
-import type { Permission } from "../../../shared/types/prisma-enums";
+import type { Permission, UserRole } from "../../../shared/types/prisma-enums";
 import { roleOptions } from "../../../shared/constants";
 
 type AuthState = {
   user: UserDTO | null;
   setUser: (user: UserDTO | null) => void;
   logout: () => void;
-  isUserHasPermission: (allowedPermission: Permission[]) => boolean;
+  isAdminRole: () => boolean;
+  isUserHasPermission: (allowedPermissions: Permission[]) => boolean;
+  isUserHasRole: (allowedRoles: UserRole[]) => boolean;
 };
 
 export const useAuthStore = create<AuthState>()(
@@ -18,14 +20,25 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       setUser: (user) => set({ user }),
       logout: () => set({ user: null }),
-      isUserHasPermission: (allowedPermission: Permission[]) => {
+      isAdminRole: () => {
+        const currentUser = get().user;
+        if (!currentUser) return false;
+        return currentUser.role === roleOptions.ADMIN;
+      },
+      isUserHasPermission: (allowedPermissions: Permission[]) => {
         // if user is admin, return true
         const currentUser = get().user;
         if (!currentUser) return false;
-        if (currentUser.role === roleOptions.ADMIN) return true;
+        if (get().isAdminRole()) return true;
         return !!currentUser?.permissions?.some((permission) =>
-          allowedPermission.includes(permission as Permission)
+          allowedPermissions.includes(permission as Permission)
         );
+      },
+      isUserHasRole: (allowedRoles: UserRole[]) => {
+        const currentUser = get().user;
+        if (!currentUser) return false;
+        if (get().isAdminRole()) return true;
+        return allowedRoles.includes(currentUser.role as UserRole);
       },
     }),
     {
