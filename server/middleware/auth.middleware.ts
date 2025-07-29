@@ -39,7 +39,6 @@ export function authenticateToken(req: Request, res: Response, next: NextFunctio
       }
     }
   } catch (err) {
-    console.log("FFF", err);
     next(new AppError("Invalid or expired token", httpCodes.FORBIDDEN));
   }
 }
