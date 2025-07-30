@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,6 +30,7 @@ import {
 import { StickyNote, Edit, Trash2, Mail, Phone, Building, MoreHorizontal, Eye } from "lucide-react";
 import type { LeadDTO } from "../../../../../shared/types/index";
 import { LeadStatus } from "../../../../../shared/types/prisma-enums";
+import { useState } from "react";
 
 interface LeadsTableProps {
   leads: LeadDTO[];
@@ -51,6 +53,28 @@ const LeadsTable = ({
   handleDeleteLead,
   toggleNotes,
 }: LeadsTableProps) => {
+  const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set());
+
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedRows(new Set(filteredLeads.map((lead) => lead.id || "")));
+    } else {
+      setSelectedRows(new Set());
+    }
+  };
+
+  const handleSelectRow = (leadId: string, checked: boolean) => {
+    const newSelected = new Set(selectedRows);
+    if (checked) {
+      newSelected.add(leadId);
+    } else {
+      newSelected.delete(leadId);
+    }
+    setSelectedRows(newSelected);
+  };
+
+  const isAllSelected = filteredLeads.length > 0 && selectedRows.size === filteredLeads.length;
+
   return (
     <Card>
       <CardHeader>
@@ -62,11 +86,23 @@ const LeadsTable = ({
           <div className="text-sm text-muted-foreground">
             Showing {filteredLeads.length} of {leads.length} leads
           </div>
+          {selectedRows.size > 0 && (
+            <div className="text-sm text-muted-foreground">
+              {selectedRows.size} lead{selectedRows.size !== 1 ? "s" : ""} selected
+            </div>
+          )}
         </div>
         <div className="rounded-md border">
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-12">
+                  <Checkbox
+                    checked={isAllSelected || selectedRows.size > 0}
+                    onCheckedChange={handleSelectAll}
+                    aria-label="Select all"
+                  />
+                </TableHead>
                 <TableHead>Name</TableHead>
                 <TableHead>Company</TableHead>
                 <TableHead>Status</TableHead>
@@ -81,9 +117,18 @@ const LeadsTable = ({
               {filteredLeads.map((lead) => (
                 <>
                   <TableRow key={lead.id}>
+                    <TableCell>
+                      <Checkbox
+                        checked={selectedRows.has(lead.id || "")}
+                        onCheckedChange={(checked: boolean) =>
+                          handleSelectRow(lead.id || "", checked)
+                        }
+                        aria-label={`Select ${lead.firstName} ${lead.lastName}`}
+                      />
+                    </TableCell>
                     <TableCell className="font-medium">
                       <div className="flex items-center gap-3">
-                        <div className="h-8 w-8 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center text-white text-sm font-medium">
+                        <div className="h-8 w-8 rounded-full bg-gradient-to-r from-primary to-primary/80 flex items-center justify-center text-white text-sm font-medium">
                           {lead.firstName[0]}
                           {lead.lastName?.[0] || ""}
                         </div>
@@ -142,7 +187,13 @@ const LeadsTable = ({
                       )}{" "}
                     </TableCell>
                     <TableCell>
-                      {lead.createdAt ? new Date(lead.createdAt).toLocaleDateString() : "N/A"}
+                      {lead.createdAt
+                        ? new Date(lead.createdAt).toLocaleDateString("en-US", {
+                            month: "short",
+                            day: "numeric",
+                            year: "numeric",
+                          })
+                        : "N/A"}
                     </TableCell>
                     <TableCell>
                       <Button
@@ -207,7 +258,7 @@ const LeadsTable = ({
                   </TableRow>
                   {expandedNotes === lead.id && lead.notes && lead.notes.length > 0 && (
                     <TableRow>
-                      <TableCell colSpan={9} className="bg-muted/50">
+                      <TableCell colSpan={10} className="bg-muted/50">
                         <div className="py-4">
                           <h4 className="font-medium mb-3">
                             Notes for {lead.firstName} {lead.lastName}
