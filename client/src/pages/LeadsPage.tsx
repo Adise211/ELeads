@@ -39,7 +39,13 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Label } from "@/components/ui/label";
-// import { Textarea } from "@/components/ui/textarea";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   Users,
   UserPlus,
@@ -52,6 +58,10 @@ import {
   StickyNote,
   Edit,
   Trash2,
+  Mail,
+  Phone,
+  Building,
+  MoreHorizontal,
 } from "lucide-react";
 import { showSuccessToast } from "@/utils/toast";
 import type { LeadDTO } from "../../../shared/types/index";
@@ -182,6 +192,9 @@ const LeadsPage = () => {
   const [industryFilter, setIndustryFilter] = useState("ALL");
   const [isAddLeadOpen, setIsAddLeadOpen] = useState(false);
   const [isEditLeadOpen, setIsEditLeadOpen] = useState(false);
+  const [isCreateNoteOpen, setIsCreateNoteOpen] = useState(false);
+  const [creatingNoteFor, setCreatingNoteFor] = useState<LeadDTO | null>(null);
+  const [newNoteContent, setNewNoteContent] = useState("");
   const [editingLead, setEditingLead] = useState<LeadDTO | null>(null);
   const [expandedNotes, setExpandedNotes] = useState<string | null>(null);
   const [newLead, setNewLead] = useState({
@@ -271,6 +284,40 @@ const LeadsPage = () => {
   const openEditDialog = (lead: LeadDTO) => {
     setEditingLead({ ...lead, phone: lead.phone });
     setIsEditLeadOpen(true);
+  };
+
+  const openCreateNoteDialog = (lead: LeadDTO) => {
+    setCreatingNoteFor(lead);
+    setNewNoteContent("");
+    setIsCreateNoteOpen(true);
+  };
+
+  const handleCreateNote = () => {
+    if (!creatingNoteFor || !newNoteContent.trim()) return;
+
+    const newNote = {
+      id: `note_${Date.now()}`,
+      content: newNoteContent.trim(),
+      createdAt: new Date(),
+      leadId: creatingNoteFor.id || "",
+      lead: {} as LeadDTO,
+    };
+
+    const updatedLeads = leads.map((lead) =>
+      lead.id === creatingNoteFor.id
+        ? {
+            ...lead,
+            notes: [...(lead.notes || []), newNote],
+            updatedAt: new Date(),
+          }
+        : lead
+    );
+
+    setLeads(updatedLeads);
+    showSuccessToast(`Note added to ${creatingNoteFor.firstName} ${creatingNoteFor.lastName}`);
+    setIsCreateNoteOpen(false);
+    setCreatingNoteFor(null);
+    setNewNoteContent("");
   };
 
   const handleExport = () => {
@@ -555,11 +602,10 @@ const LeadsPage = () => {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Name</TableHead>
-                    <TableHead>Email</TableHead>
                     <TableHead>Company</TableHead>
-                    <TableHead>Industry</TableHead>
                     <TableHead>Status</TableHead>
-                    <TableHead>Location</TableHead>
+                    <TableHead>Assigned To</TableHead>
+                    <TableHead>Last Activity</TableHead>
                     <TableHead>Created</TableHead>
                     <TableHead>Notes</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
@@ -570,16 +616,64 @@ const LeadsPage = () => {
                     <>
                       <TableRow key={lead.id}>
                         <TableCell className="font-medium">
-                          {lead.firstName} {lead.lastName}
+                          <div className="flex items-center gap-3">
+                            <div className="h-8 w-8 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center text-white text-sm font-medium">
+                              {lead.firstName[0]}
+                              {lead.lastName?.[0] || ""}
+                            </div>
+                            <div>
+                              <div className="font-medium">
+                                {lead.firstName} {lead.lastName}
+                              </div>
+                              <div className="text-sm text-muted-foreground flex items-center gap-1">
+                                <Mail className="h-3 w-3" />
+                                {lead.email || "N/A"}
+                              </div>
+                              {lead.phone.length > 0 && (
+                                <div className="text-sm text-muted-foreground flex items-center gap-1">
+                                  <Phone className="h-3 w-3" />
+                                  {lead.phone[0] || "N/A"}
+                                </div>
+                              )}
+                            </div>
+                          </div>
                         </TableCell>
-                        <TableCell>{lead.email}</TableCell>
-                        <TableCell>{lead.company}</TableCell>
-                        <TableCell>{lead.industry}</TableCell>
+                        <TableCell>
+                          {" "}
+                          <div>
+                            <div className="font-medium flex items-center gap-1">
+                              <Building className="h-3 w-3" />
+                              {lead.company || "N/A"}
+                            </div>
+                            {lead.jobTitle && (
+                              <div className="text-sm text-muted-foreground">
+                                {lead.jobTitle || "N/A"}
+                              </div>
+                            )}
+                            {lead.industry && (
+                              <div className="text-xs text-muted-foreground">
+                                {lead.industry || "N/A"}
+                              </div>
+                            )}
+                          </div>
+                        </TableCell>
                         <TableCell>
                           <Badge className={getStatusColor(lead.status)}>{lead.status}</Badge>
                         </TableCell>
+                        <TableCell>{"Adi"}</TableCell>
                         <TableCell>
-                          {lead.city}, {lead.state}
+                          {lead.activities && lead.activities.length > 0 ? (
+                            <div>
+                              <div className="text-sm">{lead.activities[0].type}</div>
+                              <div className="text-xs text-muted-foreground">
+                                {lead.activities[0].createdAt
+                                  ? new Date(lead.activities[0].createdAt).toLocaleDateString()
+                                  : "N/A"}
+                              </div>
+                            </div>
+                          ) : (
+                            <span className="text-muted-foreground">No activity</span>
+                          )}{" "}
                         </TableCell>
                         <TableCell>
                           {lead.createdAt ? new Date(lead.createdAt).toLocaleDateString() : "N/A"}
@@ -596,35 +690,48 @@ const LeadsPage = () => {
                           </Button>
                         </TableCell>
                         <TableCell className="text-right">
-                          <div className="flex justify-end gap-2">
-                            <Button variant="ghost" size="sm" onClick={() => openEditDialog(lead)}>
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <AlertDialog>
-                              <AlertDialogTrigger asChild>
-                                <Button variant="ghost" size="sm">
-                                  <Trash2 className="h-4 w-4" />
-                                </Button>
-                              </AlertDialogTrigger>
-                              <AlertDialogContent>
-                                <AlertDialogHeader>
-                                  <AlertDialogTitle>Delete Lead</AlertDialogTitle>
-                                  <AlertDialogDescription>
-                                    Are you sure you want to delete {lead.firstName} {lead.lastName}
-                                    ? This action cannot be undone.
-                                  </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                  <AlertDialogAction
-                                    onClick={() => handleDeleteLead(lead.id || "")}
-                                  >
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="sm">
+                                <MoreHorizontal className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem onClick={() => openEditDialog(lead)}>
+                                <Edit className="h-4 w-4 mr-2" />
+                                Edit
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => openCreateNoteDialog(lead)}>
+                                <StickyNote className="h-4 w-4 mr-2" />
+                                Create Note
+                              </DropdownMenuItem>
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                                    <Trash2 className="h-4 w-4 mr-2" />
                                     Delete
-                                  </AlertDialogAction>
-                                </AlertDialogFooter>
-                              </AlertDialogContent>
-                            </AlertDialog>
-                          </div>
+                                  </DropdownMenuItem>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>Delete Lead</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      Are you sure you want to delete {lead.firstName}{" "}
+                                      {lead.lastName}? This action cannot be undone.
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                    <AlertDialogAction
+                                      onClick={() => handleDeleteLead(lead.id || "")}
+                                    >
+                                      Delete
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
                         </TableCell>
                       </TableRow>
                       {expandedNotes === lead.id && lead.notes && lead.notes.length > 0 && (
@@ -824,6 +931,38 @@ const LeadsPage = () => {
                 disabled={!editingLead?.firstName || !editingLead?.email}
               >
                 Update Lead
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Create Note Dialog */}
+        <Dialog open={isCreateNoteOpen} onOpenChange={setIsCreateNoteOpen}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>Create Note</DialogTitle>
+              <DialogDescription>
+                Add a note for {creatingNoteFor?.firstName} {creatingNoteFor?.lastName}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="noteContent">Note Content</Label>
+                <Textarea
+                  id="noteContent"
+                  placeholder="Enter your note here..."
+                  value={newNoteContent}
+                  onChange={(e) => setNewNoteContent(e.target.value)}
+                  className="min-h-[120px]"
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsCreateNoteOpen(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleCreateNote} disabled={!newNoteContent.trim()}>
+                Create Note
               </Button>
             </DialogFooter>
           </DialogContent>
