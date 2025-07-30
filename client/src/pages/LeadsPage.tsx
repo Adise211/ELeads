@@ -1,14 +1,4 @@
 import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -25,45 +15,12 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  Users,
-  UserPlus,
-  TrendingUp,
-  Clock,
-  Search,
-  Filter,
-  Download,
-  Plus,
-  StickyNote,
-  Edit,
-  Trash2,
-  Mail,
-  Phone,
-  Building,
-  MoreHorizontal,
-} from "lucide-react";
 import { showSuccessToast } from "@/utils/toast";
+import { StatsCards, LeadsTable, ActionBar } from "@/components/core/Leads";
 import type { LeadDTO } from "../../../shared/types/index";
 import { LeadStatus } from "../../../shared/types/prisma-enums";
 
@@ -338,432 +295,40 @@ const LeadsPage = () => {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Leads</CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{totalLeads}</div>
-              <p className="text-xs text-muted-foreground">All registered leads</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">New Leads</CardTitle>
-              <UserPlus className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{newLeads}</div>
-              <p className="text-xs text-muted-foreground">Uncontacted leads</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Qualified</CardTitle>
-              <TrendingUp className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{qualifiedLeads}</div>
-              <p className="text-xs text-muted-foreground">Ready for conversion</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Active</CardTitle>
-              <Clock className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{activeLeads}</div>
-              <p className="text-xs text-muted-foreground">Currently being worked</p>
-            </CardContent>
-          </Card>
-        </div>
+        <StatsCards
+          totalLeads={totalLeads}
+          newLeads={newLeads}
+          qualifiedLeads={qualifiedLeads}
+          activeLeads={activeLeads}
+        />
 
         {/* Action Bar */}
-        <div className="flex flex-col sm:flex-row gap-4 mb-6">
-          <div className="flex items-center gap-4 flex-1">
-            <div className="relative w-100">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-              <Input
-                placeholder="Search leads by name, email, or company..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-            <div className="flex gap-2">
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-[150px]">
-                  <Filter className="h-4 w-4 mr-2" />
-                  <SelectValue placeholder="Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="ALL">All Status</SelectItem>
-                  <SelectItem value={LeadStatus.NEW}>New</SelectItem>
-                  <SelectItem value={LeadStatus.INPROGRESS}>In Progress</SelectItem>
-                  <SelectItem value={LeadStatus.LOST}>Lost</SelectItem>
-                </SelectContent>
-              </Select>
-              <Select value={industryFilter} onValueChange={setIndustryFilter}>
-                <SelectTrigger className="w-[150px]">
-                  <SelectValue placeholder="Industry" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="ALL">All Industries</SelectItem>
-                  <SelectItem value="Technology">Technology</SelectItem>
-                  <SelectItem value="Marketing">Marketing</SelectItem>
-                  <SelectItem value="SaaS">SaaS</SelectItem>
-                  <SelectItem value="Finance">Finance</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-          <div className="flex gap-2">
-            <Button onClick={handleExport} variant="outline">
-              <Download className="h-4 w-4 mr-2" />
-              Export
-            </Button>
-            <Dialog open={isAddLeadOpen} onOpenChange={setIsAddLeadOpen}>
-              <DialogTrigger asChild>
-                <Button>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Lead
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-2xl">
-                <DialogHeader>
-                  <DialogTitle>Add New Lead</DialogTitle>
-                  <DialogDescription>
-                    Enter the details for the new lead. Fill in as much information as possible.
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="grid grid-cols-2 gap-4 py-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="firstName">First Name *</Label>
-                    <Input
-                      id="firstName"
-                      value={newLead.firstName}
-                      onChange={(e) => setNewLead({ ...newLead, firstName: e.target.value })}
-                      placeholder="John"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="lastName">Last Name</Label>
-                    <Input
-                      id="lastName"
-                      value={newLead.lastName}
-                      onChange={(e) => setNewLead({ ...newLead, lastName: e.target.value })}
-                      placeholder="Doe"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Email *</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      value={newLead.email}
-                      onChange={(e) => setNewLead({ ...newLead, email: e.target.value })}
-                      placeholder="john.doe@example.com"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="phone">Phone</Label>
-                    <Input
-                      id="phone"
-                      value={newLead.phone}
-                      onChange={(e) => setNewLead({ ...newLead, phone: e.target.value })}
-                      placeholder="+1-555-0101"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="company">Company</Label>
-                    <Input
-                      id="company"
-                      value={newLead.company}
-                      onChange={(e) => setNewLead({ ...newLead, company: e.target.value })}
-                      placeholder="TechCorp Inc."
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="jobTitle">Job Title</Label>
-                    <Input
-                      id="jobTitle"
-                      value={newLead.jobTitle}
-                      onChange={(e) => setNewLead({ ...newLead, jobTitle: e.target.value })}
-                      placeholder="Software Engineer"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="industry">Industry</Label>
-                    <Select
-                      value={newLead.industry}
-                      onValueChange={(value) => setNewLead({ ...newLead, industry: value })}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select industry" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Technology">Technology</SelectItem>
-                        <SelectItem value="Marketing">Marketing</SelectItem>
-                        <SelectItem value="SaaS">SaaS</SelectItem>
-                        <SelectItem value="Finance">Finance</SelectItem>
-                        <SelectItem value="Healthcare">Healthcare</SelectItem>
-                        <SelectItem value="Education">Education</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="website">Website</Label>
-                    <Input
-                      id="website"
-                      value={newLead.website}
-                      onChange={(e) => setNewLead({ ...newLead, website: e.target.value })}
-                      placeholder="https://example.com"
-                    />
-                  </div>
-                  <div className="col-span-2 space-y-2">
-                    <Label htmlFor="address">Address</Label>
-                    <Input
-                      id="address"
-                      value={newLead.address}
-                      onChange={(e) => setNewLead({ ...newLead, address: e.target.value })}
-                      placeholder="123 Main St"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="city">City</Label>
-                    <Input
-                      id="city"
-                      value={newLead.city}
-                      onChange={(e) => setNewLead({ ...newLead, city: e.target.value })}
-                      placeholder="San Francisco"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="state">State</Label>
-                    <Input
-                      id="state"
-                      value={newLead.state}
-                      onChange={(e) => setNewLead({ ...newLead, state: e.target.value })}
-                      placeholder="CA"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="zipCode">Zip Code</Label>
-                    <Input
-                      id="zipCode"
-                      value={newLead.zipCode}
-                      onChange={(e) => setNewLead({ ...newLead, zipCode: e.target.value })}
-                      placeholder="94105"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="country">Country</Label>
-                    <Input
-                      id="country"
-                      value={newLead.country}
-                      onChange={(e) => setNewLead({ ...newLead, country: e.target.value })}
-                      placeholder="USA"
-                    />
-                  </div>
-                </div>
-                <DialogFooter>
-                  <Button variant="outline" onClick={() => setIsAddLeadOpen(false)}>
-                    Cancel
-                  </Button>
-                  <Button onClick={handleAddLead} disabled={!newLead.firstName || !newLead.email}>
-                    Add Lead
-                  </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
-          </div>
-        </div>
+        <ActionBar
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+          statusFilter={statusFilter}
+          setStatusFilter={setStatusFilter}
+          industryFilter={industryFilter}
+          setIndustryFilter={setIndustryFilter}
+          isAddLeadOpen={isAddLeadOpen}
+          setIsAddLeadOpen={setIsAddLeadOpen}
+          newLead={newLead}
+          setNewLead={setNewLead}
+          handleAddLead={handleAddLead}
+          handleExport={handleExport}
+        />
 
         {/* Leads Table */}
-        <Card>
-          <CardHeader>
-            <CardTitle>All Leads</CardTitle>
-            <CardDescription>View and manage your lead pipeline</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex justify-between items-center mb-4">
-              <div className="text-sm text-muted-foreground">
-                Showing {filteredLeads.length} of {leads.length} leads
-              </div>
-            </div>
-            <div className="rounded-md border">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Company</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Assigned To</TableHead>
-                    <TableHead>Last Activity</TableHead>
-                    <TableHead>Created</TableHead>
-                    <TableHead>Notes</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredLeads.map((lead) => (
-                    <>
-                      <TableRow key={lead.id}>
-                        <TableCell className="font-medium">
-                          <div className="flex items-center gap-3">
-                            <div className="h-8 w-8 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center text-white text-sm font-medium">
-                              {lead.firstName[0]}
-                              {lead.lastName?.[0] || ""}
-                            </div>
-                            <div>
-                              <div className="font-medium">
-                                {lead.firstName} {lead.lastName}
-                              </div>
-                              <div className="text-sm text-muted-foreground flex items-center gap-1">
-                                <Mail className="h-3 w-3" />
-                                {lead.email || "N/A"}
-                              </div>
-                              {lead.phone.length > 0 && (
-                                <div className="text-sm text-muted-foreground flex items-center gap-1">
-                                  <Phone className="h-3 w-3" />
-                                  {lead.phone[0] || "N/A"}
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          {" "}
-                          <div>
-                            <div className="font-medium flex items-center gap-1">
-                              <Building className="h-3 w-3" />
-                              {lead.company || "N/A"}
-                            </div>
-                            {lead.jobTitle && (
-                              <div className="text-sm text-muted-foreground">
-                                {lead.jobTitle || "N/A"}
-                              </div>
-                            )}
-                            {lead.industry && (
-                              <div className="text-xs text-muted-foreground">
-                                {lead.industry || "N/A"}
-                              </div>
-                            )}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge className={getStatusColor(lead.status)}>{lead.status}</Badge>
-                        </TableCell>
-                        <TableCell>{"Adi"}</TableCell>
-                        <TableCell>
-                          {lead.activities && lead.activities.length > 0 ? (
-                            <div>
-                              <div className="text-sm">{lead.activities[0].type}</div>
-                              <div className="text-xs text-muted-foreground">
-                                {lead.activities[0].createdAt
-                                  ? new Date(lead.activities[0].createdAt).toLocaleDateString()
-                                  : "N/A"}
-                              </div>
-                            </div>
-                          ) : (
-                            <span className="text-muted-foreground">No activity</span>
-                          )}{" "}
-                        </TableCell>
-                        <TableCell>
-                          {lead.createdAt ? new Date(lead.createdAt).toLocaleDateString() : "N/A"}
-                        </TableCell>
-                        <TableCell>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => toggleNotes(lead.id || "")}
-                            className="p-2"
-                          >
-                            <StickyNote className="h-4 w-4" />
-                            <span className="ml-1 text-xs">({lead.notes?.length || 0})</span>
-                          </Button>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="sm">
-                                <MoreHorizontal className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuItem onClick={() => openEditDialog(lead)}>
-                                <Edit className="h-4 w-4 mr-2" />
-                                Edit
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => openCreateNoteDialog(lead)}>
-                                <StickyNote className="h-4 w-4 mr-2" />
-                                Create Note
-                              </DropdownMenuItem>
-                              <AlertDialog>
-                                <AlertDialogTrigger asChild>
-                                  <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                                    <Trash2 className="h-4 w-4 mr-2" />
-                                    Delete
-                                  </DropdownMenuItem>
-                                </AlertDialogTrigger>
-                                <AlertDialogContent>
-                                  <AlertDialogHeader>
-                                    <AlertDialogTitle>Delete Lead</AlertDialogTitle>
-                                    <AlertDialogDescription>
-                                      Are you sure you want to delete {lead.firstName}{" "}
-                                      {lead.lastName}? This action cannot be undone.
-                                    </AlertDialogDescription>
-                                  </AlertDialogHeader>
-                                  <AlertDialogFooter>
-                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                    <AlertDialogAction
-                                      onClick={() => handleDeleteLead(lead.id || "")}
-                                    >
-                                      Delete
-                                    </AlertDialogAction>
-                                  </AlertDialogFooter>
-                                </AlertDialogContent>
-                              </AlertDialog>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </TableCell>
-                      </TableRow>
-                      {expandedNotes === lead.id && lead.notes && lead.notes.length > 0 && (
-                        <TableRow>
-                          <TableCell colSpan={9} className="bg-muted/50">
-                            <div className="py-4">
-                              <h4 className="font-medium mb-3">
-                                Notes for {lead.firstName} {lead.lastName}
-                              </h4>
-                              <div className="space-y-3">
-                                {lead.notes.map((note) => (
-                                  <div key={note.id} className="border-l-4 border-primary pl-4">
-                                    <p className="text-sm">{note.content}</p>
-                                    <p className="text-xs text-muted-foreground mt-1">
-                                      {note.createdAt
-                                        ? new Date(note.createdAt).toLocaleString()
-                                        : "N/A"}
-                                    </p>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      )}
-                    </>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          </CardContent>
-        </Card>
+        <LeadsTable
+          leads={leads}
+          filteredLeads={filteredLeads}
+          expandedNotes={expandedNotes}
+          getStatusColor={getStatusColor}
+          openEditDialog={openEditDialog}
+          openCreateNoteDialog={openCreateNoteDialog}
+          handleDeleteLead={handleDeleteLead}
+          toggleNotes={toggleNotes}
+        />
 
         {/* Edit Lead Dialog */}
         <Dialog open={isEditLeadOpen} onOpenChange={setIsEditLeadOpen}>
