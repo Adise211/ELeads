@@ -128,10 +128,10 @@ const LeadsTable = ({
                     </TableCell>
                     <TableCell className="font-medium">
                       <div className="flex items-center gap-3">
-                        <div className="h-8 w-8 rounded-full bg-gradient-to-r from-primary to-primary/80 flex items-center justify-center text-white text-sm font-medium">
+                        {/* <div className="h-8 w-8 rounded-full bg-gradient-to-r from-primary to-primary/80 flex items-center justify-center text-white text-sm font-medium">
                           {lead.firstName[0]}
                           {lead.lastName?.[0] || ""}
-                        </div>
+                        </div> */}
                         <div>
                           <div className="font-medium">
                             {lead.firstName} {lead.lastName}
