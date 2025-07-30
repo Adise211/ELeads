@@ -1,4 +1,4 @@
-import type { Permission, UserRole } from "./types/prisma-enums";
+import { LeadStatus, type Permission, type UserRole } from "./types/prisma-enums";
 
 export const httpCodes = {
   SUCCESS: 200,
@@ -29,4 +29,10 @@ export const roleOptions: Record<UserRole, string> = {
   ADMIN: "ADMIN",
   USER: "USER",
   MANAGER: "MANAGER",
+};
+
+export const leadStatusOptions: Record<LeadStatus, string> = {
+  NEW: "NEW",
+  INPROGRESS: "INPROGRESS",
+  LOST: "LOST",
 };
