@@ -14,6 +14,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Edit, MoreHorizontal, Save, X, UserPlus } from "lucide-react";
 import { useState } from "react";
 import { permissionsOptions } from "../../../../../shared/constants";
@@ -110,6 +111,7 @@ const PermissionsTab = ({ workspaceUsers }: PermissionsTabProps) => {
     const maxVisible = 1;
     const visiblePermissions = permissions.slice(0, maxVisible);
     const remainingCount = permissions.length - maxVisible;
+    const remainingPermissions = permissions.slice(maxVisible);
 
     return (
       <div className="flex flex-wrap gap-1 items-center">
@@ -119,10 +121,25 @@ const PermissionsTab = ({ workspaceUsers }: PermissionsTabProps) => {
           </Badge>
         ))}
         {remainingCount > 0 && (
-          <div className="flex items-center gap-1">
-            <MoreHorizontal className="h-3 w-3 text-muted-foreground" />
-            <span className="text-xs text-muted-foreground">+{remainingCount} more</span>
-          </div>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="flex items-center gap-1 cursor-pointer">
+                  <MoreHorizontal className="h-3 w-3 text-muted-foreground" />
+                  <span className="text-xs text-muted-foreground">+{remainingCount} more</span>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent className="bg-popover text-popover-foreground border shadow-md">
+                <div className="flex flex-wrap gap-1 max-w-xs">
+                  {remainingPermissions.map((permission) => (
+                    <Badge key={permission} variant="secondary" className="text-xs">
+                      {permission}
+                    </Badge>
+                  ))}
+                </div>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         )}
       </div>
     );
@@ -186,110 +203,115 @@ const PermissionsTab = ({ workspaceUsers }: PermissionsTabProps) => {
           </TableBody>
         </Table>
       </div>
-
-      <div className="flex justify-end mt-4">
-        <Button onClick={() => setIsInviteDialogOpen(true)}>
-          <UserPlus className="h-4 w-4 mr-2" />
-          Invite Friend
-        </Button>
-      </div>
+      <ProtectedUI allowedPermissions={[permissionsOptions.MANAGE_USERS] as Permission[]}>
+        <div className="flex justify-end mt-4">
+          <Button onClick={() => setIsInviteDialogOpen(true)}>
+            <UserPlus className="h-4 w-4 mr-2" />
+            Invite Friend
+          </Button>
+        </div>
+      </ProtectedUI>
 
       {/* Edit User Dialog */}
-      <AppDialog
-        trigger={<div style={{ display: "none" }} />}
-        title="Edit User Permissions"
-        open={isEditDialogOpen}
-        onOpenChange={setIsEditDialogOpen}
-        footer={
-          <>
-            <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleSaveUser}>
-              <Save className="h-4 w-4 mr-2" />
-              Save Changes
-            </Button>
-          </>
-        }
-      >
-        {editingUser && (
-          <div className="space-y-4">
-            <div className="flex items-center gap-3">
-              <Avatar className="h-12 w-12">
-                <AvatarImage
-                  src={editingUser.avatarUrl}
-                  alt={`${editingUser.firstName} ${editingUser.lastName}`}
+      <ProtectedUI allowedPermissions={[permissionsOptions.MANAGE_USERS] as Permission[]}>
+        <AppDialog
+          trigger={<div style={{ display: "none" }} />}
+          title="Edit User Permissions"
+          open={isEditDialogOpen}
+          onOpenChange={setIsEditDialogOpen}
+          footer={
+            <>
+              <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleSaveUser}>
+                <Save className="h-4 w-4 mr-2" />
+                Save Changes
+              </Button>
+            </>
+          }
+        >
+          {editingUser && (
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <Avatar className="h-12 w-12">
+                  <AvatarImage
+                    src={editingUser.avatarUrl}
+                    alt={`${editingUser.firstName} ${editingUser.lastName}`}
+                  />
+                  <AvatarFallback>
+                    {editingUser.firstName[0]}
+                    {editingUser.lastName[0]}
+                  </AvatarFallback>
+                </Avatar>
+                <div>
+                  <h4 className="font-medium">
+                    {editingUser.firstName} {editingUser.lastName}
+                  </h4>
+                  <p className="text-sm text-muted-foreground">{editingUser.email}</p>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="role">Role</Label>
+                <AppSelect
+                  placeholder="Select role"
+                  value={selectedRole}
+                  onValueChange={setSelectedRole}
+                  options={roleOptions}
+                  triggerClassName="w-full"
                 />
-                <AvatarFallback>
-                  {editingUser.firstName[0]}
-                  {editingUser.lastName[0]}
-                </AvatarFallback>
-              </Avatar>
-              <div>
-                <h4 className="font-medium">
-                  {editingUser.firstName} {editingUser.lastName}
-                </h4>
-                <p className="text-sm text-muted-foreground">{editingUser.email}</p>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Current Permissions</Label>
+                <div className="flex flex-wrap gap-1">
+                  {currentPermissions.map((permission) => (
+                    <div key={permission} className="flex items-center gap-1">
+                      <Badge variant="outline" className="text-xs">
+                        {permission}
+                      </Badge>
+                      <ButtonIcon
+                        onClick={() => handleRemovePermission(permission)}
+                        icon={<X className="h-3 w-3" />}
+                        className="h-5 w-5 text-muted-foreground hover:text-destructive transition-colors"
+                      />
+                    </div>
+                  ))}
+                  {currentPermissions.length === 0 && (
+                    <p className="text-sm text-muted-foreground">No permissions assigned</p>
+                  )}
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="permissions">Add Permissions</Label>
+                <AppSelect
+                  placeholder="Select permissions to add"
+                  value={selectedPermission}
+                  onValueChange={(value) => {
+                    setSelectedPermission(value);
+                    if (value) {
+                      handleAddPermission(value);
+                    }
+                  }}
+                  options={getPermissionOptions(currentPermissions)}
+                  triggerClassName="w-full"
+                />
               </div>
             </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="role">Role</Label>
-              <AppSelect
-                placeholder="Select role"
-                value={selectedRole}
-                onValueChange={setSelectedRole}
-                options={roleOptions}
-                triggerClassName="w-full"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label>Current Permissions</Label>
-              <div className="flex flex-wrap gap-1">
-                {currentPermissions.map((permission) => (
-                  <div key={permission} className="flex items-center gap-1">
-                    <Badge variant="outline" className="text-xs">
-                      {permission}
-                    </Badge>
-                    <ButtonIcon
-                      onClick={() => handleRemovePermission(permission)}
-                      icon={<X className="h-3 w-3" />}
-                      className="h-5 w-5 text-muted-foreground hover:text-destructive transition-colors"
-                    />
-                  </div>
-                ))}
-                {currentPermissions.length === 0 && (
-                  <p className="text-sm text-muted-foreground">No permissions assigned</p>
-                )}
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="permissions">Add Permissions</Label>
-              <AppSelect
-                placeholder="Select permissions to add"
-                value={selectedPermission}
-                onValueChange={(value) => {
-                  setSelectedPermission(value);
-                  if (value) {
-                    handleAddPermission(value);
-                  }
-                }}
-                options={getPermissionOptions(currentPermissions)}
-                triggerClassName="w-full"
-              />
-            </div>
-          </div>
-        )}
-      </AppDialog>
+          )}
+        </AppDialog>
+      </ProtectedUI>
 
       {/* Invite Friend Dialog */}
-      <InviteFriendDialog
-        open={isInviteDialogOpen}
-        onOpenChange={setIsInviteDialogOpen}
-        onInvite={handleInviteFriend}
-      />
+      <ProtectedUI allowedPermissions={[permissionsOptions.MANAGE_USERS] as Permission[]}>
+        <InviteFriendDialog
+          open={isInviteDialogOpen}
+          onOpenChange={setIsInviteDialogOpen}
+          onInvite={handleInviteFriend}
+        />
+      </ProtectedUI>
     </div>
   );
 };
