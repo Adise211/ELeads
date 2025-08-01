@@ -1,3 +1,5 @@
+import { LeadStatus } from "@prisma/client";
+
 // Custom error interface
 export interface CustomError extends Error {
   statusCode?: number;
@@ -32,4 +34,22 @@ export interface RegisterUserFields {
     name?: string;
     id?: string;
   };
+}
+
+export interface CreateLeadInput {
+  firstName: string;
+  lastName?: string;
+  email: string;
+  phone?: string;
+  company?: string;
+  jobTitle?: string;
+  industry?: string;
+  status?: LeadStatus;
+  website?: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  zipCode?: string;
+  country?: string;
+  workspaceId: string;
 }
