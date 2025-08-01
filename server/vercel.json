@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "install": ["npm install"],
+  "install": "npm install",
   "builds": [{ "src": "dist/server.js", "use": "@vercel/node" }],
   "routes": [{ "src": "/(.*)", "dest": "/dist/server.js" }],
   "env": {
