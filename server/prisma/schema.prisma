@@ -82,7 +82,7 @@ model Lead {
   notes        Note[]
   activities   Activity[]
   workspace    Workspace  @relation(fields: [workspaceId], references: [id])
-  workspaceId  String     @unique
+  workspaceId  String
   isActive     Boolean    @default(true)
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
