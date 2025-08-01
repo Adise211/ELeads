@@ -1,16 +1,16 @@
-import express from "express";
 import dotenv from "dotenv";
-import cookieParser from "cookie-parser";
-import cors from "cors";
-import rootRouter from "./routes/index.route";
-import { globalErrorHandler, handleNotFound } from "./middleware/errorHandler.middleware";
-
 // Load environment variables based on NODE_ENV
 if (process.env.NODE_ENV === "production") {
   dotenv.config({ path: ".env.production" });
 } else {
   dotenv.config({ path: ".env" });
 }
+
+import express from "express";
+import cookieParser from "cookie-parser";
+import cors from "cors";
+import rootRouter from "./routes/index.route";
+import { globalErrorHandler, handleNotFound } from "./middleware/errorHandler.middleware";
 
 const app = express();
 const port = process.env.PORT || 8080;
