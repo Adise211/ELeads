@@ -47,11 +47,12 @@ model User {
 }
 
 model Workspace {
-  id        String   @id @default(cuid())
-  name      String
-  users     User[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id             String   @id @default(cuid())
+  name           String
+  users          User[]
+  workspaceLeads Lead[]
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 }
 
 enum LeadStatus {
@@ -65,7 +66,7 @@ model Lead {
   firstName    String
   lastName     String?
   email        String
-  phone        String[]   @default([])
+  phone        String?
   company      String?
   jobTitle     String?
   industry     String?
@@ -80,6 +81,8 @@ model Lead {
   country      String?
   notes        Note[]
   activities   Activity[]
+  workspace    Workspace  @relation(fields: [workspaceId], references: [id])
+  workspaceId  String
   isActive     Boolean    @default(true)
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt

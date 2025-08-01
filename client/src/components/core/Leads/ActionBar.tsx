@@ -19,6 +19,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Search, Filter, Download, Plus } from "lucide-react";
 import { LeadStatus } from "../../../../../shared/types/prisma-enums";
+import { industriesList } from "./leads.data";
 
 interface ActionBarProps {
   searchTerm: string;
@@ -108,16 +109,18 @@ const ActionBar = ({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="ALL">All Industries</SelectItem>
-              <SelectItem value="Technology">Technology</SelectItem>
-              <SelectItem value="Marketing">Marketing</SelectItem>
-              <SelectItem value="SaaS">SaaS</SelectItem>
-              <SelectItem value="Finance">Finance</SelectItem>
+              {industriesList.map((industry) => (
+                <SelectItem key={industry} value={industry}>
+                  {industry}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
       </div>
       <div className="flex gap-2">
-        <Button onClick={handleExport} variant="outline">
+        {/* TODO: Add export functionality */}
+        <Button onClick={handleExport} variant="outline" disabled={true}>
           <Download className="h-4 w-4 mr-2" />
           Export
         </Button>
@@ -201,12 +204,11 @@ const ActionBar = ({
                     <SelectValue placeholder="Select industry" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Technology">Technology</SelectItem>
-                    <SelectItem value="Marketing">Marketing</SelectItem>
-                    <SelectItem value="SaaS">SaaS</SelectItem>
-                    <SelectItem value="Finance">Finance</SelectItem>
-                    <SelectItem value="Healthcare">Healthcare</SelectItem>
-                    <SelectItem value="Education">Education</SelectItem>
+                    {industriesList.map((industry) => (
+                      <SelectItem key={industry} value={industry}>
+                        {industry}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>

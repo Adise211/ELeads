@@ -1,5 +1,5 @@
 import z from "zod";
-import { RegisterUserFields } from "../server.types";
+import { LeadStatus } from "@prisma/client";
 
 export const loginUserSchema = z.object({
   body: z.object({
@@ -59,4 +59,24 @@ export const registerUserSchema = z.object({
         path: ["body", "workspace"],
       }
     ),
+});
+
+export const createLeadSchema = z.object({
+  body: z.object({
+    firstName: z.string().min(1, { message: "First name is required" }),
+    lastName: z.string().min(1, { message: "Last name is required" }),
+    email: z.string().email({ message: "Invalid email address" }),
+    phone: z.string().min(10, { message: "Phone number must be at least 10 digits long" }),
+    company: z.string().optional(),
+    jobTitle: z.string().optional(),
+    industry: z.string().optional(),
+    status: z.nativeEnum(LeadStatus),
+    website: z.string().optional(),
+    address: z.string().optional(),
+    city: z.string().optional(),
+    state: z.string().optional(),
+    zipCode: z.string().optional(),
+    country: z.string().optional(),
+    workspaceId: z.string().min(1, { message: "Workspace ID is required" }),
+  }),
 });

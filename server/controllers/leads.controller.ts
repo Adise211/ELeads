@@ -6,14 +6,10 @@ import {
 import { httpCodes } from "../utils/errorCodes";
 import { SuccessResponse } from "../server.types";
 
-export const createLead = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+export const createLead = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { userId } = (req as any).user;
-    const { data } = req.body;
+    const data = req.body;
     const createdLead = await createLeadModel(userId, data);
     const successResponse: SuccessResponse = {
       success: true,
@@ -26,11 +22,7 @@ export const createLead = async (
   }
 };
 
-export const updateUserLead = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+export const updateUserLead = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { userId } = (req as any).user;
     const { leadId, data } = req.body;
