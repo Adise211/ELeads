@@ -29,8 +29,9 @@ import {
 } from "@/components/ui/alert-dialog";
 import { StickyNote, Edit, Trash2, Mail, Phone, Building, MoreHorizontal, Eye } from "lucide-react";
 import type { LeadDTO } from "../../../../../shared/types/index";
-import { LeadStatus } from "../../../../../shared/types/prisma-enums";
+import { LeadStatus, Permission } from "../../../../../shared/types/prisma-enums";
 import { useState } from "react";
+import ProtectedUI from "@/components/providers/ProtectedUI";
 
 interface LeadsTableProps {
   leads: LeadDTO[];
@@ -171,7 +172,7 @@ const LeadsTable = ({
                     <TableCell>
                       <Badge className={getStatusColor(lead.status)}>{lead.status}</Badge>
                     </TableCell>
-                    <TableCell>{"Adi"}</TableCell>
+                    <TableCell>{"Adi Mandal"}</TableCell>
                     <TableCell>
                       {lead.activities && lead.activities.length > 0 ? (
                         <div>
@@ -203,7 +204,9 @@ const LeadsTable = ({
                         className="p-2"
                       >
                         <StickyNote className="h-4 w-4" />
-                        <span className="ml-1 text-xs">({lead.notes?.length || 0})</span>
+                        <Badge variant="outline" className="ml-2">
+                          {lead.notes?.length ? `+${lead.notes?.length}` : 0}
+                        </Badge>
                       </Button>
                     </TableCell>
                     <TableCell className="text-center">
@@ -218,39 +221,55 @@ const LeadsTable = ({
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => openEditDialog(lead)}>
-                              <Edit className="h-4 w-4 mr-2" />
-                              Edit
-                            </DropdownMenuItem>
+                            <ProtectedUI
+                              allowedPermissions={
+                                [
+                                  Permission.EDIT_WORKSPACE_LEADS,
+                                  Permission.MANAGE_OWN_LEADS,
+                                ] as Permission[]
+                              }
+                            >
+                              <DropdownMenuItem onClick={() => openEditDialog(lead)}>
+                                <Edit className="h-4 w-4 mr-2" />
+                                Edit
+                              </DropdownMenuItem>
+                            </ProtectedUI>
                             <DropdownMenuItem onClick={() => openCreateNoteDialog(lead)}>
                               <StickyNote className="h-4 w-4 mr-2" />
                               Create Note
                             </DropdownMenuItem>
-                            <AlertDialog>
-                              <AlertDialogTrigger asChild>
-                                <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                                  <Trash2 className="h-4 w-4 mr-2" />
-                                  Delete
-                                </DropdownMenuItem>
-                              </AlertDialogTrigger>
-                              <AlertDialogContent>
-                                <AlertDialogHeader>
-                                  <AlertDialogTitle>Delete Lead</AlertDialogTitle>
-                                  <AlertDialogDescription>
-                                    Are you sure you want to delete {lead.firstName} {lead.lastName}
-                                    ? This action cannot be undone.
-                                  </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                  <AlertDialogAction
-                                    onClick={() => handleDeleteLead(lead.id || "")}
-                                  >
+                            {/* Delete lead with confirmation dialog */}
+                            <ProtectedUI
+                              allowedPermissions={
+                                [Permission.DELETE_WORKSPACE_LEADS] as Permission[]
+                              }
+                            >
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                                    <Trash2 className="h-4 w-4 mr-2" />
                                     Delete
-                                  </AlertDialogAction>
-                                </AlertDialogFooter>
-                              </AlertDialogContent>
-                            </AlertDialog>
+                                  </DropdownMenuItem>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>Delete Lead</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      Are you sure you want to delete {lead.firstName}{" "}
+                                      {lead.lastName}? This action cannot be undone.
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                    <AlertDialogAction
+                                      onClick={() => handleDeleteLead(lead.id || "")}
+                                    >
+                                      Delete
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
+                            </ProtectedUI>
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </div>
