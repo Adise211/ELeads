@@ -117,7 +117,8 @@ const ActionBar = ({
         </div>
       </div>
       <div className="flex gap-2">
-        <Button onClick={handleExport} variant="outline">
+        {/* TODO: Add export functionality */}
+        <Button onClick={handleExport} variant="outline" disabled={true}>
           <Download className="h-4 w-4 mr-2" />
           Export
         </Button>
