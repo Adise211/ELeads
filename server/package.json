@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "prod": "NODE_ENV=production npx tsc && node dist/server.js",
     "dev": "NODE_ENV=development npx tsc && node dist/server.js",
-    "build": "NODE_ENV=production",
+    "build": "NODE_ENV=production npx tsc",
     "dev:watch": "NODE_ENV=development npx tsc -w & nodemon dist/server.js",
     "prod:watch": "NODE_ENV=production nodemon dist/server.js",
     "generate:enums": "npx tsc scripts/generate-enums.ts && node scripts/generate-enums.js",
