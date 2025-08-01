@@ -27,7 +27,9 @@ app.use(cookieParser());
 app.use(cors(corsConfig)); // This is important for enabling secure communication between the frontend and backend,
 
 app.use("/api", rootRouter);
-
+app.get("/", (req, res) => {
+  res.send("API is running");
+});
 // Handle unhandled routes
 // app.all("*", handleNotFound);
 
