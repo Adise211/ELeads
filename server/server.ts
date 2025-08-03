@@ -28,7 +28,7 @@ app.use(cors(corsConfig)); // This is important for enabling secure communicatio
 
 app.use("/api", rootRouter);
 app.get("/", (req, res) => {
-  res.send("API is running");
+  res.send("ELeads API is running");
 });
 // Handle unhandled routes
 // app.all("*", handleNotFound);
