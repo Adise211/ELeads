@@ -82,6 +82,7 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
       // If password is correct, create a payload with user data
       const payload = {
         userId: user.id,
+        workspaceId: user.workspaceId,
         email: user.email,
         permissions: user.permissions,
       };

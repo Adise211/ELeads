@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import {
   createLead as createLeadModel,
   updateUserLead as updateUserLeadModel,
+  getLeads as getLeadsModel,
 } from "../models/leads.model";
 import { httpCodes } from "../utils/errorCodes";
 import { SuccessResponse } from "../server.types";
@@ -33,6 +34,16 @@ export const updateUserLead = async (req: Request, res: Response, next: NextFunc
       data: updatedLead,
     };
     res.status(httpCodes.SUCCESS).json(successResponse);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getWorkspaceLeads = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { workspaceId } = (req as any).user;
+    const leads = await getLeadsModel(workspaceId);
+    res.status(httpCodes.SUCCESS).json(leads);
   } catch (error) {
     next(error);
   }
