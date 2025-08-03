@@ -56,10 +56,10 @@ export type ActivityDTO = {
   id?: string;
   type: ActivityType;
   description: string;
-  leadId: string;
-  lead: LeadDTO;
-  userId: string;
-  user: UserDTO;
+  leadId?: string;
+  lead?: LeadDTO;
+  userId?: string;
+  user?: UserDTO;
   createdAt?: Date;
   updatedAt?: Date;
 };
@@ -67,8 +67,8 @@ export type ActivityDTO = {
 export type NoteDTO = {
   id?: string;
   content: string;
-  leadId: string;
-  lead: LeadDTO;
+  leadId?: string;
+  lead?: LeadDTO;
   createdAt?: Date;
   updatedAt?: Date;
 };
