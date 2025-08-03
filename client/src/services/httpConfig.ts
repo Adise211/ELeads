@@ -1,6 +1,7 @@
 import axios from "axios";
 import { httpCodes } from "../../../shared/constants";
 import { showErrorToast } from "@/utils/toast";
+console.log("import.meta.env.VITE_BACKEND_API_BASE_URL", import.meta.env.VITE_BACKEND_API_BASE_URL);
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_BACKEND_API_BASE_URL,
