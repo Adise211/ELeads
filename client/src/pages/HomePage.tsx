@@ -1,10 +1,12 @@
 import ChartSection from "@/components/core/Dashboard/ChartSection";
 import CardsSection from "@/components/core/Dashboard/CardsSection";
 import LastActivityCard from "@/components/core/Leads/LastActivityCard";
+import type { LeadDTO } from "../../../shared/types/index";
+import type { LeadStatus, ActivityType } from "../../../shared/types/prisma-enums";
 
 const HomePage = () => {
   // Mock data for LastActivityCard - you can replace this with real data from your API
-  const mockLeads = [
+  const mockLeads: LeadDTO[] = [
     {
       id: "1",
       firstName: "John",
@@ -13,11 +15,15 @@ const HomePage = () => {
       activities: [
         {
           id: "1",
-          type: "Email Sent",
+          type: "EMAIL" as ActivityType,
           description: "Follow-up email sent to John Doe",
           createdAt: new Date("2024-01-15"),
         },
       ],
+      email: "john.doe@example.com",
+      phone: ["+1234567890"],
+      status: "NEW" as LeadStatus,
+      country: "USA",
     },
     {
       id: "2",
@@ -27,11 +33,15 @@ const HomePage = () => {
       activities: [
         {
           id: "2",
-          type: "Call Made",
+          type: "CALL" as ActivityType,
           description: "Initial contact call completed",
           createdAt: new Date("2024-01-14"),
         },
       ],
+      email: "jane.smith@example.com",
+      phone: ["+1234567890"],
+      status: "NEW" as LeadStatus,
+      country: "USA",
     },
   ];
 
