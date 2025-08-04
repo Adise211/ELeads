@@ -17,9 +17,9 @@ import {
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Edit, MoreHorizontal, Save, X, UserPlus } from "lucide-react";
 import { useState } from "react";
-import { permissionsOptions } from "../../../../../shared/constants";
+import { permissionsOptions } from "@eleads/shared";
 import { useAuthStore } from "@/stores/authStore";
-import type { Permission } from "../../../../../shared/types/prisma-enums";
+import type { Permission } from "@eleads/shared";
 import ProtectedUI from "@/components/providers/ProtectedUI";
 
 interface WorkspaceUser {

@@ -1,8 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { UserDTO } from "../../../shared/types";
-import type { Permission, UserRole } from "../../../shared/types/prisma-enums";
-import { roleOptions } from "../../../shared/constants";
+import type { UserDTO, Permission, UserRole } from "@eleads/shared";
+import { roleOptions } from "@eleads/shared";
 
 type AuthState = {
   user: UserDTO | null;

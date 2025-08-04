@@ -21,8 +21,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { showSuccessToast } from "@/utils/toast";
 import { StatsCards, LeadsTable, ActionBar } from "@/components/core/Leads";
-import type { LeadDTO } from "../../../shared/types/index";
-import { LeadStatus } from "../../../shared/types/prisma-enums";
+import type { LeadDTO } from "@eleads/shared";
+import { LeadStatus } from "@eleads/shared";
 
 // Mock data based on the schema
 const mockLeads: LeadDTO[] = [

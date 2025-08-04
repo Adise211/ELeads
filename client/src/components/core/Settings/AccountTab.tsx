@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import AppDialog from "@/components/core/AppDialog";
 import { Mail, Phone, Lock, Save, Edit, Check } from "lucide-react";
 import { showSuccessToast } from "@/utils/toast";
-import type { UserDTO } from "../../../../../shared/types/index";
+import type { UserDTO } from "@eleads/shared";
 import { useState } from "react";
 
 interface AccountTabProps {

@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Search, Filter, Download, Plus } from "lucide-react";
-import { LeadStatus } from "../../../../../shared/types/prisma-enums";
+import { LeadStatus } from "@eleads/shared";
 import { industriesList } from "./leads.data";
 
 interface ActionBarProps {

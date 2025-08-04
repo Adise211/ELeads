@@ -1,6 +1,6 @@
 import { useAuthStore } from "@/stores/authStore";
 import { useMemo, type ReactNode } from "react";
-import type { Permission, UserRole } from "../../../../shared/types/prisma-enums";
+import type { Permission, UserRole } from "@eleads/shared";
 
 interface ProtectedUIProps {
   children: ReactNode;

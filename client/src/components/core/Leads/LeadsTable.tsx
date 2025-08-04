@@ -28,8 +28,8 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { StickyNote, Edit, Trash2, Mail, Phone, Building, MoreHorizontal, Eye } from "lucide-react";
-import type { LeadDTO } from "../../../../../shared/types/index";
-import { LeadStatus, Permission } from "../../../../../shared/types/prisma-enums";
+import type { LeadDTO } from "@eleads/shared";
+import { LeadStatus, Permission } from "@eleads/shared";
 import { useState } from "react";
 import ProtectedUI from "@/components/providers/ProtectedUI";
 

@@ -1,8 +1,7 @@
 import ChartSection from "@/components/core/Dashboard/ChartSection";
 import CardsSection from "@/components/core/Dashboard/CardsSection";
 import LastActivityCard from "@/components/core/Leads/LastActivityCard";
-import type { LeadDTO } from "../../../shared/types/index";
-import type { LeadStatus, ActivityType } from "../../../shared/types/prisma-enums";
+import type { LeadDTO, LeadStatus, ActivityType } from "@eleads/shared";
 
 const HomePage = () => {
   // Mock data for LastActivityCard - you can replace this with real data from your API

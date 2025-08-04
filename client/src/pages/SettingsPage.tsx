@@ -12,7 +12,7 @@ import {
   PreferenceTab,
 } from "@/components/core/Settings";
 import { useAuthStore } from "@/stores/authStore";
-import type { UserDTO } from "../../../shared/types";
+import type { UserDTO } from "@eleads/shared";
 
 // Mock data - replace with actual API calls
 // const mockUser = {

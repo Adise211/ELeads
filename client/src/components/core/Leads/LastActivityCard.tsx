@@ -1,5 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import type { LeadDTO } from "../../../../../shared/types/index";
+import type { LeadDTO } from "@eleads/shared";
 import { useState } from "react";
 
 interface LastActivityCardProps {

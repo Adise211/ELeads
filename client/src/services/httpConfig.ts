@@ -1,5 +1,5 @@
 import axios from "axios";
-import { httpCodes } from "../../../shared/constants";
+import { httpCodes } from "@eleads/shared";
 import { showErrorToast } from "@/utils/toast";
 
 const api = axios.create({

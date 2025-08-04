@@ -4,7 +4,7 @@ import {
   updateUserLead as updateUserLeadModel,
   getWorkspaceLeads as getWorkspaceLeadsModel,
 } from "../models/leads.model";
-import { httpCodes } from "../utils/errorCodes";
+import { httpCodes } from "@eleads/shared";
 import { SuccessResponse } from "../server.types";
 
 export const createLead = async (req: Request, res: Response, next: NextFunction) => {

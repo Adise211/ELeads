@@ -2,11 +2,25 @@
   "name": "@eleads/shared",
   "version": "1.0.0",
   "description": "shared package for client and server folders",
+  "type": "module",
   "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc"
+    "build": "tsc",
+    "dev": "tsc --watch"
   },
   "author": "Adise",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
 }
