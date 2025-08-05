@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ButtonIcon } from "@/components/ui/button-icon";
 import type { UseFormReturnType } from "@mantine/form";
-import type { LoginFormValues } from "@/../client.types";
+import type { LoginFormValues } from "../../../../client.types";
 // import { Alert, AlertTitle } from "@/components/ui/alert";
 // import IconExclamationTriangle from "@/assets/icons/IconExclamationTriangle";
 // import { OctagonAlert } from "lucide-react";
