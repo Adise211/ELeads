@@ -4,6 +4,4 @@ buildCommand = "npm install && cd shared && npm run build && cd ../server && npm
 
 [deploy]
 startCommand = "cd server && migrate:prod && npm run start"
-healthcheckPath = "/"
-healthcheckTimeout = 300
 restartPolicyType = "on_failure"
