@@ -25,7 +25,7 @@
     "typescript": "^5.8.3"
   },
   "dependencies": {
-    "@eleads/shared": "1.0.0",
+    "@eleads/shared": "file:../shared",
     "@prisma/client": "^6.10.1",
     "@types/bcrypt": "^5.0.2",
     "@types/cookie-parser": "^1.4.9",

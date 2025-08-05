@@ -34,7 +34,7 @@
 
 1. **Create a new Railway project** for the server
 2. **Connect your GitHub repository**
-3. **Set the root directory** to `server/`
+3. **Set the root directory** to `/` (root of the repository)
 4. **Add environment variables** in Railway dashboard
 5. **Deploy**
 
