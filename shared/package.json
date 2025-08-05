@@ -2,7 +2,6 @@
   "name": "@eleads/shared",
   "version": "1.0.0",
   "description": "shared package for client and server folders",
-  "type": "module",
   "main": "dist/index.js",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
