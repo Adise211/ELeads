@@ -1,0 +1,7 @@
+# Ignore root files when deploying client
+package.json
+package-lock.json
+tsconfig.json
+server/
+shared/
+node_modules/ 
