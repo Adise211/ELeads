@@ -1,0 +1,2 @@
+# Ignore root tsconfig.json to prevent path resolution conflicts
+../tsconfig.json 
