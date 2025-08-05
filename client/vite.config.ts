@@ -21,6 +21,7 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      "@eleads/shared": path.resolve(__dirname, "../shared/dist/index.js"),
     },
   },
 });
