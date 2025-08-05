@@ -1,0 +1,9 @@
+[build]
+builder = "nixpacks"
+buildCommand = "npm install && cd shared && npm run build && cd ../server && npm install && npx prisma generate && npm run build"
+
+[deploy]
+startCommand = "cd server && npx prisma migrate deploy && npm start"
+healthcheckPath = "/"
+healthcheckTimeout = 300
+restartPolicyType = "on_failure"
