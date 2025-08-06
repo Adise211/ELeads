@@ -1,27 +1,32 @@
 import { Navigate } from "react-router-dom";
 import React, { useEffect, useState } from "react";
-import api from "@/services/httpConfig";
+import { authService } from "@/services";
 import { useAuthStore } from "@/stores/authStore";
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const [isAuthorized, setIsAuthorized] = useState<null | boolean>(null);
   const setUser = useAuthStore((state) => state.setUser);
-  const logout = useAuthStore((state) => state.logout);
+  const clearUser = useAuthStore((state) => state.clearUser);
 
   // check if user is authorized
   useEffect(() => {
-    api
-      .get("/users/me")
+    authService
+      .getCurrentUser()
       .then((response) => {
         // user is authorized
-        setIsAuthorized(true);
-        setUser(response.data.user || null);
+        if (response.success) {
+          setIsAuthorized(true);
+          setUser(response.data?.user || null);
+        } else {
+          setIsAuthorized(false);
+          clearUser();
+        }
       })
       .catch(() => {
         // user is not authorized
         setIsAuthorized(false);
         // logout user (remove user from local storage)
-        logout();
+        clearUser();
       });
   }, []);
 

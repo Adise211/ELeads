@@ -15,7 +15,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import api from "@/services/httpConfig";
+import { authService } from "@/services";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/stores/authStore";
 
@@ -30,13 +30,13 @@ export function NavUser({
 }) {
   const { isMobile } = useSidebar();
   const navigate = useNavigate();
-  const logout = useAuthStore((state) => state.logout);
+  const clearUser = useAuthStore((state) => state.clearUser);
 
   const logoutUser = () => {
-    api
-      .get("/users/logout")
+    authService
+      .logout()
       .then(() => {
-        logout();
+        clearUser();
         navigate("/login");
       })
       .catch((error) => {

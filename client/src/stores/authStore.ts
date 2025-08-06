@@ -6,7 +6,7 @@ import { roleOptions } from "@eleads/shared";
 type AuthState = {
   user: UserDTO | null;
   setUser: (user: UserDTO | null) => void;
-  logout: () => void;
+  clearUser: () => void;
   isAdminRole: () => boolean;
   isUserHasPermission: (allowedPermissions: Permission[]) => boolean;
   isUserHasRole: (allowedRoles: UserRole[]) => boolean;
@@ -18,7 +18,7 @@ export const useAuthStore = create<AuthState>()(
     (set, get) => ({
       user: null,
       setUser: (user) => set({ user }),
-      logout: () => set({ user: null }),
+      clearUser: () => set({ user: null }),
       isAdminRole: () => {
         const currentUser = get().user;
         if (!currentUser) return false;

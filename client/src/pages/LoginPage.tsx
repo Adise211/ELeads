@@ -4,7 +4,7 @@ import LoginForm from "@/components/core/Auth/LoginForm";
 import { hasLength, isEmail, isNotEmpty, useForm } from "@mantine/form";
 import type { LoginFormValues } from "client.types";
 import { AxiosError } from "axios";
-import api from "@/services/httpConfig";
+import { authService } from "@/services";
 import Logo from "@/assets/logo";
 
 const LoginPage = () => {
@@ -36,10 +36,10 @@ const LoginPage = () => {
 
   useEffect(() => {
     // check if user is logged in
-    api
-      .get("/users/me")
+    authService
+      .getCurrentUser()
       .then((res) => {
-        if (res.data?.user) {
+        if (res.success && res.data?.user) {
           navigate("/home");
         }
       })
@@ -51,11 +51,11 @@ const LoginPage = () => {
   const handleSubmit = async (values: typeof formProps.values) => {
     setLoading(true);
     try {
-      const response = await api.post("/users/login", {
+      const response = await authService.login({
         email: values.email,
         password: values.password,
       });
-      if (response.data.success) {
+      if (response.success) {
         navigate("/home");
       }
     } catch (error) {

@@ -5,7 +5,7 @@ import WorkspaceStep from "@/components/core/Auth/WorkspaceStep";
 import { ChevronRight } from "lucide-react";
 import type { SignupFormData } from "../../client.types";
 import { signupFormSchema } from "@/lib/form-validation-schema";
-import api from "@/services/httpConfig";
+import { authService } from "@/services";
 import { showSuccessToast } from "@/utils/toast";
 import { useNavigate } from "react-router-dom";
 
@@ -68,9 +68,9 @@ const SignupPage = () => {
           user: { firstName, lastName, email, password, phone },
           workspace,
         };
-        const response = await api.post("/users/register", data);
-        if (response.data.success) {
-          showSuccessToast(response.data.message);
+        const response = await authService.register(data);
+        if (response.success) {
+          showSuccessToast(response.message || "Registration successful!");
           navigate("/login");
         }
       } catch (error) {
