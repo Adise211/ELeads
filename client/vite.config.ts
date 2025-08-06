@@ -24,4 +24,7 @@ export default defineConfig({
       "@eleads/shared": path.resolve(__dirname, "../shared/dist/index.js"),
     },
   },
+  optimizeDeps: {
+    include: ["@eleads/shared"],
+  },
 });
