@@ -132,7 +132,12 @@ export const getAuthenticatedUser = async (req: Request, res: Response, next: Ne
       throw new AppError(userErrorsMsg.USER_NOT_FOUND, httpCodes.NOT_FOUND);
     } else {
       const safeUser = omitFields(user, ["password"]);
-      res.status(httpCodes.SUCCESS).json({ user: safeUser });
+      const successResponse: SuccessResponse = {
+        success: true,
+        message: "User fetched successfully",
+        data: { user: safeUser },
+      };
+      res.status(httpCodes.SUCCESS).json(successResponse);
     }
   } catch (error) {
     next(error);
