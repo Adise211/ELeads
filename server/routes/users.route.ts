@@ -4,10 +4,10 @@ import {
   loginUser,
   logoutUser,
   registerUser,
-} from "../controllers/users.controller";
-import { authenticateToken } from "../middleware/auth.middleware";
-import { validate } from "../middleware/validation.middleware";
-import { loginUserSchema, registerUserSchema } from "../lib/validation-schema";
+} from "../controllers/users.controller.js";
+import { authenticateToken } from "../middleware/auth.middleware.js";
+import { validate } from "../middleware/validation.middleware.js";
+import { loginUserSchema, registerUserSchema } from "../lib/validation-schema.js";
 
 const router = Router();
 

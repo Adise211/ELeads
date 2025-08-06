@@ -2,6 +2,7 @@
   "name": "server",
   "version": "1.0.0",
   "description": "edgarLeads server",
+  "type": "module",
   "main": "server.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",

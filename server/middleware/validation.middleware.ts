@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { NextFunction, Request, Response } from "express";
-import { httpCodes } from "../utils/errorCodes";
-import { AppError } from "./errorHandler.middleware";
+import { httpCodes } from "../utils/errorCodes.js";
+import { AppError } from "./errorHandler.middleware.js";
 
 export const validate =
   (schema: z.ZodSchema) => (req: Request, res: Response, next: NextFunction) => {

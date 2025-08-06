@@ -1,14 +1,18 @@
 import { Request, Response, NextFunction } from "express";
 import { User, Workspace } from "@prisma/client";
-import { createWorkspace, getWorkspaceById, addUserToWorkspace } from "../models/workspace.model";
-import { getUserByEmail, createUser } from "../models/users.model";
+import {
+  createWorkspace,
+  getWorkspaceById,
+  addUserToWorkspace,
+} from "../models/workspace.model.js";
+import { getUserByEmail, createUser } from "../models/users.model.js";
 import { httpCodes } from "@eleads/shared";
 import { userErrorsMsg, workspaceErrorsMsg } from "../utils/errorCodes.js";
-import { AppError } from "../middleware/errorHandler.middleware";
-import { hashPassword, comparePassword, rolePermissionMap } from "../lib/auth.helper";
-import { generateAccessToken, generateRefreshToken } from "../lib/auth.helper";
-import { RegisterUserFields, SuccessResponse } from "../server.types";
-import { omitFields } from "../lib/data.helper";
+import { AppError } from "../middleware/errorHandler.middleware.js";
+import { hashPassword, comparePassword, rolePermissionMap } from "../lib/auth.helper.js";
+import { generateAccessToken, generateRefreshToken } from "../lib/auth.helper.js";
+import { RegisterUserFields, SuccessResponse } from "../server.types.js";
+import { omitFields } from "../lib/data.helper.js";
 import { UserRole } from "@prisma/client";
 
 export const registerUser = async (req: Request, res: Response, next: NextFunction) => {

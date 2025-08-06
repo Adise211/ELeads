@@ -9,8 +9,8 @@ if (process.env.NODE_ENV === "production") {
 import express from "express";
 import cookieParser from "cookie-parser";
 import cors from "cors";
-import rootRouter from "./routes/index.route";
-import { globalErrorHandler, handleNotFound } from "./middleware/errorHandler.middleware";
+import rootRouter from "./routes/index.route.js";
+import { globalErrorHandler, handleNotFound } from "./middleware/errorHandler.middleware.js";
 
 const app = express();
 const port = process.env.PORT || 8080;

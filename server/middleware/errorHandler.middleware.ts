@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
-import { CustomError, ErrorResponse } from "../server.types";
-import { httpCodes } from "../utils/errorCodes";
+import { CustomError, ErrorResponse } from "../server.types.js";
+import { httpCodes } from "../utils/errorCodes.js";
 
 // Create custom error class
 export class AppError extends Error implements CustomError {

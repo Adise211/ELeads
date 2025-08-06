@@ -1,8 +1,8 @@
 import { Router } from "express";
-import { createLead, getWorkspaceLeads, updateUserLead } from "../controllers/leads.controller";
-import { authenticateToken } from "../middleware/auth.middleware";
-import { createLeadSchema } from "../lib/validation-schema";
-import { validate } from "../middleware/validation.middleware";
+import { createLead, getWorkspaceLeads, updateUserLead } from "../controllers/leads.controller.js";
+import { authenticateToken } from "../middleware/auth.middleware.js";
+import { createLeadSchema } from "../lib/validation-schema.js";
+import { validate } from "../middleware/validation.middleware.js";
 
 const router = Router();
 
