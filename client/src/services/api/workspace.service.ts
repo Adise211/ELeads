@@ -15,6 +15,11 @@ export const workspaceService = {
     return response.data;
   },
 
+  getWorkspaceUsers: async (): Promise<SuccessResponse> => {
+    const response = await api.get(`/workspace/all-users`);
+    return response.data;
+  },
+
   // /**
   //  * Get current user's workspace
   //  */

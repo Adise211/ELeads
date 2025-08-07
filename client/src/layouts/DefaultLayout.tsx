@@ -9,17 +9,25 @@ import { useWorkspaceStore } from "@/stores/workspaceStore";
 export default function DefaultLayout() {
   const { user } = useAuthStore();
   const setWorkspaceLeads = useWorkspaceStore((state) => state.setWorkspaceLeads);
+  const setWorkspaceUsers = useWorkspaceStore((state) => state.setWorkspaceUsers);
+
   useEffect(() => {
     if (user) {
       // get workspace leads
       workspaceService.getWorkspaceLeads().then((response) => {
         if (response.success) {
-          console.log("response.data in default layout:", response.data);
           setWorkspaceLeads(response.data || []);
         }
       });
+      // get workspace users
+      workspaceService.getWorkspaceUsers().then((response) => {
+        if (response.success) {
+          console.log("response.data in default layout:", response.data);
+          setWorkspaceUsers(response.data || []);
+        }
+      });
     }
-  }, [user, setWorkspaceLeads]);
+  }, [user, setWorkspaceLeads, setWorkspaceUsers]);
 
   return (
     <SidebarProvider>
