@@ -11,7 +11,6 @@ export default function DefaultLayout() {
   const setWorkspaceLeads = useWorkspaceStore((state) => state.setWorkspaceLeads);
   useEffect(() => {
     if (user) {
-      console.log("user in default layout:", user);
       // get workspace leads
       workspaceService.getWorkspaceLeads().then((response) => {
         if (response.success) {

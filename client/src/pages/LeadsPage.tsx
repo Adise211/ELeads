@@ -23,111 +23,112 @@ import { showSuccessToast } from "@/utils/toast";
 import { StatsCards, LeadsTable, ActionBar } from "@/components/core/Leads";
 import type { LeadDTO } from "@eleads/shared";
 import { LeadStatus } from "@eleads/shared";
+import { useWorkspaceStore } from "@/stores/workspaceStore";
 
 // Mock data based on the schema
-const mockLeads: LeadDTO[] = [
-  {
-    id: "lead_1",
-    firstName: "John",
-    lastName: "Doe",
-    email: "john.doe@example.com",
-    phone: ["+1-555-0101"],
-    company: "TechCorp Inc.",
-    jobTitle: "Software Engineer",
-    industry: "Technology",
-    status: LeadStatus.NEW,
-    website: "https://techcorp.com",
-    address: "123 Main St",
-    city: "San Francisco",
-    state: "CA",
-    zipCode: "94105",
-    country: "USA",
-    createdAt: new Date("2024-01-15T10:30:00Z"),
-    updatedAt: new Date("2024-01-15T10:30:00Z"),
-    notes: [
-      {
-        id: "note_1",
-        content: "Initial contact via LinkedIn",
-        createdAt: new Date("2024-01-15T10:30:00Z"),
-        leadId: "lead_1",
-        lead: {} as LeadDTO,
-      },
-      {
-        id: "note_2",
-        content: "Interested in our enterprise solution",
-        createdAt: new Date("2024-01-16T14:20:00Z"),
-        leadId: "lead_1",
-        lead: {} as LeadDTO,
-      },
-    ],
-    activities: [],
-  },
-  {
-    id: "lead_2",
-    firstName: "Jane",
-    lastName: "Smith",
-    email: "jane.smith@example.com",
-    phone: ["+1-555-0102"],
-    company: "Marketing Pro",
-    jobTitle: "Marketing Director",
-    industry: "Marketing",
-    status: LeadStatus.INPROGRESS,
-    website: "https://marketingpro.com",
-    address: "456 Oak Ave",
-    city: "New York",
-    state: "NY",
-    zipCode: "10001",
-    country: "USA",
-    createdAt: new Date("2024-01-14T09:15:00Z"),
-    updatedAt: new Date("2024-01-16T14:20:00Z"),
-    notes: [
-      {
-        id: "note_3",
-        content: "Follow up scheduled for next week",
-        createdAt: new Date("2024-01-16T14:20:00Z"),
-        leadId: "lead_2",
-        lead: {} as LeadDTO,
-      },
-    ],
-    activities: [],
-  },
-  {
-    id: "lead_3",
-    firstName: "Mike",
-    lastName: "Johnson",
-    email: "mike.johnson@example.com",
-    phone: ["+1-555-0103", "+1-555-0104"],
-    company: "StartupXYZ",
-    jobTitle: "CEO",
-    industry: "SaaS",
-    status: LeadStatus.LOST,
-    website: "https://startupxyz.com",
-    address: "789 Pine St",
-    city: "Austin",
-    state: "TX",
-    zipCode: "73301",
-    country: "USA",
-    createdAt: new Date("2024-01-13T16:45:00Z"),
-    updatedAt: new Date("2024-01-17T11:30:00Z"),
-    notes: [
-      {
-        id: "note_4",
-        content: "Very interested, ready to move forward",
-        createdAt: new Date("2024-01-17T11:30:00Z"),
-        leadId: "lead_3",
-        lead: {} as LeadDTO,
-      },
-      {
-        id: "note_5",
-        content: "Budget approved for Q1",
-        createdAt: new Date("2024-01-17T15:45:00Z"),
-        leadId: "lead_3",
-        lead: {} as LeadDTO,
-      },
-    ],
-    activities: [],
-  },
-];
+// const mockLeads: LeadDTO[] = [
+//   {
+//     id: "lead_1",
+//     firstName: "John",
+//     lastName: "Doe",
+//     email: "john.doe@example.com",
+//     phone: ["+1-555-0101"],
+//     company: "TechCorp Inc.",
+//     jobTitle: "Software Engineer",
+//     industry: "Technology",
+//     status: LeadStatus.NEW,
+//     website: "https://techcorp.com",
+//     address: "123 Main St",
+//     city: "San Francisco",
+//     state: "CA",
+//     zipCode: "94105",
+//     country: "USA",
+//     createdAt: new Date("2024-01-15T10:30:00Z"),
+//     updatedAt: new Date("2024-01-15T10:30:00Z"),
+//     notes: [
+//       {
+//         id: "note_1",
+//         content: "Initial contact via LinkedIn",
+//         createdAt: new Date("2024-01-15T10:30:00Z"),
+//         leadId: "lead_1",
+//         lead: {} as LeadDTO,
+//       },
+//       {
+//         id: "note_2",
+//         content: "Interested in our enterprise solution",
+//         createdAt: new Date("2024-01-16T14:20:00Z"),
+//         leadId: "lead_1",
+//         lead: {} as LeadDTO,
+//       },
+//     ],
+//     activities: [],
+//   },
+//   {
+//     id: "lead_2",
+//     firstName: "Jane",
+//     lastName: "Smith",
+//     email: "jane.smith@example.com",
+//     phone: ["+1-555-0102"],
+//     company: "Marketing Pro",
+//     jobTitle: "Marketing Director",
+//     industry: "Marketing",
+//     status: LeadStatus.INPROGRESS,
+//     website: "https://marketingpro.com",
+//     address: "456 Oak Ave",
+//     city: "New York",
+//     state: "NY",
+//     zipCode: "10001",
+//     country: "USA",
+//     createdAt: new Date("2024-01-14T09:15:00Z"),
+//     updatedAt: new Date("2024-01-16T14:20:00Z"),
+//     notes: [
+//       {
+//         id: "note_3",
+//         content: "Follow up scheduled for next week",
+//         createdAt: new Date("2024-01-16T14:20:00Z"),
+//         leadId: "lead_2",
+//         lead: {} as LeadDTO,
+//       },
+//     ],
+//     activities: [],
+//   },
+//   {
+//     id: "lead_3",
+//     firstName: "Mike",
+//     lastName: "Johnson",
+//     email: "mike.johnson@example.com",
+//     phone: ["+1-555-0103", "+1-555-0104"],
+//     company: "StartupXYZ",
+//     jobTitle: "CEO",
+//     industry: "SaaS",
+//     status: LeadStatus.LOST,
+//     website: "https://startupxyz.com",
+//     address: "789 Pine St",
+//     city: "Austin",
+//     state: "TX",
+//     zipCode: "73301",
+//     country: "USA",
+//     createdAt: new Date("2024-01-13T16:45:00Z"),
+//     updatedAt: new Date("2024-01-17T11:30:00Z"),
+//     notes: [
+//       {
+//         id: "note_4",
+//         content: "Very interested, ready to move forward",
+//         createdAt: new Date("2024-01-17T11:30:00Z"),
+//         leadId: "lead_3",
+//         lead: {} as LeadDTO,
+//       },
+//       {
+//         id: "note_5",
+//         content: "Budget approved for Q1",
+//         createdAt: new Date("2024-01-17T15:45:00Z"),
+//         leadId: "lead_3",
+//         lead: {} as LeadDTO,
+//       },
+//     ],
+//     activities: [],
+//   },
+// ];
 
 const getStatusColor = (status: LeadStatus) => {
   switch (status) {
@@ -143,7 +144,8 @@ const getStatusColor = (status: LeadStatus) => {
 };
 
 const LeadsPage = () => {
-  const [leads, setLeads] = useState<LeadDTO[]>(mockLeads);
+  const workspaceLeads = useWorkspaceStore((state) => state.workspaceLeads);
+  const [leads, setLeads] = useState<LeadDTO[]>(workspaceLeads);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [industryFilter, setIndustryFilter] = useState("ALL");
@@ -182,10 +184,10 @@ const LeadsPage = () => {
 
   const totalLeads = filteredLeads.length;
   const newLeads = filteredLeads.filter((lead) => lead.status === LeadStatus.NEW).length;
-  const qualifiedLeads = filteredLeads.filter(
+  const inProgressLeads = filteredLeads.filter(
     (lead) => lead.status === LeadStatus.INPROGRESS
   ).length;
-  const activeLeads = filteredLeads.length; // Changed from isActive filter since LeadDTO doesn't have isActive
+  const lostLeads = filteredLeads.filter((lead) => lead.status === LeadStatus.LOST).length;
 
   const handleAddLead = () => {
     const newLeadData: LeadDTO = {
@@ -298,8 +300,8 @@ const LeadsPage = () => {
         <StatsCards
           totalLeads={totalLeads}
           newLeads={newLeads}
-          qualifiedLeads={qualifiedLeads}
-          activeLeads={activeLeads}
+          inProgressLeads={inProgressLeads}
+          lostLeads={lostLeads}
         />
 
         {/* Action Bar */}

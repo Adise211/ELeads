@@ -4,11 +4,11 @@ import { Users, UserPlus, TrendingUp, Clock } from "lucide-react";
 interface StatsCardsProps {
   totalLeads: number;
   newLeads: number;
-  qualifiedLeads: number;
-  activeLeads: number;
+  inProgressLeads: number;
+  lostLeads: number;
 }
 
-const StatsCards = ({ totalLeads, newLeads, qualifiedLeads, activeLeads }: StatsCardsProps) => {
+const StatsCards = ({ totalLeads, newLeads, inProgressLeads, lostLeads }: StatsCardsProps) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
       <Card>
@@ -35,23 +35,23 @@ const StatsCards = ({ totalLeads, newLeads, qualifiedLeads, activeLeads }: Stats
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Qualified</CardTitle>
+          <CardTitle className="text-sm font-medium">In Progress</CardTitle>
           <TrendingUp className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{qualifiedLeads}</div>
-          <p className="text-xs text-muted-foreground">Ready for conversion</p>
+          <div className="text-2xl font-bold">{inProgressLeads}</div>
+          <p className="text-xs text-muted-foreground">Leads in contact</p>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Active</CardTitle>
+          <CardTitle className="text-sm font-medium">Lost</CardTitle>
           <Clock className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{activeLeads}</div>
-          <p className="text-xs text-muted-foreground">Currently being worked</p>
+          <div className="text-2xl font-bold">{lostLeads}</div>
+          <p className="text-xs text-muted-foreground">Leads lost</p>
         </CardContent>
       </Card>
     </div>
