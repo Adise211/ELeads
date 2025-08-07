@@ -105,8 +105,12 @@ export const getWorkspaceByName = async (name: string) => {
   return workspace;
 };
 
-// Get all workspaces
-// export const getWorkspaces = async () => {
-//   const workspaces = await prisma.workspace.findMany();
-//   return workspaces;
-// };
+// Get all leads in a workspace
+export const getWorkspaceLeads = async (workspaceId: string) => {
+  const leads = await prisma.lead.findMany({
+    where: {
+      workspaceId,
+    },
+  });
+  return leads;
+};

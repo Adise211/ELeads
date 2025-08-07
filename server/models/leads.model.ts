@@ -21,12 +21,3 @@ export const updateUserLead = async (userId: string, leadId: string, data: Parti
   });
   return lead;
 };
-
-export const getWorkspaceLeads = async (workspaceId: string) => {
-  const leads = await prisma.lead.findMany({
-    where: {
-      workspaceId,
-    },
-  });
-  return leads;
-};

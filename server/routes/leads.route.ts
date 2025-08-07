@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createLead, getWorkspaceLeads, updateUserLead } from "../controllers/leads.controller.js";
+import { createLead, updateUserLead } from "../controllers/leads.controller.js";
 import { authenticateToken } from "../middleware/auth.middleware.js";
 import { createLeadSchema } from "../lib/validation-schema.js";
 import { validate } from "../middleware/validation.middleware.js";
@@ -15,10 +15,5 @@ router.post("/create", authenticateToken, validate(createLeadSchema), createLead
 // @desc: Update a lead
 // @access: Private
 router.post("/update", authenticateToken, updateUserLead);
-
-// @path: /api/leads/get
-// @desc: Get all workspace leads
-// @access: Private
-router.get("/get", authenticateToken, getWorkspaceLeads);
 
 export default router;

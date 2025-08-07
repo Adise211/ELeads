@@ -2,7 +2,6 @@ import { Request, Response, NextFunction } from "express";
 import {
   createLead as createLeadModel,
   updateUserLead as updateUserLeadModel,
-  getWorkspaceLeads as getWorkspaceLeadsModel,
 } from "../models/leads.model.js";
 import { httpCodes } from "@eleads/shared";
 import { SuccessResponse } from "../server.types.js";
@@ -34,16 +33,6 @@ export const updateUserLead = async (req: Request, res: Response, next: NextFunc
       data: updatedLead,
     };
     res.status(httpCodes.SUCCESS).json(successResponse);
-  } catch (error) {
-    next(error);
-  }
-};
-
-export const getWorkspaceLeads = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const { workspaceId } = (req as any).user;
-    const leads = await getWorkspaceLeadsModel(workspaceId);
-    res.status(httpCodes.SUCCESS).json(leads);
   } catch (error) {
     next(error);
   }
