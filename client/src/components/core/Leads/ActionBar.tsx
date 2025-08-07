@@ -131,7 +131,7 @@ const ActionBar = ({
               Add Lead
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-2xl">
+          <DialogContent className="!max-w-[90vw] !w-[50vw] max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Add New Lead</DialogTitle>
               <DialogDescription>

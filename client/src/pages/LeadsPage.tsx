@@ -339,7 +339,7 @@ const LeadsPage = () => {
 
         {/* Edit Lead Dialog */}
         <Dialog open={isEditLeadOpen} onOpenChange={setIsEditLeadOpen}>
-          <DialogContent className="max-w-2xl">
+          <DialogContent className="!max-w-[90vw] !w-[50vw] max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Edit Lead</DialogTitle>
               <DialogDescription>Update the lead information below.</DialogDescription>
