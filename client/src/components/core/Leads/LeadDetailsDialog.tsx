@@ -27,6 +27,7 @@ import { LeadStatus } from "@eleads/shared";
 interface LeadDetailsDialogProps {
   lead: LeadDTO;
   getStatusColor: (status: LeadStatus) => string;
+  assignedToUser: string;
 }
 
 const activityTypeIcons = {
@@ -38,7 +39,7 @@ const activityTypeIcons = {
   OTHER: Activity,
 };
 
-const LeadDetailsDialog = ({ lead, getStatusColor }: LeadDetailsDialogProps) => {
+const LeadDetailsDialog = ({ lead, getStatusColor, assignedToUser }: LeadDetailsDialogProps) => {
   const fullName = `${lead.firstName} ${lead.lastName || ""}`.trim();
   const fullAddress = [lead.address, lead.city, lead.state, lead.zipCode, lead.country]
     .filter(Boolean)
@@ -229,7 +230,7 @@ const LeadDetailsDialog = ({ lead, getStatusColor }: LeadDetailsDialogProps) => 
                 </div>
                 <div>
                   <span className="font-medium text-muted-foreground">Assigned To:</span>
-                  <p>{"some user"}</p>
+                  <p>{assignedToUser}</p>
                 </div>
               </div>
             </CardContent>

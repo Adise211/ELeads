@@ -33,6 +33,7 @@ import type { LeadDTO } from "@eleads/shared";
 import { LeadStatus, Permission } from "@eleads/shared";
 import { useState } from "react";
 import ProtectedUI from "@/components/providers/ProtectedUI";
+import { useWorkspaceStore } from "@/stores/workspaceStore";
 
 interface LeadsTableProps {
   leads: LeadDTO[];
@@ -56,6 +57,13 @@ const LeadsTable = ({
   toggleNotes,
 }: LeadsTableProps) => {
   const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set());
+
+  const workspaceUsers = useWorkspaceStore((state) => state.workspaceUsers);
+
+  const getUserName = (userId: string) => {
+    const user = workspaceUsers.find((user) => user.id === userId);
+    return user?.firstName + " " + user?.lastName;
+  };
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
@@ -181,7 +189,9 @@ const LeadsTable = ({
                             {lead.status === LeadStatus.INPROGRESS ? "IN PROGRESS" : lead.status}
                           </Badge>
                         </TableCell>
-                        <TableCell>{"Adi Mandal"}</TableCell>
+                        <TableCell>
+                          {getUserName(lead.assignedToId || lead.assignedTo?.id || "")}
+                        </TableCell>
                         <TableCell>
                           {lead.activities && lead.activities.length > 0 ? (
                             <div>
@@ -220,7 +230,16 @@ const LeadsTable = ({
                         </TableCell>
                         <TableCell className="text-center">
                           <div className="flex justify-end gap-2">
-                            <LeadDetailsDialog lead={lead} getStatusColor={getStatusColor} />
+                            {/* Lead Details Dialog */}
+                            <LeadDetailsDialog
+                              lead={lead}
+                              getStatusColor={getStatusColor}
+                              assignedToUser={getUserName(
+                                lead.assignedToId || lead.assignedTo?.id || ""
+                              )}
+                            />
+                            {/* End Lead Details Dialog */}
+                            {/* Dropdown Menu */}
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>
                                 <Button variant="ghost" size="sm">

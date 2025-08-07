@@ -22,7 +22,6 @@ export default function DefaultLayout() {
       // get workspace users
       workspaceService.getWorkspaceUsers().then((response) => {
         if (response.success) {
-          console.log("response.data in default layout:", response.data);
           setWorkspaceUsers(response.data || []);
         }
       });

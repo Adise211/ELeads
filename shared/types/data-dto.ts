@@ -48,6 +48,8 @@ export type LeadDTO = {
   country: string;
   notes?: NoteDTO[];
   activities?: ActivityDTO[];
+  assignedToId?: string;
+  assignedTo?: UserDTO;
   createdAt?: Date;
   updatedAt?: Date;
 };
