@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -145,7 +145,7 @@ const getStatusColor = (status: LeadStatus) => {
 
 const LeadsPage = () => {
   const workspaceLeads = useWorkspaceStore((state) => state.workspaceLeads);
-  const [leads, setLeads] = useState<LeadDTO[]>(workspaceLeads);
+  const [leads, setLeads] = useState<LeadDTO[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [industryFilter, setIndustryFilter] = useState("ALL");
@@ -171,6 +171,11 @@ const LeadsPage = () => {
     zipCode: "",
     country: "",
   });
+
+  useEffect(() => {
+    setLeads(workspaceLeads);
+  }, [workspaceLeads]);
+
   // Filter leads based on search and filters
   const filteredLeads = leads.filter((lead) => {
     const matchesSearch =
