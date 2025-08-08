@@ -29,19 +29,18 @@ import {
 } from "@/components/ui/alert-dialog";
 import { StickyNote, Edit, Trash2, Mail, Phone, Building, MoreHorizontal } from "lucide-react";
 import LeadDetailsDialog from "./LeadDetailsDialog";
-import type { LeadDTO } from "@eleads/shared";
-import { LeadStatus, Permission } from "@eleads/shared";
+import { types } from "@eleads/shared";
 import { useState } from "react";
 import ProtectedUI from "@/components/providers/ProtectedUI";
 import { useWorkspaceStore } from "@/stores/workspaceStore";
 
 interface LeadsTableProps {
-  leads: LeadDTO[];
-  filteredLeads: LeadDTO[];
+  leads: types.LeadDTO[];
+  filteredLeads: types.LeadDTO[];
   expandedNotes: string | null;
-  getStatusColor: (status: LeadStatus) => string;
-  openEditDialog: (lead: LeadDTO) => void;
-  openCreateNoteDialog: (lead: LeadDTO) => void;
+  getStatusColor: (status: types.LeadStatus) => string;
+  openEditDialog: (lead: types.LeadDTO) => void;
+  openCreateNoteDialog: (lead: types.LeadDTO) => void;
   handleDeleteLead: (leadId: string) => void;
   toggleNotes: (leadId: string) => void;
 }
@@ -186,7 +185,9 @@ const LeadsTable = ({
                         </TableCell>
                         <TableCell>
                           <Badge className={getStatusColor(lead.status)}>
-                            {lead.status === LeadStatus.INPROGRESS ? "IN PROGRESS" : lead.status}
+                            {lead.status === types.LeadStatus.INPROGRESS
+                              ? "IN PROGRESS"
+                              : lead.status}
                           </Badge>
                         </TableCell>
                         <TableCell>
@@ -250,9 +251,9 @@ const LeadsTable = ({
                                 <ProtectedUI
                                   allowedPermissions={
                                     [
-                                      Permission.EDIT_WORKSPACE_LEADS,
-                                      Permission.MANAGE_OWN_LEADS,
-                                    ] as Permission[]
+                                      types.Permission.EDIT_WORKSPACE_LEADS,
+                                      types.Permission.MANAGE_OWN_LEADS,
+                                    ] as types.Permission[]
                                   }
                                 >
                                   <DropdownMenuItem onClick={() => openEditDialog(lead)}>
@@ -267,7 +268,7 @@ const LeadsTable = ({
                                 {/* Delete lead with confirmation dialog */}
                                 <ProtectedUI
                                   allowedPermissions={
-                                    [Permission.DELETE_WORKSPACE_LEADS] as Permission[]
+                                    [types.Permission.DELETE_WORKSPACE_LEADS] as types.Permission[]
                                   }
                                 >
                                   <AlertDialog>

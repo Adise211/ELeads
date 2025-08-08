@@ -1,11 +1,11 @@
 import { useAuthStore } from "@/stores/authStore";
 import { useMemo, type ReactNode } from "react";
-import type { Permission, UserRole } from "@eleads/shared";
+import { types } from "@eleads/shared";
 
 interface ProtectedUIProps {
   children: ReactNode;
-  allowedPermissions?: Permission[];
-  allowedRoles?: UserRole[];
+  allowedPermissions?: types.Permission[];
+  allowedRoles?: types.UserRole[];
   // blockPermissions?: Permission[];
   // blockRoles?: UserRole[];
 }

@@ -9,33 +9,33 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-  Calendar,
-  Mail,
-  Phone,
-  Building2,
-  Globe,
   MapPin,
+  Building,
   User,
-  Clock,
+  Globe,
+  PhoneCall,
+  Video,
+  Mail as MailIcon,
   FileText,
+  MessageSquare,
   Activity,
   Eye,
+  Clock,
 } from "lucide-react";
-import type { LeadDTO } from "@eleads/shared";
-import { LeadStatus } from "@eleads/shared";
+import { types } from "@eleads/shared";
 
 interface LeadDetailsDialogProps {
-  lead: LeadDTO;
-  getStatusColor: (status: LeadStatus) => string;
+  lead: types.LeadDTO;
+  getStatusColor: (status: types.LeadStatus) => string;
   assignedToUser: string;
 }
 
 const activityTypeIcons = {
-  EMAIL: Mail,
-  CALL: Phone,
-  MEETING: Calendar,
+  EMAIL: MailIcon,
+  CALL: PhoneCall,
+  MEETING: Video,
   TASK: FileText,
-  NOTE: FileText,
+  NOTE: MessageSquare,
   OTHER: Activity,
 };
 
@@ -68,12 +68,12 @@ const LeadDetailsDialog = ({ lead, getStatusColor, assignedToUser }: LeadDetails
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center gap-2">
-                <Mail className="h-4 w-4 text-muted-foreground" />
+                <MailIcon className="h-4 w-4 text-muted-foreground" />
                 <span>{lead.email}</span>
               </div>
               {lead.phone && (
                 <div className="flex items-center gap-2">
-                  <Phone className="h-4 w-4 text-muted-foreground" />
+                  <PhoneCall className="h-4 w-4 text-muted-foreground" />
                   <span>{lead.phone}</span>
                 </div>
               )}
@@ -107,7 +107,7 @@ const LeadDetailsDialog = ({ lead, getStatusColor, assignedToUser }: LeadDetails
             <CardContent className="space-y-4">
               {lead.company && (
                 <div className="flex items-center gap-2">
-                  <Building2 className="h-4 w-4 text-muted-foreground" />
+                  <Building className="h-4 w-4 text-muted-foreground" />
                   <span>{lead.company}</span>
                 </div>
               )}
@@ -126,7 +126,7 @@ const LeadDetailsDialog = ({ lead, getStatusColor, assignedToUser }: LeadDetails
               <div className="flex items-center gap-2">
                 <span className="text-sm font-medium text-muted-foreground">Status:</span>
                 <Badge className={getStatusColor(lead.status)}>
-                  {lead.status === LeadStatus.INPROGRESS ? "IN PROGRESS" : lead.status}
+                  {lead.status === types.LeadStatus.INPROGRESS ? "IN PROGRESS" : lead.status}
                 </Badge>
               </div>
             </CardContent>

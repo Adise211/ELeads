@@ -1,13 +1,13 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import type { LeadDTO } from "@eleads/shared";
+import { types } from "@eleads/shared";
 import { useState } from "react";
 
 interface LastActivityCardProps {
-  leads: LeadDTO[];
+  leads: types.LeadDTO[];
 }
 
 const LastActivityCard = ({ leads }: LastActivityCardProps) => {
-  const [mockLeads] = useState<LeadDTO[]>(leads);
+  const [mockLeads] = useState<types.LeadDTO[]>(leads);
 
   // Get activities from all leads
   const activities = mockLeads

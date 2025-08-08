@@ -1,11 +1,11 @@
-import type { LeadDTO, UserDTO } from "@eleads/shared";
+import { types } from "@eleads/shared";
 import { create } from "zustand";
 
 type WorkspaceState = {
-  workspaceLeads: LeadDTO[];
-  setWorkspaceLeads: (workspaceLeads: LeadDTO[]) => void;
-  workspaceUsers: UserDTO[];
-  setWorkspaceUsers: (workspaceUsers: UserDTO[]) => void;
+  workspaceLeads: types.LeadDTO[];
+  setWorkspaceLeads: (workspaceLeads: types.LeadDTO[]) => void;
+  workspaceUsers: types.UserDTO[];
+  setWorkspaceUsers: (workspaceUsers: types.UserDTO[]) => void;
 };
 
 export const useWorkspaceStore = create<WorkspaceState>((set) => ({

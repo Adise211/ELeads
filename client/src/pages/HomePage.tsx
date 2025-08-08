@@ -1,11 +1,11 @@
 import ChartSection from "@/components/core/Dashboard/ChartSection";
 import CardsSection from "@/components/core/Dashboard/CardsSection";
 import LastActivityCard from "@/components/core/Leads/LastActivityCard";
-import type { LeadDTO, LeadStatus, ActivityType } from "@eleads/shared";
+import { types } from "@eleads/shared";
 
 const HomePage = () => {
   // Mock data for LastActivityCard - you can replace this with real data from your API
-  const mockLeads: LeadDTO[] = [
+  const mockLeads: types.LeadDTO[] = [
     {
       id: "1",
       firstName: "John",
@@ -14,14 +14,14 @@ const HomePage = () => {
       activities: [
         {
           id: "1",
-          type: "EMAIL" as ActivityType,
+          type: "EMAIL" as types.ActivityType,
           description: "Follow-up email sent to John Doe",
           createdAt: new Date("2024-01-15"),
         },
       ],
       email: "john.doe@example.com",
-      phone: ["+1234567890"],
-      status: "NEW" as LeadStatus,
+      phone: "+1234567890",
+      status: "NEW" as types.LeadStatus,
       country: "USA",
     },
     {
@@ -32,14 +32,14 @@ const HomePage = () => {
       activities: [
         {
           id: "2",
-          type: "CALL" as ActivityType,
+          type: "CALL" as types.ActivityType,
           description: "Initial contact call completed",
           createdAt: new Date("2024-01-14"),
         },
       ],
       email: "jane.smith@example.com",
-      phone: ["+1234567890"],
-      status: "NEW" as LeadStatus,
+      phone: "+1234567890",
+      status: "NEW" as types.LeadStatus,
       country: "USA",
     },
   ];

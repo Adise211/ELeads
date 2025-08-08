@@ -1,5 +1,5 @@
 import axios from "axios";
-import { httpCodes } from "@eleads/shared";
+import { consts } from "@eleads/shared";
 import { showErrorToast } from "@/utils/toast";
 
 const api = axios.create({
@@ -21,7 +21,7 @@ api.interceptors.response.use(
         // showErrorToast("Unauthorized");
         // redirect to login
         // break;
-        case httpCodes.INTERNAL_SERVER_ERROR:
+        case consts.httpCodes.INTERNAL_SERVER_ERROR:
           showErrorToast("Internal Server Error");
           break;
         default:

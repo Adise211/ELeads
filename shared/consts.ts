@@ -1,4 +1,4 @@
-import { LeadStatus, type Permission, type UserRole } from "./types/prisma-enums";
+import type { LeadStatus, Permission, UserRole } from "./types/prisma-enums.js";
 
 export const httpCodes = {
   SUCCESS: 200,

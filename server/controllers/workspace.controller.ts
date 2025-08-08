@@ -1,4 +1,5 @@
-import { httpCodes, SuccessResponse } from "@eleads/shared";
+import { consts } from "@eleads/shared";
+import { SuccessResponse } from "../server.types.js";
 import { NextFunction, Request, Response } from "express";
 import {
   getWorkspaceLeads as getWorkspaceLeadsModel,
@@ -15,7 +16,7 @@ export const getWorkspaceLeads = async (req: Request, res: Response, next: NextF
       message: "Leads fetched successfully",
       data: leads,
     };
-    res.status(httpCodes.SUCCESS).json(successResponse);
+    res.status(consts.httpCodes.SUCCESS).json(successResponse);
   } catch (error) {
     next(error);
   }
@@ -31,7 +32,7 @@ export const getWorkspaceUsers = async (req: Request, res: Response, next: NextF
       message: "Users fetched successfully",
       data: safeUsers,
     };
-    res.status(httpCodes.SUCCESS).json(successResponse);
+    res.status(consts.httpCodes.SUCCESS).json(successResponse);
   } catch (error) {
     next(error);
   }

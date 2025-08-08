@@ -35,7 +35,7 @@ export type LeadDTO = {
   firstName: string;
   lastName: string;
   email: string;
-  phone: string[];
+  phone: string;
   company: string;
   jobTitle?: string;
   industry?: string;

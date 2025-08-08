@@ -19,11 +19,11 @@ import {
 
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { useWorkspaceStore } from "@/stores/workspaceStore";
 import { showSuccessToast } from "@/utils/toast";
 import { StatsCards, LeadsTable, ActionBar } from "@/components/core/Leads";
-import type { LeadDTO } from "@eleads/shared";
-import { LeadStatus } from "@eleads/shared";
-import { useWorkspaceStore } from "@/stores/workspaceStore";
+import { industriesList } from "@/components/core/Leads/leads.data";
+import { types } from "@eleads/shared";
 
 // Mock data based on the schema
 // const mockLeads: LeadDTO[] = [
@@ -130,13 +130,13 @@ import { useWorkspaceStore } from "@/stores/workspaceStore";
 //   },
 // ];
 
-const getStatusColor = (status: LeadStatus) => {
+const getStatusColor = (status: types.LeadStatus) => {
   switch (status) {
-    case LeadStatus.NEW:
+    case types.LeadStatus.NEW:
       return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300";
-    case LeadStatus.INPROGRESS:
+    case types.LeadStatus.INPROGRESS:
       return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300";
-    case LeadStatus.LOST:
+    case types.LeadStatus.LOST:
       return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300";
     default:
       return "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300";
@@ -145,16 +145,16 @@ const getStatusColor = (status: LeadStatus) => {
 
 const LeadsPage = () => {
   const workspaceLeads = useWorkspaceStore((state) => state.workspaceLeads);
-  const [leads, setLeads] = useState<LeadDTO[]>([]);
+  const [leads, setLeads] = useState<types.LeadDTO[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [industryFilter, setIndustryFilter] = useState("ALL");
   const [isAddLeadOpen, setIsAddLeadOpen] = useState(false);
   const [isEditLeadOpen, setIsEditLeadOpen] = useState(false);
   const [isCreateNoteOpen, setIsCreateNoteOpen] = useState(false);
-  const [creatingNoteFor, setCreatingNoteFor] = useState<LeadDTO | null>(null);
+  const [creatingNoteFor, setCreatingNoteFor] = useState<types.LeadDTO | null>(null);
   const [newNoteContent, setNewNoteContent] = useState("");
-  const [editingLead, setEditingLead] = useState<LeadDTO | null>(null);
+  const [editingLead, setEditingLead] = useState<types.LeadDTO | null>(null);
   const [expandedNotes, setExpandedNotes] = useState<string | null>(null);
   const [newLead, setNewLead] = useState({
     firstName: "",
@@ -188,20 +188,20 @@ const LeadsPage = () => {
   });
 
   const totalLeads = filteredLeads.length;
-  const newLeads = filteredLeads.filter((lead) => lead.status === LeadStatus.NEW).length;
+  const newLeads = filteredLeads.filter((lead) => lead.status === types.LeadStatus.NEW).length;
   const inProgressLeads = filteredLeads.filter(
-    (lead) => lead.status === LeadStatus.INPROGRESS
+    (lead) => lead.status === types.LeadStatus.INPROGRESS
   ).length;
-  const lostLeads = filteredLeads.filter((lead) => lead.status === LeadStatus.LOST).length;
+  const lostLeads = filteredLeads.filter((lead) => lead.status === types.LeadStatus.LOST).length;
 
   const handleAddLead = () => {
-    const newLeadData: LeadDTO = {
+    const newLeadData: types.LeadDTO = {
       ...newLead,
       id: `lead_${Date.now()}`,
-      status: LeadStatus.NEW,
+      status: types.LeadStatus.NEW,
       createdAt: new Date(),
       updatedAt: new Date(),
-      phone: newLead.phone ? [newLead.phone] : [],
+      phone: newLead.phone,
       notes: [],
       activities: [],
     };
@@ -228,7 +228,7 @@ const LeadsPage = () => {
   const handleEditLead = () => {
     if (!editingLead) return;
 
-    const updatedLeads: LeadDTO[] = leads.map((lead) =>
+    const updatedLeads: types.LeadDTO[] = leads.map((lead) =>
       lead.id === editingLead.id ? { ...editingLead, updatedAt: new Date() } : lead
     );
     setLeads(updatedLeads);
@@ -245,12 +245,12 @@ const LeadsPage = () => {
     showSuccessToast(`${leadToDelete?.firstName} ${leadToDelete?.lastName} has been deleted.`);
   };
 
-  const openEditDialog = (lead: LeadDTO) => {
+  const openEditDialog = (lead: types.LeadDTO) => {
     setEditingLead({ ...lead, phone: lead.phone });
     setIsEditLeadOpen(true);
   };
 
-  const openCreateNoteDialog = (lead: LeadDTO) => {
+  const openCreateNoteDialog = (lead: types.LeadDTO) => {
     setCreatingNoteFor(lead);
     setNewNoteContent("");
     setIsCreateNoteOpen(true);
@@ -264,7 +264,7 @@ const LeadsPage = () => {
       content: newNoteContent.trim(),
       createdAt: new Date(),
       leadId: creatingNoteFor.id || "",
-      lead: {} as LeadDTO,
+      lead: {} as types.LeadDTO,
     };
 
     const updatedLeads = leads.map((lead) =>
@@ -378,8 +378,8 @@ const LeadsPage = () => {
                   <Label htmlFor="editPhone">Phone</Label>
                   <Input
                     id="editPhone"
-                    value={editingLead.phone[0] || ""}
-                    onChange={(e) => setEditingLead({ ...editingLead, phone: [e.target.value] })}
+                    value={editingLead.phone || ""}
+                    onChange={(e) => setEditingLead({ ...editingLead, phone: e.target.value })}
                     placeholder="+1-555-0101"
                   />
                 </div>
@@ -411,12 +411,11 @@ const LeadsPage = () => {
                       <SelectValue placeholder="Select industry" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Technology">Technology</SelectItem>
-                      <SelectItem value="Marketing">Marketing</SelectItem>
-                      <SelectItem value="SaaS">SaaS</SelectItem>
-                      <SelectItem value="Finance">Finance</SelectItem>
-                      <SelectItem value="Healthcare">Healthcare</SelectItem>
-                      <SelectItem value="Education">Education</SelectItem>
+                      {industriesList.map((industry) => (
+                        <SelectItem key={industry} value={industry}>
+                          {industry}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
@@ -425,16 +424,18 @@ const LeadsPage = () => {
                   <Select
                     value={editingLead.status}
                     onValueChange={(value) =>
-                      setEditingLead({ ...editingLead, status: value as LeadStatus })
+                      setEditingLead({ ...editingLead, status: value as types.LeadStatus })
                     }
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Select status" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value={LeadStatus.NEW}>New</SelectItem>
-                      <SelectItem value={LeadStatus.INPROGRESS}>In Progress</SelectItem>
-                      <SelectItem value={LeadStatus.LOST}>Lost</SelectItem>
+                      {Object.values(types.LeadStatus).map((status) => (
+                        <SelectItem key={status} value={status}>
+                          {status}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>

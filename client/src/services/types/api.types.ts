@@ -1,14 +1,5 @@
 // API Types for all service requests and responses
-import type {
-  UserDTO,
-  WorkspaceDTO,
-  LeadDTO,
-  SuccessResponse,
-  ErrorResponse,
-  LeadStatus,
-  UserRole,
-  Permission,
-} from "@eleads/shared";
+import { types } from "@eleads/shared";
 
 // Request types
 export interface LoginRequest {
@@ -39,7 +30,7 @@ export interface CreateLeadRequest {
   company: string;
   jobTitle?: string;
   industry?: string;
-  status?: LeadStatus;
+  status?: types.LeadStatus;
   website?: string;
   address?: string;
   city?: string;
@@ -57,19 +48,17 @@ export interface PaginationParams {
   page?: number;
   limit?: number;
   search?: string;
-  status?: LeadStatus;
+  status?: types.LeadStatus;
   sortBy?: string;
   sortOrder?: "asc" | "desc";
 }
 
 // Re-export shared types for convenience
-export type {
-  UserDTO as User,
-  WorkspaceDTO as Workspace,
-  LeadDTO as Lead,
-  SuccessResponse,
-  ErrorResponse,
-  LeadStatus,
-  UserRole,
-  Permission,
-};
+export type User = types.UserDTO;
+export type Workspace = types.WorkspaceDTO;
+export type Lead = types.LeadDTO;
+export type SuccessResponse = types.SuccessResponse;
+export type ErrorResponse = types.ErrorResponse;
+export type LeadStatus = types.LeadStatus;
+export type UserRole = types.UserRole;
+export type Permission = types.Permission;

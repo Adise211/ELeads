@@ -5,12 +5,12 @@ import { Label } from "@/components/ui/label";
 import AppDialog from "@/components/core/AppDialog";
 import { Mail, Phone, Lock, Save, Edit, Check } from "lucide-react";
 import { showSuccessToast } from "@/utils/toast";
-import type { UserDTO } from "@eleads/shared";
+import { types } from "@eleads/shared";
 import { useState } from "react";
 
 interface AccountTabProps {
-  user: UserDTO;
-  setUser: (user: UserDTO) => void;
+  user: types.UserDTO;
+  setUser: (user: types.UserDTO) => void;
   isLoading: boolean;
   setIsLoading: (loading: boolean) => void;
 }

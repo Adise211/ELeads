@@ -1,19 +1,18 @@
 import { Request, Response, NextFunction } from "express";
-import { User, Workspace } from "@prisma/client";
+import { User, Workspace, UserRole } from "@prisma/client";
+import { consts } from "@eleads/shared";
 import {
   createWorkspace,
   getWorkspaceById,
   addUserToWorkspace,
 } from "../models/workspace.model.js";
 import { getUserByEmail, createUser } from "../models/users.model.js";
-import { httpCodes } from "@eleads/shared";
 import { userErrorsMsg, workspaceErrorsMsg } from "../utils/errorCodes.js";
 import { AppError } from "../middleware/errorHandler.middleware.js";
 import { hashPassword, comparePassword, rolePermissionMap } from "../lib/auth.helper.js";
 import { generateAccessToken, generateRefreshToken } from "../lib/auth.helper.js";
 import { RegisterUserFields, SuccessResponse } from "../server.types.js";
 import { omitFields } from "../lib/data.helper.js";
-import { UserRole } from "@prisma/client";
 
 export const registerUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -30,7 +29,7 @@ export const registerUser = async (req: Request, res: Response, next: NextFuncti
 
     if (isUserExisting) {
       // If user already exists, return an error
-      res.status(httpCodes.BAD_REQUEST).json({ message: userErrorsMsg.USER_ALREADY_EXISTS });
+      res.status(consts.httpCodes.BAD_REQUEST).json({ message: userErrorsMsg.USER_ALREADY_EXISTS });
     } else {
       // Create a new workspace
       if (workspace.name) {
@@ -39,7 +38,7 @@ export const registerUser = async (req: Request, res: Response, next: NextFuncti
       } else if (workspace.id) {
         createdWorkspace = await getWorkspaceById(workspace.id);
       } else {
-        throw new AppError(workspaceErrorsMsg.WORKSPACE_NOT_FOUND, httpCodes.BAD_REQUEST);
+        throw new AppError(workspaceErrorsMsg.WORKSPACE_NOT_FOUND, consts.httpCodes.BAD_REQUEST);
       }
 
       // Create a new user
@@ -58,7 +57,7 @@ export const registerUser = async (req: Request, res: Response, next: NextFuncti
           await addUserToWorkspace(createdWorkspace.id, createdUser.id);
         }
         // Return the created user and workspace
-        res.status(httpCodes.CREATED).json({
+        res.status(consts.httpCodes.CREATED).json({
           success: true,
           message: "User registered successfully",
           data: {},
@@ -76,12 +75,12 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
     // Check if user exists
     const user: User | null = await getUserByEmail(email);
     if (!user) {
-      throw new AppError(userErrorsMsg.USER_NOT_FOUND, httpCodes.UNAUTHORIZED);
+      throw new AppError(userErrorsMsg.USER_NOT_FOUND, consts.httpCodes.UNAUTHORIZED);
     } else {
       // Compare passwords
       const isPasswordCorrect = await comparePassword(password, user.password);
       if (!isPasswordCorrect) {
-        throw new AppError(userErrorsMsg.INCORRECT_PASSWORD, httpCodes.UNAUTHORIZED);
+        throw new AppError(userErrorsMsg.INCORRECT_PASSWORD, consts.httpCodes.UNAUTHORIZED);
       }
 
       // If password is correct, create a payload with user data
@@ -118,7 +117,7 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
         success: true,
         message: "User logged in successfully",
       };
-      res.status(httpCodes.SUCCESS).json(successResponse);
+      res.status(consts.httpCodes.SUCCESS).json(successResponse);
     }
   } catch (error) {
     next(error);
@@ -129,7 +128,7 @@ export const getAuthenticatedUser = async (req: Request, res: Response, next: Ne
   try {
     const user = await getUserByEmail((req as any).user.email);
     if (!user) {
-      throw new AppError(userErrorsMsg.USER_NOT_FOUND, httpCodes.NOT_FOUND);
+      throw new AppError(userErrorsMsg.USER_NOT_FOUND, consts.httpCodes.NOT_FOUND);
     } else {
       const safeUser = omitFields(user, ["password"]);
       const successResponse: SuccessResponse = {
@@ -137,7 +136,7 @@ export const getAuthenticatedUser = async (req: Request, res: Response, next: Ne
         message: "User fetched successfully",
         data: { user: safeUser },
       };
-      res.status(httpCodes.SUCCESS).json(successResponse);
+      res.status(consts.httpCodes.SUCCESS).json(successResponse);
     }
   } catch (error) {
     next(error);
@@ -166,7 +165,7 @@ export const logoutUser = async (req: Request, res: Response, next: NextFunction
       success: true,
       message: "User logged out successfully",
     };
-    res.status(httpCodes.SUCCESS).json(successResponse);
+    res.status(consts.httpCodes.SUCCESS).json(successResponse);
   } catch (error) {
     next(error);
   }

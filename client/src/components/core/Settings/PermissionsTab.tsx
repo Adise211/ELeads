@@ -17,9 +17,8 @@ import {
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Edit, MoreHorizontal, Save, X, UserPlus } from "lucide-react";
 import { useState } from "react";
-import { permissionsOptions } from "@eleads/shared";
+import { consts, types } from "@eleads/shared";
 import { useAuthStore } from "@/stores/authStore";
-import type { Permission } from "@eleads/shared";
 import ProtectedUI from "@/components/providers/ProtectedUI";
 
 interface WorkspaceUser {
@@ -157,9 +156,9 @@ const PermissionsTab = ({ workspaceUsers }: PermissionsTabProps) => {
               <TableHead>Email</TableHead>
               <TableHead>Role</TableHead>
               <TableHead>Permissions</TableHead>
-              {isUserHasPermission([permissionsOptions.MANAGE_USERS] as Permission[]) && (
-                <TableHead className="w-[50px]">Actions</TableHead>
-              )}
+              {isUserHasPermission([
+                consts.permissionsOptions.MANAGE_USERS,
+              ] as types.Permission[]) && <TableHead className="w-[50px]">Actions</TableHead>}
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -189,7 +188,9 @@ const PermissionsTab = ({ workspaceUsers }: PermissionsTabProps) => {
                 <TableCell>{renderPermissions(workspaceUser.permissions)}</TableCell>
                 <TableCell>
                   <ProtectedUI
-                    allowedPermissions={[permissionsOptions.MANAGE_USERS] as Permission[]}
+                    allowedPermissions={
+                      [consts.permissionsOptions.MANAGE_USERS] as types.Permission[]
+                    }
                   >
                     <ButtonIcon
                       onClick={() => handleEditUser(workspaceUser.id)}
@@ -203,7 +204,9 @@ const PermissionsTab = ({ workspaceUsers }: PermissionsTabProps) => {
           </TableBody>
         </Table>
       </div>
-      <ProtectedUI allowedPermissions={[permissionsOptions.MANAGE_USERS] as Permission[]}>
+      <ProtectedUI
+        allowedPermissions={[consts.permissionsOptions.MANAGE_USERS] as types.Permission[]}
+      >
         <div className="flex justify-end mt-4">
           <Button onClick={() => setIsInviteDialogOpen(true)}>
             <UserPlus className="h-4 w-4 mr-2" />
@@ -213,7 +216,9 @@ const PermissionsTab = ({ workspaceUsers }: PermissionsTabProps) => {
       </ProtectedUI>
 
       {/* Edit User Dialog */}
-      <ProtectedUI allowedPermissions={[permissionsOptions.MANAGE_USERS] as Permission[]}>
+      <ProtectedUI
+        allowedPermissions={[consts.permissionsOptions.MANAGE_USERS] as types.Permission[]}
+      >
         <AppDialog
           trigger={<div style={{ display: "none" }} />}
           title="Edit User Permissions"
@@ -305,7 +310,9 @@ const PermissionsTab = ({ workspaceUsers }: PermissionsTabProps) => {
       </ProtectedUI>
 
       {/* Invite Friend Dialog */}
-      <ProtectedUI allowedPermissions={[permissionsOptions.MANAGE_USERS] as Permission[]}>
+      <ProtectedUI
+        allowedPermissions={[consts.permissionsOptions.MANAGE_USERS] as types.Permission[]}
+      >
         <InviteFriendDialog
           open={isInviteDialogOpen}
           onOpenChange={setIsInviteDialogOpen}

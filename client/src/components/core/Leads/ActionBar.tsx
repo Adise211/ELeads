@@ -17,8 +17,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { Search, Filter, Download, Plus } from "lucide-react";
-import { LeadStatus } from "@eleads/shared";
+import { Plus, Search, Filter, Download } from "lucide-react";
+import { types } from "@eleads/shared";
 import { industriesList } from "./leads.data";
 
 interface ActionBarProps {
@@ -98,9 +98,9 @@ const ActionBar = ({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="ALL">All Status</SelectItem>
-              <SelectItem value={LeadStatus.NEW}>New</SelectItem>
-              <SelectItem value={LeadStatus.INPROGRESS}>In Progress</SelectItem>
-              <SelectItem value={LeadStatus.LOST}>Lost</SelectItem>
+              <SelectItem value={types.LeadStatus.NEW}>New</SelectItem>
+              <SelectItem value={types.LeadStatus.INPROGRESS}>In Progress</SelectItem>
+              <SelectItem value={types.LeadStatus.LOST}>Lost</SelectItem>
             </SelectContent>
           </Select>
           <Select value={industryFilter} onValueChange={setIndustryFilter}>

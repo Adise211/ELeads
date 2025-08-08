@@ -12,7 +12,7 @@ import {
   PreferenceTab,
 } from "@/components/core/Settings";
 import { useAuthStore } from "@/stores/authStore";
-import type { UserDTO } from "@eleads/shared";
+import { types } from "@eleads/shared";
 
 // Mock data - replace with actual API calls
 // const mockUser = {
@@ -192,7 +192,7 @@ const TestPage = () => {
               className="px-6 pb-6 space-y-6 h-[calc(600px-120px)] overflow-y-auto"
             >
               <AccountTab
-                user={user as UserDTO}
+                user={user as types.UserDTO}
                 setUser={setUser}
                 isLoading={isLoading}
                 setIsLoading={setIsLoading}
