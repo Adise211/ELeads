@@ -23,7 +23,8 @@ import { useWorkspaceStore } from "@/stores/workspaceStore";
 import { showSuccessToast } from "@/utils/toast";
 import { StatsCards, LeadsTable, ActionBar } from "@/components/core/Leads";
 import { industriesList } from "@/components/core/Leads/leads.data";
-import { types } from "@eleads/shared";
+import { types, schemas } from "@eleads/shared";
+import { leadsService } from "@/services";
 
 // Mock data based on the schema
 // const mockLeads: LeadDTO[] = [
@@ -130,6 +131,27 @@ import { types } from "@eleads/shared";
 //   },
 // ];
 
+const DEFAULT_LEAD: types.LeadDTO = {
+  firstName: "",
+  lastName: "",
+  email: "",
+  phone: "",
+  company: "",
+  status: types.LeadStatus.NEW,
+  country: "",
+  jobTitle: "",
+  industry: "",
+  website: "",
+  address: "",
+  city: "",
+  state: "",
+  zipCode: "",
+  // notes: [],
+  // activities: [],
+  assignedToId: "",
+  // assignedTo: {} as types.UserDTO,
+};
+
 const getStatusColor = (status: types.LeadStatus) => {
   switch (status) {
     case types.LeadStatus.NEW:
@@ -156,21 +178,8 @@ const LeadsPage = () => {
   const [newNoteContent, setNewNoteContent] = useState("");
   const [editingLead, setEditingLead] = useState<types.LeadDTO | null>(null);
   const [expandedNotes, setExpandedNotes] = useState<string | null>(null);
-  const [newLead, setNewLead] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    phone: "",
-    company: "",
-    jobTitle: "",
-    industry: "",
-    website: "",
-    address: "",
-    city: "",
-    state: "",
-    zipCode: "",
-    country: "",
-  });
+  const [newLead, setNewLead] = useState({ ...DEFAULT_LEAD });
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     setLeads(workspaceLeads);
@@ -194,35 +203,23 @@ const LeadsPage = () => {
   ).length;
   const lostLeads = filteredLeads.filter((lead) => lead.status === types.LeadStatus.LOST).length;
 
-  const handleAddLead = () => {
-    const newLeadData: types.LeadDTO = {
-      ...newLead,
-      id: `lead_${Date.now()}`,
-      status: types.LeadStatus.NEW,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      phone: newLead.phone,
-      notes: [],
-      activities: [],
-    };
-    setLeads([...leads, newLeadData]);
-    showSuccessToast(`${newLead.firstName} ${newLead.lastName} has been added successfully.`);
-    setIsAddLeadOpen(false);
-    setNewLead({
-      firstName: "",
-      lastName: "",
-      email: "",
-      phone: "",
-      company: "",
-      jobTitle: "",
-      industry: "",
-      website: "",
-      address: "",
-      city: "",
-      state: "",
-      zipCode: "",
-      country: "",
-    });
+  const handleAddLead = async () => {
+    const validationResult = schemas.leadSchema.safeParse(newLead);
+    if (!validationResult.success) {
+      validationResult.error.issues.forEach((issue) => {
+        setErrors((prev) => ({ ...prev, [issue.path.join(".")]: issue.message }));
+      });
+    } else {
+      const response = await leadsService.createLead(newLead);
+      console.log("create lead response", response);
+
+      if (response.success) {
+        setLeads([...leads, response.data]);
+        showSuccessToast(`${newLead.firstName} ${newLead.lastName} has been added successfully.`);
+        setIsAddLeadOpen(false);
+        setNewLead({ ...DEFAULT_LEAD });
+      }
+    }
   };
 
   const handleEditLead = () => {
@@ -323,6 +320,7 @@ const LeadsPage = () => {
           setNewLead={setNewLead}
           handleAddLead={handleAddLead}
           handleExport={handleExport}
+          errors={errors}
         />
 
         {/* Leads Table */}

@@ -30,38 +30,11 @@ interface ActionBarProps {
   setIndustryFilter: (value: string) => void;
   isAddLeadOpen: boolean;
   setIsAddLeadOpen: (value: boolean) => void;
-  newLead: {
-    firstName: string;
-    lastName: string;
-    email: string;
-    phone: string;
-    company: string;
-    jobTitle: string;
-    industry: string;
-    website: string;
-    address: string;
-    city: string;
-    state: string;
-    zipCode: string;
-    country: string;
-  };
-  setNewLead: (value: {
-    firstName: string;
-    lastName: string;
-    email: string;
-    phone: string;
-    company: string;
-    jobTitle: string;
-    industry: string;
-    website: string;
-    address: string;
-    city: string;
-    state: string;
-    zipCode: string;
-    country: string;
-  }) => void;
+  newLead: types.LeadDTO;
+  setNewLead: (value: types.LeadDTO) => void;
   handleAddLead: () => void;
   handleExport: () => void;
+  errors: Record<string, string>;
 }
 
 const ActionBar = ({
@@ -77,6 +50,7 @@ const ActionBar = ({
   setNewLead,
   handleAddLead,
   handleExport,
+  errors,
 }: ActionBarProps) => {
   return (
     <div className="flex flex-col sm:flex-row gap-4 mb-6">
@@ -124,6 +98,7 @@ const ActionBar = ({
           <Download className="h-4 w-4 mr-2" />
           Export
         </Button>
+        {/* add new lead dialog */}
         <Dialog open={isAddLeadOpen} onOpenChange={setIsAddLeadOpen}>
           <DialogTrigger asChild>
             <Button>
@@ -146,6 +121,7 @@ const ActionBar = ({
                   value={newLead.firstName}
                   onChange={(e) => setNewLead({ ...newLead, firstName: e.target.value })}
                   placeholder="John"
+                  error={errors.firstName}
                 />
               </div>
               <div className="space-y-2">
@@ -155,6 +131,7 @@ const ActionBar = ({
                   value={newLead.lastName}
                   onChange={(e) => setNewLead({ ...newLead, lastName: e.target.value })}
                   placeholder="Doe"
+                  error={errors.lastName}
                 />
               </div>
               <div className="space-y-2">
@@ -165,6 +142,7 @@ const ActionBar = ({
                   value={newLead.email}
                   onChange={(e) => setNewLead({ ...newLead, email: e.target.value })}
                   placeholder="john.doe@example.com"
+                  error={errors.email}
                 />
               </div>
               <div className="space-y-2">
@@ -174,6 +152,7 @@ const ActionBar = ({
                   value={newLead.phone}
                   onChange={(e) => setNewLead({ ...newLead, phone: e.target.value })}
                   placeholder="+1-555-0101"
+                  error={errors.phone}
                 />
               </div>
               <div className="space-y-2">
@@ -183,6 +162,7 @@ const ActionBar = ({
                   value={newLead.company}
                   onChange={(e) => setNewLead({ ...newLead, company: e.target.value })}
                   placeholder="TechCorp Inc."
+                  error={errors.company}
                 />
               </div>
               <div className="space-y-2">
@@ -192,6 +172,7 @@ const ActionBar = ({
                   value={newLead.jobTitle}
                   onChange={(e) => setNewLead({ ...newLead, jobTitle: e.target.value })}
                   placeholder="Software Engineer"
+                  error={errors.jobTitle}
                 />
               </div>
               <div className="space-y-2">
@@ -219,6 +200,7 @@ const ActionBar = ({
                   value={newLead.website}
                   onChange={(e) => setNewLead({ ...newLead, website: e.target.value })}
                   placeholder="https://example.com"
+                  error={errors.website}
                 />
               </div>
               <div className="col-span-2 space-y-2">
@@ -228,6 +210,7 @@ const ActionBar = ({
                   value={newLead.address}
                   onChange={(e) => setNewLead({ ...newLead, address: e.target.value })}
                   placeholder="123 Main St"
+                  error={errors.address}
                 />
               </div>
               <div className="space-y-2">
@@ -237,6 +220,7 @@ const ActionBar = ({
                   value={newLead.city}
                   onChange={(e) => setNewLead({ ...newLead, city: e.target.value })}
                   placeholder="San Francisco"
+                  error={errors.city}
                 />
               </div>
               <div className="space-y-2">
@@ -246,6 +230,7 @@ const ActionBar = ({
                   value={newLead.state}
                   onChange={(e) => setNewLead({ ...newLead, state: e.target.value })}
                   placeholder="CA"
+                  error={errors.state}
                 />
               </div>
               <div className="space-y-2">
@@ -255,6 +240,7 @@ const ActionBar = ({
                   value={newLead.zipCode}
                   onChange={(e) => setNewLead({ ...newLead, zipCode: e.target.value })}
                   placeholder="94105"
+                  error={errors.zipCode}
                 />
               </div>
               <div className="space-y-2">
@@ -264,6 +250,7 @@ const ActionBar = ({
                   value={newLead.country}
                   onChange={(e) => setNewLead({ ...newLead, country: e.target.value })}
                   placeholder="USA"
+                  error={errors.country}
                 />
               </div>
             </div>

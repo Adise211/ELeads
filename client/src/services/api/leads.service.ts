@@ -1,11 +1,6 @@
 import api from "../httpConfig";
-import type {
-  CreateLeadRequest,
-  UpdateLeadRequest,
-  PaginationParams,
-  // LeadStatus,
-  SuccessResponse,
-} from "../types/api.types";
+import type { UpdateLeadRequest, PaginationParams, SuccessResponse } from "../types/api.types";
+import { types } from "@eleads/shared";
 
 export const leadsService = {
   /**
@@ -28,7 +23,7 @@ export const leadsService = {
   /**
    * Create a new lead
    */
-  createLead: async (leadData: CreateLeadRequest): Promise<SuccessResponse> => {
+  createLead: async (leadData: types.LeadDTO): Promise<SuccessResponse> => {
     const response = await api.post("/leads/create", leadData);
     return response.data;
   },

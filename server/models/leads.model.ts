@@ -3,12 +3,12 @@ import { CreateLeadInput } from "../server.types";
 
 const prisma = new PrismaClient();
 
-export const createLead = async (userId: string, data: CreateLeadInput) => {
-  // Ensure required fields are present and types are correct
+export const createLead = async (userId: string, workspaceId: string, data: CreateLeadInput) => {
   const lead = await prisma.lead.create({
     data: {
       ...data,
       assignedToId: userId,
+      workspaceId: workspaceId,
     },
   });
   return lead;

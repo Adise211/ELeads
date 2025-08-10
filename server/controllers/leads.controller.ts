@@ -9,9 +9,9 @@ import { SuccessResponse } from "../server.types.js";
 
 export const createLead = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { userId } = (req as any).user;
+    const { userId, workspaceId } = (req as any).user;
     const data = req.body;
-    const createdLead = await createLeadModel(userId, data);
+    const createdLead = await createLeadModel(userId, workspaceId, data);
     const successResponse: SuccessResponse = {
       success: true,
       message: "Lead created successfully",
