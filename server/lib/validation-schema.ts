@@ -64,3 +64,7 @@ export const registerUserSchema = z.object({
 export const createLeadSchema = z.object({
   body: schemas.leadSchema,
 });
+
+export const updateLeadSchema = z.object({
+  body: schemas.leadSchema,
+});

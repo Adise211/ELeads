@@ -218,22 +218,39 @@ const LeadsPage = () => {
         showSuccessToast(`${newLead.firstName} ${newLead.lastName} has been added successfully.`);
         setIsAddLeadOpen(false);
         setNewLead({ ...DEFAULT_LEAD });
+        setErrors({});
       }
     }
   };
 
-  const handleEditLead = () => {
+  const handleEditLead = async () => {
     if (!editingLead) return;
 
-    const updatedLeads: types.LeadDTO[] = leads.map((lead) =>
-      lead.id === editingLead.id ? { ...editingLead, updatedAt: new Date() } : lead
-    );
-    setLeads(updatedLeads);
-    showSuccessToast(
-      `${editingLead.firstName} ${editingLead.lastName} has been updated successfully.`
-    );
-    setIsEditLeadOpen(false);
-    setEditingLead(null);
+    // validate the editing lead
+    const validationResult = schemas.leadSchema.safeParse(editingLead);
+    if (!validationResult.success) {
+      validationResult.error.issues.forEach((issue) => {
+        setErrors((prev) => ({ ...prev, [issue.path.join(".")]: issue.message }));
+      });
+    } else {
+      let updatedLeads = leads;
+      const response = await leadsService.updateLead(editingLead);
+      if (response.success) {
+        // update the lead
+        const prevLeadIndex = leads.findIndex((lead) => lead.id === editingLead.id);
+        if (prevLeadIndex !== -1) {
+          updatedLeads = [...leads];
+          updatedLeads[prevLeadIndex] = response.data;
+        }
+
+        setLeads(updatedLeads);
+        showSuccessToast(
+          `${editingLead.firstName} ${editingLead.lastName} has been updated successfully.`
+        );
+        setIsEditLeadOpen(false);
+        setEditingLead(null);
+      }
+    }
   };
 
   const handleDeleteLead = (leadId: string) => {

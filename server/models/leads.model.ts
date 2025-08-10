@@ -14,9 +14,9 @@ export const createLead = async (userId: string, workspaceId: string, data: Crea
   return lead;
 };
 
-export const updateUserLead = async (userId: string, leadId: string, data: Partial<Lead>) => {
+export const updateUserLead = async (userId: string, workspaceId: string, data: Partial<Lead>) => {
   const lead = await prisma.lead.update({
-    where: { id: leadId, AND: { assignedToId: userId } },
+    where: { id: data.id, AND: { assignedToId: userId, workspaceId: workspaceId } },
     data,
   });
   return lead;

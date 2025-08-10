@@ -1,5 +1,5 @@
 import api from "../httpConfig";
-import type { UpdateLeadRequest, PaginationParams, SuccessResponse } from "../types/api.types";
+import type { PaginationParams, SuccessResponse } from "../types/api.types";
 import { types } from "@eleads/shared";
 
 export const leadsService = {
@@ -31,8 +31,8 @@ export const leadsService = {
   /**
    * Update an existing lead
    */
-  updateLead: async (leadData: UpdateLeadRequest): Promise<SuccessResponse> => {
-    const response = await api.put(`/leads/${leadData.id}`, leadData);
+  updateLead: async (leadData: types.LeadDTO): Promise<SuccessResponse> => {
+    const response = await api.put(`/leads/update`, leadData);
     return response.data;
   },
 
