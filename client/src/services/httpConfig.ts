@@ -22,11 +22,15 @@ api.interceptors.response.use(
         // redirect to login
         // break;
         case consts.httpCodes.INTERNAL_SERVER_ERROR:
-          showErrorToast("Internal Server Error");
+          if (location.pathname !== "/login") {
+            showErrorToast("Internal Server Error");
+          }
           break;
         default:
-          showErrorToast("Something went wrong");
-          console.error(error.response);
+          if (location.pathname !== "/login") {
+            showErrorToast("Something went wrong");
+            console.error(error.response);
+          }
           break;
       }
     }
