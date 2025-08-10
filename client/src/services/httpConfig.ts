@@ -28,7 +28,8 @@ api.interceptors.response.use(
           break;
         default:
           if (location.pathname !== "/login") {
-            showErrorToast("Something went wrong");
+            const errorMessage = error.response.data.message || "Something went wrong";
+            showErrorToast(errorMessage);
             console.error(error.response);
           }
           break;

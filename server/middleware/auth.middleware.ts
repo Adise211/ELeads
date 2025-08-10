@@ -18,27 +18,22 @@ export function authenticateToken(req: Request, res: Response, next: NextFunctio
       next(new AppError("No token provided", httpCodes.UNAUTHORIZED));
     } else {
       const user = verifyAccessToken(token);
-      const reqAction: Permission | undefined | null = req.body?.action || null;
-      const requiredPermission = !!reqAction;
 
-      if (requiredPermission) {
-        // Check if user has permission to perform the action
-        const isUserHasPermission = hasPermission(user, reqAction);
-        // If user does not have permission, return 403 Forbidden
-        if (!isUserHasPermission) {
-          next(new AppError(userErrorsMsg.USER_NOT_AUTHORIZED, httpCodes.FORBIDDEN));
-        } else {
-          // user has permission, attach the user to the request
-          (req as any).user = user;
-          next();
-        }
-      } else {
-        // no permission required, attach the user to the request
-        (req as any).user = user;
-        next();
-      }
+      (req as any).user = user;
+      next();
     }
   } catch (err) {
     next(new AppError("Invalid or expired token", httpCodes.FORBIDDEN));
   }
+}
+
+export function checkPermission(action: Permission) {
+  return (req: Request, res: Response, next: NextFunction) => {
+    const { permissions } = (req as any).user;
+    if (permissions.includes(action)) {
+      next();
+    } else {
+      next(new AppError(userErrorsMsg.USER_NOT_AUTHORIZED, httpCodes.FORBIDDEN));
+    }
+  };
 }
