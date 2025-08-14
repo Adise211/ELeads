@@ -39,8 +39,8 @@ export const leadsService = {
   /**
    * Delete a lead
    */
-  deleteLead: async (id: string): Promise<SuccessResponse> => {
-    const response = await api.delete(`/leads/${id}`);
+  deleteLead: async (id: string, assignedToId: string): Promise<SuccessResponse> => {
+    const response = await api.delete(`/leads/delete/${id}?assignedToId=${assignedToId}`);
     return response.data;
   },
 

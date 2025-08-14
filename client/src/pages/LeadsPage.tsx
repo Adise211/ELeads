@@ -253,10 +253,13 @@ const LeadsPage = () => {
     }
   };
 
-  const handleDeleteLead = (leadId: string) => {
+  const handleDeleteLead = async (leadId: string) => {
     const leadToDelete = leads.find((lead) => lead.id === leadId);
-    setLeads(leads.filter((lead) => lead.id !== leadId));
-    showSuccessToast(`${leadToDelete?.firstName} ${leadToDelete?.lastName} has been deleted.`);
+    const response = await leadsService.deleteLead(leadId, leadToDelete?.assignedToId || "");
+    if (response.success) {
+      setLeads(leads.filter((lead) => lead.id !== leadId));
+      showSuccessToast(`${leadToDelete?.firstName} ${leadToDelete?.lastName} has been deleted.`);
+    }
   };
 
   const openEditDialog = (lead: types.LeadDTO) => {

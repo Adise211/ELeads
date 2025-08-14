@@ -29,10 +29,18 @@ export function authenticateToken(req: Request, res: Response, next: NextFunctio
 
 export function checkPermission(action: Permission) {
   return (req: Request, res: Response, next: NextFunction) => {
-    const { permissions } = (req as any).user;
-    if (permissions.includes(action)) {
+    const { permissions, userId } = (req as any).user;
+    const dataAssignedToId = (req as any).body?.assignedToId || req.query?.assignedToId || null;
+    // check if the user is the owner of the data
+    if (dataAssignedToId && dataAssignedToId === userId) {
+      console.log("user is owner!");
+      next();
+    } else if (permissions.includes(action)) {
+      // check if the user has the permission to access the data that he does not own
+      console.log("user has permission!");
       next();
     } else {
+      console.log("user is not owner and does not have permission!");
       next(new AppError(userErrorsMsg.USER_NOT_AUTHORIZED, httpCodes.FORBIDDEN));
     }
   };

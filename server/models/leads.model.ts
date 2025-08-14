@@ -14,10 +14,24 @@ export const createLead = async (userId: string, workspaceId: string, data: Crea
   return lead;
 };
 
-export const updateUserLead = async (userId: string, workspaceId: string, data: Partial<Lead>) => {
+export const updateUserLead = async (
+  assignedToId: string,
+  workspaceId: string,
+  data: Partial<Lead>
+) => {
   const lead = await prisma.lead.update({
-    where: { id: data.id, AND: { assignedToId: userId, workspaceId: workspaceId } },
+    where: { id: data.id, AND: { assignedToId: assignedToId, workspaceId: workspaceId } },
     data,
+  });
+  return lead;
+};
+// soft delete (isActive = false)!!!
+export const deleteUserLead = async (workspaceId: string, id: string) => {
+  const lead = await prisma.lead.update({
+    where: { id: id, AND: { workspaceId: workspaceId } },
+    data: {
+      isActive: false,
+    },
   });
   return lead;
 };

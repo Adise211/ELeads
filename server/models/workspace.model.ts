@@ -110,6 +110,7 @@ export const getWorkspaceLeads = async (workspaceId: string) => {
   const leads = await prisma.lead.findMany({
     where: {
       workspaceId,
+      isActive: true,
     },
   });
   return leads;
