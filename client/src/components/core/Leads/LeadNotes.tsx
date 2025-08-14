@@ -44,8 +44,13 @@ export const NoteItem = ({ note, leadName, onEdit, onDelete }: NoteItemProps) =>
           <textarea
             value={editContent}
             onChange={(e) => setEditContent(e.target.value)}
-            className="w-full p-2 border rounded-md text-sm resize-none"
+            className="w-full p-2 border rounded-md text-sm resize-none overflow-hidden"
             rows={3}
+            style={{
+              minHeight: "80px",
+              maxHeight: "200px",
+              overflowY: "auto",
+            }}
           />
           <div className="flex gap-2">
             <Button size="sm" onClick={handleSave}>
@@ -58,7 +63,11 @@ export const NoteItem = ({ note, leadName, onEdit, onDelete }: NoteItemProps) =>
         </div>
       ) : (
         <div className="space-y-2">
-          <p className="text-sm">{note.content}</p>
+          <div className="max-w-full">
+            <p className="text-sm break-words whitespace-pre-wrap overflow-hidden">
+              {note.content}
+            </p>
+          </div>
           <div className="flex justify-between items-center">
             <p className="text-xs text-muted-foreground">
               {note.createdAt ? new Date(note.createdAt).toLocaleString() : "N/A"}

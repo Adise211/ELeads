@@ -309,11 +309,11 @@ const LeadsTable = ({
                       {expandedNotes === lead.id && lead.notes && lead.notes.length > 0 && (
                         <TableRow>
                           <TableCell colSpan={10} className="bg-muted/50">
-                            <div className="py-4">
+                            <div className="py-4 max-w-full overflow-hidden">
                               <h4 className="font-medium mb-3">
                                 Notes for {lead.firstName} {lead.lastName}
                               </h4>
-                              <div className="space-y-3">
+                              <div className="space-y-3 max-w-full">
                                 {lead.notes.map((note) => (
                                   <NoteItem
                                     key={note.id}
