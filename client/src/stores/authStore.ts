@@ -27,10 +27,9 @@ export const useAuthStore = create<AuthState>()(
         // if user is admin, return true
         const currentUser = get().user;
         if (!currentUser) return false;
-        if (get().isAdminRole()) return true;
-        return !!currentUser?.permissions?.some((permission) =>
-          allowedPermissions.includes(permission as types.Permission)
-        );
+        return !!currentUser?.permissions?.some((permission) => {
+          return allowedPermissions.includes(permission as types.Permission);
+        });
       },
       isUserHasRole: (allowedRoles: types.UserRole[]) => {
         const currentUser = get().user;

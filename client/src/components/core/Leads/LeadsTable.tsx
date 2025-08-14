@@ -250,11 +250,9 @@ const LeadsTable = ({
                               <DropdownMenuContent align="end">
                                 <ProtectedUI
                                   allowedPermissions={
-                                    [
-                                      types.Permission.EDIT_WORKSPACE_LEADS,
-                                      types.Permission.MANAGE_OWN_LEADS,
-                                    ] as types.Permission[]
+                                    [types.Permission.EDIT_WORKSPACE_LEADS] as types.Permission[]
                                   }
+                                  itemOwnerId={lead.assignedToId}
                                 >
                                   <DropdownMenuItem onClick={() => openEditDialog(lead)}>
                                     <Edit className="h-4 w-4 mr-2" />
@@ -270,6 +268,7 @@ const LeadsTable = ({
                                   allowedPermissions={
                                     [types.Permission.DELETE_WORKSPACE_LEADS] as types.Permission[]
                                   }
+                                  itemOwnerId={lead.assignedToId}
                                 >
                                   <AlertDialog>
                                     <AlertDialogTrigger asChild>
