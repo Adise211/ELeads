@@ -25,6 +25,7 @@ import { StatsCards, LeadsTable, ActionBar } from "@/components/core/Leads";
 import { industriesList } from "@/components/core/Leads/leads.data";
 import { types, schemas } from "@eleads/shared";
 import { leadsService } from "@/services";
+import sanitizeHtml from "sanitize-html";
 
 // Mock data based on the schema
 // const mockLeads: LeadDTO[] = [
@@ -276,7 +277,8 @@ const LeadsPage = () => {
   const handleCreateNote = async () => {
     if (!creatingNoteFor || !newNoteContent.trim()) return;
 
-    const response = await leadsService.createNote(creatingNoteFor.id || "", newNoteContent.trim());
+    const sanitizedContent = sanitizeHtml(newNoteContent.trim());
+    const response = await leadsService.createNote(creatingNoteFor.id || "", sanitizedContent);
 
     if (response.success) {
       // Update the lead with the new note
@@ -299,7 +301,8 @@ const LeadsPage = () => {
   };
 
   const handleEditNote = async (noteId: string, content: string) => {
-    const response = await leadsService.updateNote(noteId, content);
+    const sanitizedContent = sanitizeHtml(content);
+    const response = await leadsService.updateNote(noteId, sanitizedContent);
 
     if (response.success) {
       // Update the note in the leads array

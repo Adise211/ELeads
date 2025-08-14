@@ -14,6 +14,7 @@ import {
 import { SuccessResponse } from "../server.types.js";
 import { Lead } from "@prisma/client";
 import { AppError } from "../middleware/errorHandler.middleware.js";
+import sanitizeHtml from "sanitize-html";
 
 export const createLead = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -76,7 +77,8 @@ export const createNote = async (req: Request, res: Response, next: NextFunction
     if (!lead) {
       throw new AppError("Lead not found", consts.httpCodes.NOT_FOUND);
     } else {
-      const createdNote = await createNoteModel(leadId, content);
+      const sanitizedContent = sanitizeHtml(content);
+      const createdNote = await createNoteModel(leadId, sanitizedContent);
       const successResponse: SuccessResponse = {
         success: true,
         message: "Note created successfully",
@@ -100,7 +102,8 @@ export const updateNote = async (req: Request, res: Response, next: NextFunction
     if (!note || !note.lead) {
       throw new AppError("Note not found", consts.httpCodes.NOT_FOUND);
     } else {
-      const updatedNote = await updateNoteModel(noteId, content);
+      const sanitizedContent = sanitizeHtml(content);
+      const updatedNote = await updateNoteModel(noteId, sanitizedContent);
       const successResponse: SuccessResponse = {
         success: true,
         message: "Note updated successfully",
