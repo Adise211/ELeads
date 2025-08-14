@@ -273,32 +273,61 @@ const LeadsPage = () => {
     setIsCreateNoteOpen(true);
   };
 
-  const handleCreateNote = () => {
+  const handleCreateNote = async () => {
     if (!creatingNoteFor || !newNoteContent.trim()) return;
 
-    const newNote = {
-      id: `note_${Date.now()}`,
-      content: newNoteContent.trim(),
-      createdAt: new Date(),
-      leadId: creatingNoteFor.id || "",
-      lead: {} as types.LeadDTO,
-    };
+    const response = await leadsService.createNote(creatingNoteFor.id || "", newNoteContent.trim());
 
-    const updatedLeads = leads.map((lead) =>
-      lead.id === creatingNoteFor.id
-        ? {
-            ...lead,
-            notes: [...(lead.notes || []), newNote],
-            updatedAt: new Date(),
-          }
-        : lead
-    );
+    if (response.success) {
+      // Update the lead with the new note
+      const updatedLeads = leads.map((lead) =>
+        lead.id === creatingNoteFor.id
+          ? {
+              ...lead,
+              notes: [...(lead.notes || []), response.data],
+              updatedAt: new Date(),
+            }
+          : lead
+      );
 
-    setLeads(updatedLeads);
-    showSuccessToast(`Note added to ${creatingNoteFor.firstName} ${creatingNoteFor.lastName}`);
-    setIsCreateNoteOpen(false);
-    setCreatingNoteFor(null);
-    setNewNoteContent("");
+      setLeads(updatedLeads);
+      showSuccessToast(`Note added to ${creatingNoteFor.firstName} ${creatingNoteFor.lastName}`);
+      setIsCreateNoteOpen(false);
+      setCreatingNoteFor(null);
+      setNewNoteContent("");
+    }
+  };
+
+  const handleEditNote = async (noteId: string, content: string) => {
+    const response = await leadsService.updateNote(noteId, content);
+
+    if (response.success) {
+      // Update the note in the leads array
+      const updatedLeads = leads.map((lead) => ({
+        ...lead,
+        notes: lead.notes?.map((note) =>
+          note.id === noteId ? { ...note, content, updatedAt: response.data.updatedAt } : note
+        ),
+      }));
+
+      setLeads(updatedLeads);
+      showSuccessToast("Note updated successfully");
+    }
+  };
+
+  const handleDeleteNote = async (noteId: string) => {
+    const response = await leadsService.deleteNote(noteId);
+
+    if (response.success) {
+      // Remove the note from the leads array
+      const updatedLeads = leads.map((lead) => ({
+        ...lead,
+        notes: lead.notes?.filter((note) => note.id !== noteId),
+      }));
+
+      setLeads(updatedLeads);
+      showSuccessToast("Note deleted successfully");
+    }
   };
 
   const handleExport = () => {
@@ -353,6 +382,8 @@ const LeadsPage = () => {
           openCreateNoteDialog={openCreateNoteDialog}
           handleDeleteLead={handleDeleteLead}
           toggleNotes={toggleNotes}
+          handleEditNote={handleEditNote}
+          handleDeleteNote={handleDeleteNote}
         />
 
         {/* Edit Lead Dialog */}

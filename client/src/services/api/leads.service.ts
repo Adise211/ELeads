@@ -45,6 +45,30 @@ export const leadsService = {
   },
 
   /**
+   * Create a new note for a lead
+   */
+  createNote: async (leadId: string, content: string): Promise<SuccessResponse> => {
+    const response = await api.post("/leads/notes/create", { leadId, content });
+    return response.data;
+  },
+
+  /**
+   * Update an existing note
+   */
+  updateNote: async (noteId: string, content: string): Promise<SuccessResponse> => {
+    const response = await api.put("/leads/notes/update", { noteId, content });
+    return response.data;
+  },
+
+  /**
+   * Delete a note
+   */
+  deleteNote: async (noteId: string): Promise<SuccessResponse> => {
+    const response = await api.delete(`/leads/notes/delete/${noteId}`);
+    return response.data;
+  },
+
+  /**
    * Bulk update leads status
    */
   // bulkUpdateStatus: async (leadIds: string[], status: LeadStatus): Promise<SuccessResponse> => {

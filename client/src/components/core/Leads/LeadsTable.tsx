@@ -29,6 +29,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { StickyNote, Edit, Trash2, Mail, Phone, Building, MoreHorizontal } from "lucide-react";
 import LeadDetailsDialog from "./LeadDetailsDialog";
+import { NoteItem } from "./LeadNotes";
 import { types } from "@eleads/shared";
 import { useState } from "react";
 import ProtectedUI from "@/components/providers/ProtectedUI";
@@ -43,6 +44,8 @@ interface LeadsTableProps {
   openCreateNoteDialog: (lead: types.LeadDTO) => void;
   handleDeleteLead: (leadId: string) => void;
   toggleNotes: (leadId: string) => void;
+  handleEditNote: (noteId: string, content: string) => void;
+  handleDeleteNote: (noteId: string) => void;
 }
 
 const LeadsTable = ({
@@ -54,6 +57,8 @@ const LeadsTable = ({
   openCreateNoteDialog,
   handleDeleteLead,
   toggleNotes,
+  handleEditNote,
+  handleDeleteNote,
 }: LeadsTableProps) => {
   const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set());
 
@@ -310,14 +315,13 @@ const LeadsTable = ({
                               </h4>
                               <div className="space-y-3">
                                 {lead.notes.map((note) => (
-                                  <div key={note.id} className="border-l-4 border-primary pl-4">
-                                    <p className="text-sm">{note.content}</p>
-                                    <p className="text-xs text-muted-foreground mt-1">
-                                      {note.createdAt
-                                        ? new Date(note.createdAt).toLocaleString()
-                                        : "N/A"}
-                                    </p>
-                                  </div>
+                                  <NoteItem
+                                    key={note.id}
+                                    note={note}
+                                    leadName={`${lead.firstName} ${lead.lastName}`}
+                                    onEdit={handleEditNote}
+                                    onDelete={handleDeleteNote}
+                                  />
                                 ))}
                               </div>
                             </div>
