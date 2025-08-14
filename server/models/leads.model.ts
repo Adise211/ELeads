@@ -35,3 +35,82 @@ export const deleteUserLead = async (workspaceId: string, id: string) => {
   });
   return lead;
 };
+
+// Note operations - TODO: Move to separate file
+
+// create note
+export const createNote = async (leadId: string, content: string) => {
+  const note = await prisma.note.create({
+    data: {
+      content,
+      leadId,
+    },
+  });
+  return note;
+};
+
+// update note
+export const updateNote = async (noteId: string, content: string) => {
+  const note = await prisma.note.update({
+    where: { id: noteId },
+    data: { content },
+  });
+  return note;
+};
+
+// delete note
+export const deleteNote = async (noteId: string) => {
+  const note = await prisma.note.delete({
+    where: { id: noteId },
+  });
+  return note;
+};
+
+export const getLeadWithNotes = async (leadId: string, workspaceId: string) => {
+  const lead = await prisma.lead.findFirst({
+    where: {
+      id: leadId,
+      workspaceId: workspaceId,
+      isActive: true,
+    },
+    include: {
+      notes: {
+        orderBy: { createdAt: "asc" },
+      },
+      assignedTo: true,
+    },
+  });
+  return lead;
+};
+
+// get notes for a lead
+export const getLeadNotes = async (leadId: string, workspaceId: string, userId: string) => {
+  const notes = await prisma.note.findMany({
+    where: {
+      leadId: leadId,
+      lead: {
+        workspaceId: workspaceId,
+        isActive: true,
+      },
+    },
+    orderBy: { createdAt: "desc" },
+  });
+  return notes;
+};
+
+// get note by id
+export const getNoteById = async (noteId: string, workspaceId: string) => {
+  const note = await prisma.note.findFirst({
+    where: {
+      id: noteId,
+      lead: {
+        workspaceId: workspaceId,
+      },
+    },
+    include: {
+      lead: true,
+    },
+  });
+
+  return note;
+};

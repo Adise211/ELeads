@@ -112,6 +112,12 @@ export const getWorkspaceLeads = async (workspaceId: string) => {
       workspaceId,
       isActive: true,
     },
+    include: {
+      notes: {
+        orderBy: { createdAt: "asc" },
+      },
+      assignedTo: true,
+    },
   });
   return leads;
 };

@@ -68,3 +68,17 @@ export const createLeadSchema = z.object({
 export const updateLeadSchema = z.object({
   body: schemas.leadSchema,
 });
+
+export const createNoteSchema = z.object({
+  body: z.object({
+    leadId: z.string().min(1, { message: "Lead ID is required" }),
+    content: z.string().min(1, { message: "Note content is required" }),
+  }),
+});
+
+export const updateNoteSchema = z.object({
+  body: z.object({
+    noteId: z.string().min(1, { message: "Note ID is required" }),
+    content: z.string().min(1, { message: "Note content is required" }),
+  }),
+});
