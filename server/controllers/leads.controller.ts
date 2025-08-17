@@ -35,7 +35,7 @@ export const createLead = async (req: Request, res: Response, next: NextFunction
 export const updateUserLead = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { workspaceId } = (req as any).user;
-    const data: Lead = req.body;
+    const data = req.body;
     const updatedLead = await updateUserLeadModel(data.assignedToId, workspaceId, data);
     const successResponse: SuccessResponse = {
       success: true,

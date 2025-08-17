@@ -14,14 +14,13 @@ export const createLead = async (userId: string, workspaceId: string, data: Crea
   return lead;
 };
 
-export const updateUserLead = async (
-  assignedToId: string,
-  workspaceId: string,
-  data: Partial<Lead>
-) => {
+export const updateUserLead = async (assignedToId: string, workspaceId: string, data: any) => {
+  // Extract only the fields that should be updated, excluding notes and assignedTo
+  const { notes, assignedTo, ...updateData } = data;
+
   const lead = await prisma.lead.update({
     where: { id: data.id, AND: { assignedToId: assignedToId, workspaceId: workspaceId } },
-    data,
+    data: updateData,
   });
   return lead;
 };
