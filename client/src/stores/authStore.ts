@@ -4,6 +4,8 @@ import { types, consts } from "@eleads/shared";
 
 type AuthState = {
   user: types.UserDTO | null;
+  hasSeenWelcome: boolean;
+  setHasSeenWelcome: (hasSeenWelcome: boolean) => void;
   setUser: (user: types.UserDTO | null) => void;
   clearUser: () => void;
   isAdminRole: () => boolean;
@@ -16,8 +18,10 @@ export const useAuthStore = create<AuthState>()(
   persist(
     (set, get) => ({
       user: null,
+      hasSeenWelcome: false,
       setUser: (user) => set({ user }),
-      clearUser: () => set({ user: null }),
+      setHasSeenWelcome: (hasSeenWelcome) => set({ hasSeenWelcome }),
+      clearUser: () => set({ user: null, hasSeenWelcome: false }),
       isAdminRole: () => {
         const currentUser = get().user;
         if (!currentUser) return false;
@@ -40,7 +44,7 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: "user", // key in localStorage
-      partialize: (state) => ({ user: state.user }),
+      partialize: (state) => ({ user: state.user, hasSeenWelcome: state.hasSeenWelcome }),
     }
   )
 );

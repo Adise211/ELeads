@@ -2,6 +2,7 @@ import ChartSection from "@/components/core/Dashboard/ChartSection";
 import CardsSection from "@/components/core/Dashboard/CardsSection";
 import LastActivityCard from "@/components/core/Leads/LastActivityCard";
 import { types } from "@eleads/shared";
+import WelcomeDialog from "@/components/core/WelcomeDialog";
 
 const HomePage = () => {
   // Mock data for LastActivityCard - you can replace this with real data from your API
@@ -46,6 +47,7 @@ const HomePage = () => {
 
   return (
     <div className="flex flex-1 flex-col">
+      <WelcomeDialog />
       <div className="@container/main flex flex-1 flex-col gap-2">
         <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
           <CardsSection />
