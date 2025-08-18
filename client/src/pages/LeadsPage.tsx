@@ -377,7 +377,6 @@ const LeadsPage = () => {
 
         {/* Leads Table */}
         <LeadsTable
-          leads={leads}
           filteredLeads={filteredLeads}
           expandedNotes={expandedNotes}
           getStatusColor={getStatusColor}
