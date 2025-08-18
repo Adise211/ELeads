@@ -9,6 +9,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Sparkles, Zap } from "lucide-react";
 import { useAuthStore } from "@/stores/authStore";
+// import onboarding from "@/lib/onboarding";
 
 const WelcomeDialog = () => {
   const [open, setOpen] = useState(false);
@@ -24,6 +25,7 @@ const WelcomeDialog = () => {
   const handleClose = () => {
     setOpen(false);
     setHasSeenWelcome(true);
+    // onboarding.drive();
   };
 
   return (

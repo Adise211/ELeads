@@ -194,7 +194,7 @@ const LeadsTable = ({
       header: "",
       width: "w-20",
       render: (lead) => (
-        <div className="flex justify-end gap-2">
+        <div className="leads-table-actions flex justify-end gap-2">
           <LeadDetailsDialog
             lead={lead}
             getStatusColor={getStatusColor}
@@ -273,7 +273,7 @@ const LeadsTable = ({
     expandedItem: expandedNotes,
     onToggle: toggleNotes,
     renderExpandedContent: (lead: types.LeadDTO) => (
-      <div className="max-w-full overflow-hidden">
+      <div className="max-w-full overflow-hidden leads-table-expanded-content">
         <h4 className="font-medium mb-3">
           Notes for {lead.firstName} {lead.lastName}
         </h4>
@@ -294,6 +294,7 @@ const LeadsTable = ({
 
   return (
     <AppTable
+      className="leads-table"
       data={filteredLeads}
       columns={columns}
       title="All Leads"
