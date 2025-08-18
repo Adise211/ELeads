@@ -1,6 +1,7 @@
 import axios from "axios";
 import { consts } from "@eleads/shared";
 import { showErrorToast } from "@/utils/toast";
+import { useAuthStore } from "@/stores/authStore";
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_BACKEND_API_BASE_URL,
@@ -12,7 +13,7 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     // Log the error
-    // console.error("HTTP Error:", error);
+    const isUserLoggedIn = useAuthStore.getState().user;
 
     // Handle specific error status codes globally
     if (error.response) {
@@ -22,12 +23,14 @@ api.interceptors.response.use(
         // redirect to login
         // break;
         case consts.httpCodes.INTERNAL_SERVER_ERROR:
-          if (location.pathname !== "/login") {
+          // show error toast if user is logged in
+          if (isUserLoggedIn) {
             showErrorToast("Internal Server Error");
           }
           break;
         default:
-          if (location.pathname !== "/login") {
+          if (isUserLoggedIn) {
+            // show error toast if user is logged in
             const errorMessage = error.response.data.message || "Something went wrong";
             showErrorToast(errorMessage);
             console.error(error.response);
