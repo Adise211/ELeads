@@ -1,0 +1,13 @@
+name: Pre-Deploy Production
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Migrate Prisma
+      - run: cd server && npm run migrate:prod
