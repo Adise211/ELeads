@@ -1,11 +1,5 @@
 import { useState, useEffect } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Sparkles, Zap } from "lucide-react";
 import { useAuthStore } from "@/stores/authStore";
@@ -43,7 +37,10 @@ const WelcomeDialog = () => {
               </span>
               <span className="ml-2">🚀</span>
             </DialogTitle>
-            <DialogDescription className="text-center space-y-3 text-base">
+            <div
+              className="text-center space-y-3 text-base"
+              aria-describedby="welcome-dialog-description"
+            >
               <p className="font-medium text-foreground">Thanks for exploring our application!</p>
               <div className="p-4 rounded-lg bg-violet-50/50 border border-violet-200/50">
                 <p className="text-sm text-muted-foreground">
@@ -57,7 +54,7 @@ const WelcomeDialog = () => {
               <p className="text-sm text-muted-foreground">
                 We're working hard to bring you an amazing experience! 💫
               </p>
-            </DialogDescription>
+            </div>
           </div>
         </DialogHeader>
         <div className="flex justify-center mt-6">
