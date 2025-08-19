@@ -1,4 +1,4 @@
-import { Lead, PrismaClient } from "@prisma/client";
+import { ActivityType, Lead, PrismaClient } from "@prisma/client";
 import { CreateLeadInput } from "../server.types";
 
 const prisma = new PrismaClient();
@@ -30,6 +30,21 @@ export const deleteUserLead = async (workspaceId: string, id: string) => {
     where: { id: id, AND: { workspaceId: workspaceId } },
     data: {
       isActive: false,
+    },
+  });
+  return lead;
+};
+
+export const getLeadById = async (leadId: string, workspaceId: string) => {
+  const lead = await prisma.lead.findFirst({
+    where: { id: leadId, workspaceId: workspaceId, isActive: true },
+    include: {
+      activities: {
+        orderBy: { createdAt: "desc" },
+      },
+      notes: {
+        orderBy: { createdAt: "asc" },
+      },
     },
   });
   return lead;
@@ -112,4 +127,59 @@ export const getNoteById = async (noteId: string, workspaceId: string) => {
   });
 
   return note;
+};
+
+// Activity operations
+
+// create activity
+export const createActivity = async (
+  leadId: string,
+  userId: string,
+  type: string,
+  description: string
+) => {
+  const activity = await prisma.activity.create({
+    data: {
+      type: type as ActivityType,
+      description,
+      leadId,
+      userId,
+    },
+  });
+  return activity;
+};
+
+// update activity
+export const updateActivity = async (activityId: string, type: string, description: string) => {
+  const activity = await prisma.activity.update({
+    where: { id: activityId },
+    data: { type: type as ActivityType, description },
+  });
+  return activity;
+};
+
+// delete activity
+export const deleteActivity = async (activityId: string) => {
+  const activity = await prisma.activity.delete({
+    where: { id: activityId },
+  });
+  return activity;
+};
+
+// get activity by id
+export const getActivityById = async (activityId: string, workspaceId: string) => {
+  const activity = await prisma.activity.findFirst({
+    where: {
+      id: activityId,
+      lead: {
+        workspaceId: workspaceId,
+      },
+    },
+    include: {
+      lead: true,
+      user: true,
+    },
+  });
+
+  return activity;
 };

@@ -27,111 +27,6 @@ import { types, schemas } from "@eleads/shared";
 import { leadsService } from "@/services";
 import sanitizeHtml from "sanitize-html";
 
-// Mock data based on the schema
-// const mockLeads: LeadDTO[] = [
-//   {
-//     id: "lead_1",
-//     firstName: "John",
-//     lastName: "Doe",
-//     email: "john.doe@example.com",
-//     phone: ["+1-555-0101"],
-//     company: "TechCorp Inc.",
-//     jobTitle: "Software Engineer",
-//     industry: "Technology",
-//     status: LeadStatus.NEW,
-//     website: "https://techcorp.com",
-//     address: "123 Main St",
-//     city: "San Francisco",
-//     state: "CA",
-//     zipCode: "94105",
-//     country: "USA",
-//     createdAt: new Date("2024-01-15T10:30:00Z"),
-//     updatedAt: new Date("2024-01-15T10:30:00Z"),
-//     notes: [
-//       {
-//         id: "note_1",
-//         content: "Initial contact via LinkedIn",
-//         createdAt: new Date("2024-01-15T10:30:00Z"),
-//         leadId: "lead_1",
-//         lead: {} as LeadDTO,
-//       },
-//       {
-//         id: "note_2",
-//         content: "Interested in our enterprise solution",
-//         createdAt: new Date("2024-01-16T14:20:00Z"),
-//         leadId: "lead_1",
-//         lead: {} as LeadDTO,
-//       },
-//     ],
-//     activities: [],
-//   },
-//   {
-//     id: "lead_2",
-//     firstName: "Jane",
-//     lastName: "Smith",
-//     email: "jane.smith@example.com",
-//     phone: ["+1-555-0102"],
-//     company: "Marketing Pro",
-//     jobTitle: "Marketing Director",
-//     industry: "Marketing",
-//     status: LeadStatus.INPROGRESS,
-//     website: "https://marketingpro.com",
-//     address: "456 Oak Ave",
-//     city: "New York",
-//     state: "NY",
-//     zipCode: "10001",
-//     country: "USA",
-//     createdAt: new Date("2024-01-14T09:15:00Z"),
-//     updatedAt: new Date("2024-01-16T14:20:00Z"),
-//     notes: [
-//       {
-//         id: "note_3",
-//         content: "Follow up scheduled for next week",
-//         createdAt: new Date("2024-01-16T14:20:00Z"),
-//         leadId: "lead_2",
-//         lead: {} as LeadDTO,
-//       },
-//     ],
-//     activities: [],
-//   },
-//   {
-//     id: "lead_3",
-//     firstName: "Mike",
-//     lastName: "Johnson",
-//     email: "mike.johnson@example.com",
-//     phone: ["+1-555-0103", "+1-555-0104"],
-//     company: "StartupXYZ",
-//     jobTitle: "CEO",
-//     industry: "SaaS",
-//     status: LeadStatus.LOST,
-//     website: "https://startupxyz.com",
-//     address: "789 Pine St",
-//     city: "Austin",
-//     state: "TX",
-//     zipCode: "73301",
-//     country: "USA",
-//     createdAt: new Date("2024-01-13T16:45:00Z"),
-//     updatedAt: new Date("2024-01-17T11:30:00Z"),
-//     notes: [
-//       {
-//         id: "note_4",
-//         content: "Very interested, ready to move forward",
-//         createdAt: new Date("2024-01-17T11:30:00Z"),
-//         leadId: "lead_3",
-//         lead: {} as LeadDTO,
-//       },
-//       {
-//         id: "note_5",
-//         content: "Budget approved for Q1",
-//         createdAt: new Date("2024-01-17T15:45:00Z"),
-//         leadId: "lead_3",
-//         lead: {} as LeadDTO,
-//       },
-//     ],
-//     activities: [],
-//   },
-// ];
-
 const DEFAULT_LEAD: types.LeadDTO = {
   firstName: "",
   lastName: "",
@@ -177,6 +72,12 @@ const LeadsPage = () => {
   const [isCreateNoteOpen, setIsCreateNoteOpen] = useState(false);
   const [creatingNoteFor, setCreatingNoteFor] = useState<types.LeadDTO | null>(null);
   const [newNoteContent, setNewNoteContent] = useState("");
+  const [isCreateActivityOpen, setIsCreateActivityOpen] = useState(false);
+  const [creatingActivityFor, setCreatingActivityFor] = useState<types.LeadDTO | null>(null);
+  const [newActivityType, setNewActivityType] = useState<types.ActivityType>(
+    types.ActivityType.EMAIL
+  );
+  const [newActivityDescription, setNewActivityDescription] = useState("");
   const [editingLead, setEditingLead] = useState<types.LeadDTO | null>(null);
   const [expandedNotes, setExpandedNotes] = useState<string | null>(null);
   const [newLead, setNewLead] = useState({ ...DEFAULT_LEAD });
@@ -272,6 +173,49 @@ const LeadsPage = () => {
     setCreatingNoteFor(lead);
     setNewNoteContent("");
     setIsCreateNoteOpen(true);
+  };
+
+  const openCreateActivityDialog = (lead: types.LeadDTO) => {
+    setCreatingActivityFor(lead);
+    setNewActivityType(types.ActivityType.EMAIL);
+    setNewActivityDescription("");
+    setIsCreateActivityOpen(true);
+  };
+
+  const handleCreateActivity = async () => {
+    // TODO: Add validation for the activity description
+    if (!creatingActivityFor || !newActivityDescription.trim()) return;
+
+    const sanitizedDescription = sanitizeHtml(newActivityDescription.trim());
+    const response = await leadsService.createActivity(
+      creatingActivityFor.id || "",
+      newActivityType,
+      sanitizedDescription
+    );
+    console.log("create activity response", response);
+
+    if (response.success) {
+      // Update the lead with the new activity
+      const updatedLeads = leads.map((lead) =>
+        lead.id === creatingActivityFor.id
+          ? {
+              ...lead,
+              activities: [...(lead.activities || []), response.data],
+              updatedAt: new Date(),
+            }
+          : lead
+      );
+
+      setLeads(updatedLeads);
+      showSuccessToast(
+        `Activity added to ${creatingActivityFor.firstName} ${creatingActivityFor.lastName}`
+      );
+      // reset
+      setIsCreateActivityOpen(false);
+      setCreatingActivityFor(null);
+      setNewActivityType(types.ActivityType.EMAIL);
+      setNewActivityDescription("");
+    }
   };
 
   const handleCreateNote = async () => {
@@ -382,6 +326,7 @@ const LeadsPage = () => {
           getStatusColor={getStatusColor}
           openEditDialog={openEditDialog}
           openCreateNoteDialog={openCreateNoteDialog}
+          openCreateActivityDialog={openCreateActivityDialog}
           handleDeleteLead={handleDeleteLead}
           toggleNotes={toggleNotes}
           handleEditNote={handleEditNote}
@@ -587,6 +532,56 @@ const LeadsPage = () => {
               </Button>
               <Button onClick={handleCreateNote} disabled={!newNoteContent.trim()}>
                 Create Note
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Create Activity Dialog */}
+        <Dialog open={isCreateActivityOpen} onOpenChange={setIsCreateActivityOpen}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>Create Activity</DialogTitle>
+              <DialogDescription>
+                Add an activity for {creatingActivityFor?.firstName} {creatingActivityFor?.lastName}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="activityType">Activity Type</Label>
+                <Select
+                  value={newActivityType}
+                  onValueChange={(value) => setNewActivityType(value as types.ActivityType)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select activity type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.values(types.ActivityType).map((type) => (
+                      <SelectItem key={type} value={type}>
+                        {type}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="activityDescription">Description</Label>
+                <Textarea
+                  id="activityDescription"
+                  placeholder="Enter activity description..."
+                  value={newActivityDescription}
+                  onChange={(e) => setNewActivityDescription(e.target.value)}
+                  className="min-h-[120px]"
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsCreateActivityOpen(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleCreateActivity} disabled={!newActivityDescription.trim()}>
+                Create Activity
               </Button>
             </DialogFooter>
           </DialogContent>

@@ -116,7 +116,9 @@ export const getWorkspaceLeads = async (workspaceId: string) => {
       notes: {
         orderBy: { createdAt: "asc" },
       },
-      assignedTo: true,
+      activities: {
+        orderBy: { createdAt: "desc" },
+      },
     },
   });
   return leads;

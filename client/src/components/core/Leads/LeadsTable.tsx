@@ -17,7 +17,16 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { StickyNote, Edit, Trash2, Mail, Phone, Building, MoreHorizontal } from "lucide-react";
+import {
+  StickyNote,
+  Edit,
+  Trash2,
+  Mail,
+  Phone,
+  Building,
+  MoreHorizontal,
+  Activity,
+} from "lucide-react";
 import LeadDetailsDialog from "./LeadDetailsDialog";
 import { NoteItem } from "./LeadNotes";
 import { types } from "@eleads/shared";
@@ -32,6 +41,7 @@ interface LeadsTableProps {
   getStatusColor: (status: types.LeadStatus) => string;
   openEditDialog: (lead: types.LeadDTO) => void;
   openCreateNoteDialog: (lead: types.LeadDTO) => void;
+  openCreateActivityDialog: (lead: types.LeadDTO) => void;
   handleDeleteLead: (leadId: string) => void;
   toggleNotes: (leadId: string) => void;
   handleEditNote: (noteId: string, content: string) => void;
@@ -44,6 +54,7 @@ const LeadsTable = ({
   getStatusColor,
   openEditDialog,
   openCreateNoteDialog,
+  openCreateActivityDialog,
   handleDeleteLead,
   toggleNotes,
   handleEditNote,
@@ -219,6 +230,10 @@ const LeadsTable = ({
               <DropdownMenuItem onClick={() => openCreateNoteDialog(lead)}>
                 <StickyNote className="h-4 w-4 mr-2" />
                 Create Note
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => openCreateActivityDialog(lead)}>
+                <Activity className="h-4 w-4 mr-2" />
+                Add Activity
               </DropdownMenuItem>
               <ProtectedUI
                 allowedPermissions={[types.Permission.DELETE_WORKSPACE_LEADS] as types.Permission[]}

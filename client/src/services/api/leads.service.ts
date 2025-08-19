@@ -69,6 +69,38 @@ export const leadsService = {
   },
 
   /**
+   * Create a new activity for a lead
+   */
+  createActivity: async (
+    leadId: string,
+    type: types.ActivityType,
+    description: string
+  ): Promise<SuccessResponse> => {
+    const response = await api.post("/leads/activities/create", { leadId, type, description });
+    return response.data;
+  },
+
+  /**
+   * Update an existing activity
+   */
+  updateActivity: async (
+    activityId: string,
+    type: string,
+    description: string
+  ): Promise<SuccessResponse> => {
+    const response = await api.put("/leads/activities/update", { activityId, type, description });
+    return response.data;
+  },
+
+  /**
+   * Delete an activity
+   */
+  deleteActivity: async (activityId: string): Promise<SuccessResponse> => {
+    const response = await api.delete(`/leads/activities/delete/${activityId}`);
+    return response.data;
+  },
+
+  /**
    * Bulk update leads status
    */
   // bulkUpdateStatus: async (leadIds: string[], status: LeadStatus): Promise<SuccessResponse> => {
