@@ -85,7 +85,7 @@ export const leadsService = {
    */
   updateActivity: async (
     activityId: string,
-    type: string,
+    type: types.ActivityType,
     description: string
   ): Promise<SuccessResponse> => {
     const response = await api.put("/leads/activities/update", { activityId, type, description });

@@ -38,12 +38,16 @@ import { AppTable, type TableColumn, type TablePaginationProps } from "@/compone
 interface LeadsTableProps {
   filteredLeads: types.LeadDTO[];
   expandedNotes: string | null;
+  expandedActivities: string | null;
   getStatusColor: (status: types.LeadStatus) => string;
   openEditDialog: (lead: types.LeadDTO) => void;
   openCreateNoteDialog: (lead: types.LeadDTO) => void;
   openCreateActivityDialog: (lead: types.LeadDTO) => void;
+  openEditActivityDialog: (activity: types.ActivityDTO) => void;
   handleDeleteLead: (leadId: string) => void;
+  handleDeleteActivity: (activityId: string) => void;
   toggleNotes: (leadId: string) => void;
+  toggleActivities: (leadId: string) => void;
   handleEditNote: (noteId: string, content: string) => void;
   handleDeleteNote: (noteId: string) => void;
 }
@@ -51,12 +55,16 @@ interface LeadsTableProps {
 const LeadsTable = ({
   filteredLeads,
   expandedNotes,
+  expandedActivities,
   getStatusColor,
   openEditDialog,
   openCreateNoteDialog,
   openCreateActivityDialog,
+  openEditActivityDialog,
   handleDeleteLead,
+  handleDeleteActivity,
   toggleNotes,
+  toggleActivities,
   handleEditNote,
   handleDeleteNote,
 }: LeadsTableProps) => {
@@ -159,13 +167,27 @@ const LeadsTable = ({
       header: "Last Activity",
       render: (lead) =>
         lead.activities && lead.activities.length > 0 ? (
-          <div>
-            <div className="text-sm">{lead.activities[0].type}</div>
-            <div className="text-xs text-muted-foreground">
-              {lead.activities[0].createdAt
-                ? new Date(lead.activities[0].createdAt).toLocaleDateString()
-                : "N/A"}
+          <div className="flex items-center gap-2">
+            <div className="flex-1">
+              <div className="text-sm">{lead.activities[0].type}</div>
+              <div className="text-xs text-muted-foreground">
+                {lead.activities[0].createdAt
+                  ? new Date(lead.activities[0].createdAt).toLocaleDateString()
+                  : "N/A"}
+              </div>
             </div>
+            {lead.activities.length > 1 && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => toggleActivities(lead.id || "")}
+                className="p-1 h-auto"
+              >
+                <Badge variant="outline" className="text-xs">
+                  +{lead.activities.length - 1}
+                </Badge>
+              </Button>
+            )}
           </div>
         ) : (
           <span className="text-muted-foreground">No activity</span>
@@ -285,26 +307,115 @@ const LeadsTable = ({
 
   // Expandable rows configuration
   const expandableRows = {
-    expandedItem: expandedNotes,
-    onToggle: toggleNotes,
-    renderExpandedContent: (lead: types.LeadDTO) => (
-      <div className="max-w-full overflow-hidden leads-table-expanded-content">
-        <h4 className="font-medium mb-3">
-          Notes for {lead.firstName} {lead.lastName}
-        </h4>
-        <div className="space-y-3 max-w-full">
-          {lead.notes?.map((note) => (
-            <NoteItem
-              key={note.id}
-              note={note}
-              leadName={`${lead.firstName} ${lead.lastName}`}
-              onEdit={handleEditNote}
-              onDelete={handleDeleteNote}
-            />
-          ))}
-        </div>
-      </div>
-    ),
+    expandedItem: expandedNotes || expandedActivities,
+    onToggle: (leadId: string) => {
+      if (expandedNotes === leadId) {
+        toggleNotes(leadId);
+      } else if (expandedActivities === leadId) {
+        toggleActivities(leadId);
+      }
+    },
+    renderExpandedContent: (lead: types.LeadDTO) => {
+      // Show activities if expanded from activities, otherwise show notes
+      const isExpandedForActivities = expandedActivities === lead.id;
+
+      if (isExpandedForActivities) {
+        return (
+          <div className="max-w-full overflow-hidden leads-table-expanded-content">
+            <div>
+              <h4 className="font-medium mb-3">
+                All Activities for {lead.firstName} {lead.lastName}
+              </h4>
+              <div className="space-y-3 max-w-full">
+                {lead.activities?.map((activity) => (
+                  <div key={activity.id} className="border rounded-lg p-3 bg-muted/50">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <Activity className="h-4 w-4 text-muted-foreground" />
+                          <span className="font-medium text-sm">{activity.type}</span>
+                          <span className="text-xs text-muted-foreground">
+                            {activity.createdAt
+                              ? new Date(activity.createdAt).toLocaleDateString()
+                              : "N/A"}
+                          </span>
+                        </div>
+                        <p className="text-sm text-muted-foreground">{activity.description}</p>
+                      </div>
+                      <div className="flex gap-1">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => openEditActivityDialog(activity)}
+                          className="h-6 w-6 p-0"
+                        >
+                          <Edit className="h-3 w-3" />
+                        </Button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-6 w-6 p-0 text-destructive hover:text-destructive"
+                            >
+                              <Trash2 className="h-3 w-3" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Delete Activity</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Are you sure you want to delete this activity? This action cannot be
+                                undone.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => handleDeleteActivity(activity.id || "")}
+                              >
+                                Delete
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                {(!lead.activities || lead.activities.length === 0) && (
+                  <p className="text-sm text-muted-foreground">No activities yet.</p>
+                )}
+              </div>
+            </div>
+          </div>
+        );
+      } else {
+        return (
+          <div className="max-w-full overflow-hidden leads-table-expanded-content">
+            <div>
+              <h4 className="font-medium mb-3">
+                Notes for {lead.firstName} {lead.lastName}
+              </h4>
+              <div className="space-y-3 max-w-full">
+                {lead.notes?.map((note) => (
+                  <NoteItem
+                    key={note.id}
+                    note={note}
+                    leadName={`${lead.firstName} ${lead.lastName}`}
+                    onEdit={handleEditNote}
+                    onDelete={handleDeleteNote}
+                  />
+                ))}
+                {(!lead.notes || lead.notes.length === 0) && (
+                  <p className="text-sm text-muted-foreground">No notes yet.</p>
+                )}
+              </div>
+            </div>
+          </div>
+        );
+      }
+    },
   };
 
   return (

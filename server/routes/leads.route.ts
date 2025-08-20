@@ -7,6 +7,8 @@ import {
   updateNote,
   deleteNote,
   createActivity,
+  updateActivity,
+  deleteActivity,
 } from "../controllers/leads.controller.js";
 import { authenticateToken, checkPermission } from "../middleware/auth.middleware.js";
 import {
@@ -66,5 +68,15 @@ router.delete("/notes/delete/:noteId", authenticateToken, deleteNote);
 // @desc: Create a new activity for a lead
 // @access: Private
 router.post("/activities/create", authenticateToken, createActivity);
+
+// @path: /api/leads/activities/update
+// @desc: Update an activity
+// @access: Private
+router.put("/activities/update", authenticateToken, updateActivity);
+
+// @path: /api/leads/activities/delete/:activityId
+// @desc: Delete an activity
+// @access: Private
+router.delete("/activities/delete/:activityId", authenticateToken, deleteActivity);
 
 export default router;

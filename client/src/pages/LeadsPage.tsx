@@ -21,7 +21,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useWorkspaceStore } from "@/stores/workspaceStore";
 import { showSuccessToast } from "@/utils/toast";
-import { StatsCards, LeadsTable, ActionBar } from "@/components/core/Leads";
+import { StatsCards, LeadsTable, ActionBar, LeadActivityDialog } from "@/components/core/Leads";
 import { industriesList } from "@/components/core/Leads/leads.data";
 import { types, schemas } from "@eleads/shared";
 import { leadsService } from "@/services";
@@ -78,8 +78,15 @@ const LeadsPage = () => {
     types.ActivityType.EMAIL
   );
   const [newActivityDescription, setNewActivityDescription] = useState("");
+  const [isEditActivityOpen, setIsEditActivityOpen] = useState(false);
+  const [editingActivity, setEditingActivity] = useState<types.ActivityDTO | null>(null);
+  const [editActivityType, setEditActivityType] = useState<types.ActivityType>(
+    types.ActivityType.EMAIL
+  );
+  const [editActivityDescription, setEditActivityDescription] = useState("");
   const [editingLead, setEditingLead] = useState<types.LeadDTO | null>(null);
   const [expandedNotes, setExpandedNotes] = useState<string | null>(null);
+  const [expandedActivities, setExpandedActivities] = useState<string | null>(null);
   const [newLead, setNewLead] = useState({ ...DEFAULT_LEAD });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -180,6 +187,65 @@ const LeadsPage = () => {
     setNewActivityType(types.ActivityType.EMAIL);
     setNewActivityDescription("");
     setIsCreateActivityOpen(true);
+  };
+
+  const openEditActivityDialog = (activity: types.ActivityDTO) => {
+    setEditingActivity(activity);
+    setEditActivityType(activity.type);
+    setEditActivityDescription(activity.description);
+    setIsEditActivityOpen(true);
+  };
+
+  const handleEditActivity = async () => {
+    if (!editingActivity || !editActivityDescription.trim()) return;
+
+    const sanitizedDescription = sanitizeHtml(editActivityDescription.trim());
+    const response = await leadsService.updateActivity(
+      editingActivity.id || "",
+      editActivityType,
+      sanitizedDescription
+    );
+    console.log("edit activity response", response);
+
+    if (response.success) {
+      // Update the activity in the leads array
+      const updatedLeads = leads.map((lead) => ({
+        ...lead,
+        activities: lead.activities?.map((activity) =>
+          activity.id === editingActivity.id
+            ? {
+                ...activity,
+                type: editActivityType,
+                description: sanitizedDescription,
+                updatedAt: response.data.updatedAt,
+              }
+            : activity
+        ),
+      }));
+
+      // Reset
+      setLeads(updatedLeads);
+      showSuccessToast("Activity updated successfully");
+      setIsEditActivityOpen(false);
+      setEditingActivity(null);
+      setEditActivityType(types.ActivityType.EMAIL);
+      setEditActivityDescription("");
+    }
+  };
+
+  const handleDeleteActivity = async (activityId: string) => {
+    const response = await leadsService.deleteActivity(activityId);
+    console.log("delete activity response", response);
+    if (response.success) {
+      // Remove the activity from the leads array
+      const updatedLeads = leads.map((lead) => ({
+        ...lead,
+        activities: lead.activities?.filter((activity) => activity.id !== activityId),
+      }));
+
+      setLeads(updatedLeads);
+      showSuccessToast("Activity deleted successfully");
+    }
   };
 
   const handleCreateActivity = async () => {
@@ -286,6 +352,10 @@ const LeadsPage = () => {
     setExpandedNotes(expandedNotes === leadId ? null : leadId);
   };
 
+  const toggleActivities = (leadId: string) => {
+    setExpandedActivities(expandedActivities === leadId ? null : leadId);
+  };
+
   return (
     <div className="min-h-screen bg-background p-6">
       <div className="max-w-7xl mx-auto">
@@ -323,12 +393,16 @@ const LeadsPage = () => {
         <LeadsTable
           filteredLeads={filteredLeads}
           expandedNotes={expandedNotes}
+          expandedActivities={expandedActivities}
           getStatusColor={getStatusColor}
           openEditDialog={openEditDialog}
           openCreateNoteDialog={openCreateNoteDialog}
           openCreateActivityDialog={openCreateActivityDialog}
+          openEditActivityDialog={openEditActivityDialog}
           handleDeleteLead={handleDeleteLead}
+          handleDeleteActivity={handleDeleteActivity}
           toggleNotes={toggleNotes}
+          toggleActivities={toggleActivities}
           handleEditNote={handleEditNote}
           handleDeleteNote={handleDeleteNote}
         />
@@ -586,6 +660,18 @@ const LeadsPage = () => {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+
+        {/* Edit Activity Dialog */}
+        <LeadActivityDialog
+          isOpen={isEditActivityOpen}
+          onOpenChange={setIsEditActivityOpen}
+          activity={editingActivity}
+          activityType={editActivityType}
+          activityDescription={editActivityDescription}
+          onActivityTypeChange={setEditActivityType}
+          onActivityDescriptionChange={setEditActivityDescription}
+          onSave={handleEditActivity}
+        />
       </div>
     </div>
   );
