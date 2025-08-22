@@ -120,7 +120,6 @@ const LeadsPage = () => {
       });
     } else {
       const response = await leadsService.createLead(newLead);
-      console.log("create lead response", response);
 
       if (response.success) {
         setLeads([...leads, response.data]);
