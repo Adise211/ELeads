@@ -82,3 +82,27 @@ export const updateNoteSchema = z.object({
     content: z.string().min(1, { message: "Note content is required" }),
   }),
 });
+
+export const createActivitySchema = z.object({
+  body: z.intersection(
+    schemas.activitySchema,
+    z.object({
+      leadId: z.string().min(1, { message: "Lead ID is required" }),
+    })
+  ),
+});
+
+export const updateActivitySchema = z.object({
+  body: z.intersection(
+    schemas.activitySchema,
+    z.object({
+      activityId: z.string().min(1, { message: "Activity ID is required" }),
+    })
+  ),
+});
+
+export const deleteActivitySchema = z.object({
+  params: z.object({
+    activityId: z.string().min(1, { message: "Activity ID is required" }),
+  }),
+});
