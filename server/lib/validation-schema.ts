@@ -70,16 +70,26 @@ export const updateLeadSchema = z.object({
 });
 
 export const createNoteSchema = z.object({
-  body: z.object({
-    leadId: z.string().min(1, { message: "Lead ID is required" }),
-    content: z.string().min(1, { message: "Note content is required" }),
-  }),
+  body: z.intersection(
+    schemas.noteSchema,
+    z.object({
+      leadId: z.string().min(1, { message: "Lead ID is required" }),
+    })
+  ),
 });
 
 export const updateNoteSchema = z.object({
-  body: z.object({
+  body: z.intersection(
+    schemas.noteSchema,
+    z.object({
+      noteId: z.string().min(1, { message: "Note ID is required" }),
+    })
+  ),
+});
+
+export const deleteNoteSchema = z.object({
+  params: z.object({
     noteId: z.string().min(1, { message: "Note ID is required" }),
-    content: z.string().min(1, { message: "Note content is required" }),
   }),
 });
 

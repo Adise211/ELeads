@@ -19,6 +19,7 @@ import {
   createActivitySchema,
   updateActivitySchema,
   deleteActivitySchema,
+  deleteNoteSchema,
 } from "../lib/validation-schema.js";
 import { validate } from "../middleware/validation.middleware.js";
 import { Permission } from "@eleads/shared/dist/types/index.js";
@@ -65,7 +66,7 @@ router.put("/notes/update", authenticateToken, validate(updateNoteSchema), updat
 // @path: /api/leads/notes/delete/:noteId
 // @desc: Delete a note
 // @access: Private
-router.delete("/notes/delete/:noteId", authenticateToken, deleteNote);
+router.delete("/notes/delete/:noteId", authenticateToken, validate(deleteNoteSchema), deleteNote);
 
 // @path: /api/leads/activities/create
 // @desc: Create a new activity for a lead
