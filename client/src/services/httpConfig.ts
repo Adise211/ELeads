@@ -14,10 +14,6 @@ api.interceptors.response.use(
   (error) => {
     // Log the error
     const isUserLoggedIn = useAuthStore.getState().user;
-    const isAuthOrHomePage =
-      location.pathname === "/login" ||
-      location.pathname === "/" ||
-      location.pathname === "/signup";
 
     // Handle specific error status codes globally
     if (error.response) {
@@ -28,12 +24,12 @@ api.interceptors.response.use(
         // break;
         case consts.httpCodes.INTERNAL_SERVER_ERROR:
           // show error toast if user is logged in
-          if (isUserLoggedIn && !isAuthOrHomePage) {
+          if (isUserLoggedIn) {
             showErrorToast("Internal Server Error");
           }
           break;
         default:
-          if (isUserLoggedIn && !isAuthOrHomePage) {
+          if (isUserLoggedIn) {
             // show error toast if user is logged in
             const errorMessage = error.response.data.message || "Something went wrong";
             showErrorToast(errorMessage);
