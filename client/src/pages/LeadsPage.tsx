@@ -205,7 +205,6 @@ const LeadsPage = () => {
       editActivityType,
       sanitizedDescription
     );
-    console.log("edit activity response", response);
 
     if (response.success) {
       // Update the activity in the leads array
@@ -235,7 +234,6 @@ const LeadsPage = () => {
 
   const handleDeleteActivity = async (activityId: string) => {
     const response = await leadsService.deleteActivity(activityId);
-    console.log("delete activity response", response);
     if (response.success) {
       // Remove the activity from the leads array
       const updatedLeads = leads.map((lead) => ({
@@ -258,7 +256,6 @@ const LeadsPage = () => {
       newActivityType,
       sanitizedDescription
     );
-    console.log("create activity response", response);
 
     if (response.success) {
       // Update the lead with the new activity

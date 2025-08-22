@@ -119,6 +119,7 @@ export const getWorkspaceLeads = async (workspaceId: string) => {
       activities: {
         orderBy: { createdAt: "desc" },
       },
+      assignedTo: true,
     },
   });
   return leads;
