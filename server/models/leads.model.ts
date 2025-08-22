@@ -135,7 +135,7 @@ export const getNoteById = async (noteId: string, workspaceId: string) => {
 export const createActivity = async (
   leadId: string,
   userId: string,
-  type: string,
+  type: ActivityType,
   description: string
 ) => {
   const activity = await prisma.activity.create({
@@ -150,7 +150,11 @@ export const createActivity = async (
 };
 
 // update activity
-export const updateActivity = async (activityId: string, type: string, description: string) => {
+export const updateActivity = async (
+  activityId: string,
+  type: ActivityType,
+  description: string
+) => {
   const activity = await prisma.activity.update({
     where: { id: activityId },
     data: { type: type as ActivityType, description },
