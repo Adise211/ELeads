@@ -246,7 +246,6 @@ const LeadsPage = () => {
   };
 
   const handleCreateActivity = async () => {
-    // TODO: Add validation for the activity description
     if (!creatingActivityFor || !newActivityDescription.trim()) return;
 
     const sanitizedDescription = sanitizeHtml(newActivityDescription.trim());
