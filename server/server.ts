@@ -11,6 +11,8 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import rootRouter from "./routes/index.route.js";
 import { globalErrorHandler, handleNotFound } from "./middleware/errorHandler.middleware.js";
+import rateLimit from "express-rate-limit";
+import helmet from "helmet";
 
 const app = express();
 const port = process.env.PORT || 8080;
@@ -22,8 +24,15 @@ const corsConfig = {
   credentials: true, // Allow cookies (important)
 };
 
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per windowMs
+});
+
+app.use(helmet()); // Helmet is a middleware that helps secure the app (security headers) by setting various HTTP headers
+app.use(limiter); // Apply rate limiting to all routes
 app.use(express.json()); // Enable parsing of JSON request bodies from raw stream
-app.use(cookieParser());
+app.use(cookieParser()); // Parse cookies from the request
 app.use(cors(corsConfig)); // This is important for enabling secure communication between the frontend and backend,
 
 app.use("/api", rootRouter);

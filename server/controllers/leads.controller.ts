@@ -9,6 +9,11 @@ import {
   deleteNote as deleteNoteModel,
   getLeadWithNotes as getLeadWithNotesModel,
   getNoteById as getNoteByIdModel,
+  createActivity as createActivityModel,
+  updateActivity as updateActivityModel,
+  deleteActivity as deleteActivityModel,
+  getActivityById as getActivityByIdModel,
+  getLeadById as getLeadByIdModel,
 } from "../models/leads.model.js";
 
 import { SuccessResponse } from "../server.types.js";
@@ -132,6 +137,82 @@ export const deleteNote = async (req: Request, res: Response, next: NextFunction
       const successResponse: SuccessResponse = {
         success: true,
         message: "Note deleted successfully",
+        data: {},
+      };
+      res.status(consts.httpCodes.SUCCESS).json(successResponse);
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Activity operations
+
+export const createActivity = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { userId, workspaceId } = (req as any).user;
+    const { leadId, type, description } = req.body;
+
+    // Verify the lead exists and belongs to the workspace
+    const lead = await getLeadByIdModel(leadId, workspaceId);
+    if (!lead) {
+      throw new AppError("Lead not found", consts.httpCodes.NOT_FOUND);
+    } else {
+      const sanitizedDescription = sanitizeHtml(description);
+      const createdActivity = await createActivityModel(leadId, userId, type, sanitizedDescription);
+      const successResponse: SuccessResponse = {
+        success: true,
+        message: "Activity created successfully",
+        data: createdActivity,
+      };
+      res.status(consts.httpCodes.SUCCESS).json(successResponse);
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateActivity = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { workspaceId } = (req as any).user;
+    const { activityId, type, description } = req.body;
+
+    // Verify the activity exists and belongs to a lead in the workspace
+    const activity = await getActivityByIdModel(activityId, workspaceId);
+
+    if (!activity || !activity.lead) {
+      throw new AppError("Activity not found", consts.httpCodes.NOT_FOUND);
+    } else {
+      const sanitizedDescription = sanitizeHtml(description);
+      const updatedActivity = await updateActivityModel(activityId, type, sanitizedDescription);
+      const successResponse: SuccessResponse = {
+        success: true,
+        message: "Activity updated successfully",
+        data: updatedActivity,
+      };
+
+      res.status(consts.httpCodes.SUCCESS).json(successResponse);
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const deleteActivity = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { workspaceId } = (req as any).user;
+    const { activityId } = req.params;
+
+    // Verify the activity exists and belongs to a lead in the workspace
+    const activity = await getActivityByIdModel(activityId, workspaceId);
+
+    if (!activity || !activity.lead) {
+      throw new AppError("Activity not found", consts.httpCodes.NOT_FOUND);
+    } else {
+      await deleteActivityModel(activityId);
+      const successResponse: SuccessResponse = {
+        success: true,
+        message: "Activity deleted successfully",
         data: {},
       };
       res.status(consts.httpCodes.SUCCESS).json(successResponse);

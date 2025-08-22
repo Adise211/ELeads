@@ -21,116 +21,11 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useWorkspaceStore } from "@/stores/workspaceStore";
 import { showSuccessToast } from "@/utils/toast";
-import { StatsCards, LeadsTable, ActionBar } from "@/components/core/Leads";
+import { StatsCards, LeadsTable, ActionBar, LeadActivityDialog } from "@/components/core/Leads";
 import { industriesList } from "@/components/core/Leads/leads.data";
 import { types, schemas } from "@eleads/shared";
 import { leadsService } from "@/services";
 import sanitizeHtml from "sanitize-html";
-
-// Mock data based on the schema
-// const mockLeads: LeadDTO[] = [
-//   {
-//     id: "lead_1",
-//     firstName: "John",
-//     lastName: "Doe",
-//     email: "john.doe@example.com",
-//     phone: ["+1-555-0101"],
-//     company: "TechCorp Inc.",
-//     jobTitle: "Software Engineer",
-//     industry: "Technology",
-//     status: LeadStatus.NEW,
-//     website: "https://techcorp.com",
-//     address: "123 Main St",
-//     city: "San Francisco",
-//     state: "CA",
-//     zipCode: "94105",
-//     country: "USA",
-//     createdAt: new Date("2024-01-15T10:30:00Z"),
-//     updatedAt: new Date("2024-01-15T10:30:00Z"),
-//     notes: [
-//       {
-//         id: "note_1",
-//         content: "Initial contact via LinkedIn",
-//         createdAt: new Date("2024-01-15T10:30:00Z"),
-//         leadId: "lead_1",
-//         lead: {} as LeadDTO,
-//       },
-//       {
-//         id: "note_2",
-//         content: "Interested in our enterprise solution",
-//         createdAt: new Date("2024-01-16T14:20:00Z"),
-//         leadId: "lead_1",
-//         lead: {} as LeadDTO,
-//       },
-//     ],
-//     activities: [],
-//   },
-//   {
-//     id: "lead_2",
-//     firstName: "Jane",
-//     lastName: "Smith",
-//     email: "jane.smith@example.com",
-//     phone: ["+1-555-0102"],
-//     company: "Marketing Pro",
-//     jobTitle: "Marketing Director",
-//     industry: "Marketing",
-//     status: LeadStatus.INPROGRESS,
-//     website: "https://marketingpro.com",
-//     address: "456 Oak Ave",
-//     city: "New York",
-//     state: "NY",
-//     zipCode: "10001",
-//     country: "USA",
-//     createdAt: new Date("2024-01-14T09:15:00Z"),
-//     updatedAt: new Date("2024-01-16T14:20:00Z"),
-//     notes: [
-//       {
-//         id: "note_3",
-//         content: "Follow up scheduled for next week",
-//         createdAt: new Date("2024-01-16T14:20:00Z"),
-//         leadId: "lead_2",
-//         lead: {} as LeadDTO,
-//       },
-//     ],
-//     activities: [],
-//   },
-//   {
-//     id: "lead_3",
-//     firstName: "Mike",
-//     lastName: "Johnson",
-//     email: "mike.johnson@example.com",
-//     phone: ["+1-555-0103", "+1-555-0104"],
-//     company: "StartupXYZ",
-//     jobTitle: "CEO",
-//     industry: "SaaS",
-//     status: LeadStatus.LOST,
-//     website: "https://startupxyz.com",
-//     address: "789 Pine St",
-//     city: "Austin",
-//     state: "TX",
-//     zipCode: "73301",
-//     country: "USA",
-//     createdAt: new Date("2024-01-13T16:45:00Z"),
-//     updatedAt: new Date("2024-01-17T11:30:00Z"),
-//     notes: [
-//       {
-//         id: "note_4",
-//         content: "Very interested, ready to move forward",
-//         createdAt: new Date("2024-01-17T11:30:00Z"),
-//         leadId: "lead_3",
-//         lead: {} as LeadDTO,
-//       },
-//       {
-//         id: "note_5",
-//         content: "Budget approved for Q1",
-//         createdAt: new Date("2024-01-17T15:45:00Z"),
-//         leadId: "lead_3",
-//         lead: {} as LeadDTO,
-//       },
-//     ],
-//     activities: [],
-//   },
-// ];
 
 const DEFAULT_LEAD: types.LeadDTO = {
   firstName: "",
@@ -177,8 +72,21 @@ const LeadsPage = () => {
   const [isCreateNoteOpen, setIsCreateNoteOpen] = useState(false);
   const [creatingNoteFor, setCreatingNoteFor] = useState<types.LeadDTO | null>(null);
   const [newNoteContent, setNewNoteContent] = useState("");
+  const [isCreateActivityOpen, setIsCreateActivityOpen] = useState(false);
+  const [creatingActivityFor, setCreatingActivityFor] = useState<types.LeadDTO | null>(null);
+  const [newActivityType, setNewActivityType] = useState<types.ActivityType>(
+    types.ActivityType.EMAIL
+  );
+  const [newActivityDescription, setNewActivityDescription] = useState("");
+  const [isEditActivityOpen, setIsEditActivityOpen] = useState(false);
+  const [editingActivity, setEditingActivity] = useState<types.ActivityDTO | null>(null);
+  const [editActivityType, setEditActivityType] = useState<types.ActivityType>(
+    types.ActivityType.EMAIL
+  );
+  const [editActivityDescription, setEditActivityDescription] = useState("");
   const [editingLead, setEditingLead] = useState<types.LeadDTO | null>(null);
   const [expandedNotes, setExpandedNotes] = useState<string | null>(null);
+  const [expandedActivities, setExpandedActivities] = useState<string | null>(null);
   const [newLead, setNewLead] = useState({ ...DEFAULT_LEAD });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -212,7 +120,6 @@ const LeadsPage = () => {
       });
     } else {
       const response = await leadsService.createLead(newLead);
-      console.log("create lead response", response);
 
       if (response.success) {
         setLeads([...leads, response.data]);
@@ -272,6 +179,104 @@ const LeadsPage = () => {
     setCreatingNoteFor(lead);
     setNewNoteContent("");
     setIsCreateNoteOpen(true);
+  };
+
+  const openCreateActivityDialog = (lead: types.LeadDTO) => {
+    setCreatingActivityFor(lead);
+    setNewActivityType(types.ActivityType.EMAIL);
+    setNewActivityDescription("");
+    setIsCreateActivityOpen(true);
+  };
+
+  const openEditActivityDialog = (activity: types.ActivityDTO) => {
+    setEditingActivity(activity);
+    setEditActivityType(activity.type);
+    setEditActivityDescription(activity.description);
+    setIsEditActivityOpen(true);
+  };
+
+  const handleEditActivity = async () => {
+    if (!editingActivity || !editActivityDescription.trim()) return;
+
+    const sanitizedDescription = sanitizeHtml(editActivityDescription.trim());
+    const response = await leadsService.updateActivity(
+      editingActivity.id || "",
+      editActivityType,
+      sanitizedDescription
+    );
+
+    if (response.success) {
+      // Update the activity in the leads array
+      const updatedLeads = leads.map((lead) => ({
+        ...lead,
+        activities: lead.activities?.map((activity) =>
+          activity.id === editingActivity.id
+            ? {
+                ...activity,
+                type: editActivityType,
+                description: sanitizedDescription,
+                updatedAt: response.data.updatedAt,
+              }
+            : activity
+        ),
+      }));
+
+      // Reset
+      setLeads(updatedLeads);
+      showSuccessToast("Activity updated successfully");
+      setIsEditActivityOpen(false);
+      setEditingActivity(null);
+      setEditActivityType(types.ActivityType.EMAIL);
+      setEditActivityDescription("");
+    }
+  };
+
+  const handleDeleteActivity = async (activityId: string) => {
+    const response = await leadsService.deleteActivity(activityId);
+    if (response.success) {
+      // Remove the activity from the leads array
+      const updatedLeads = leads.map((lead) => ({
+        ...lead,
+        activities: lead.activities?.filter((activity) => activity.id !== activityId),
+      }));
+
+      setLeads(updatedLeads);
+      showSuccessToast("Activity deleted successfully");
+    }
+  };
+
+  const handleCreateActivity = async () => {
+    if (!creatingActivityFor || !newActivityDescription.trim()) return;
+
+    const sanitizedDescription = sanitizeHtml(newActivityDescription.trim());
+    const response = await leadsService.createActivity(
+      creatingActivityFor.id || "",
+      newActivityType,
+      sanitizedDescription
+    );
+
+    if (response.success) {
+      // Update the lead with the new activity
+      const updatedLeads = leads.map((lead) =>
+        lead.id === creatingActivityFor.id
+          ? {
+              ...lead,
+              activities: [...(lead.activities || []), response.data],
+              updatedAt: new Date(),
+            }
+          : lead
+      );
+
+      setLeads(updatedLeads);
+      showSuccessToast(
+        `Activity added to ${creatingActivityFor.firstName} ${creatingActivityFor.lastName}`
+      );
+      // reset
+      setIsCreateActivityOpen(false);
+      setCreatingActivityFor(null);
+      setNewActivityType(types.ActivityType.EMAIL);
+      setNewActivityDescription("");
+    }
   };
 
   const handleCreateNote = async () => {
@@ -340,6 +345,12 @@ const LeadsPage = () => {
 
   const toggleNotes = (leadId: string) => {
     setExpandedNotes(expandedNotes === leadId ? null : leadId);
+    setExpandedActivities(null);
+  };
+
+  const toggleActivities = (leadId: string) => {
+    setExpandedActivities(expandedActivities === leadId ? null : leadId);
+    setExpandedNotes(null);
   };
 
   return (
@@ -379,11 +390,16 @@ const LeadsPage = () => {
         <LeadsTable
           filteredLeads={filteredLeads}
           expandedNotes={expandedNotes}
+          expandedActivities={expandedActivities}
           getStatusColor={getStatusColor}
           openEditDialog={openEditDialog}
           openCreateNoteDialog={openCreateNoteDialog}
+          openCreateActivityDialog={openCreateActivityDialog}
+          openEditActivityDialog={openEditActivityDialog}
           handleDeleteLead={handleDeleteLead}
+          handleDeleteActivity={handleDeleteActivity}
           toggleNotes={toggleNotes}
+          toggleActivities={toggleActivities}
           handleEditNote={handleEditNote}
           handleDeleteNote={handleDeleteNote}
         />
@@ -591,6 +607,68 @@ const LeadsPage = () => {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+
+        {/* Create Activity Dialog */}
+        <Dialog open={isCreateActivityOpen} onOpenChange={setIsCreateActivityOpen}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>Create Activity</DialogTitle>
+              <DialogDescription>
+                Add an activity for {creatingActivityFor?.firstName} {creatingActivityFor?.lastName}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="activityType">Activity Type</Label>
+                <Select
+                  value={newActivityType}
+                  onValueChange={(value) => setNewActivityType(value as types.ActivityType)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select activity type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.values(types.ActivityType).map((type) => (
+                      <SelectItem key={type} value={type}>
+                        {type}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="activityDescription">Description</Label>
+                <Textarea
+                  id="activityDescription"
+                  placeholder="Enter activity description..."
+                  value={newActivityDescription}
+                  onChange={(e) => setNewActivityDescription(e.target.value)}
+                  className="min-h-[120px]"
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsCreateActivityOpen(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleCreateActivity} disabled={!newActivityDescription.trim()}>
+                Create Activity
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Edit Activity Dialog */}
+        <LeadActivityDialog
+          isOpen={isEditActivityOpen}
+          onOpenChange={setIsEditActivityOpen}
+          activity={editingActivity}
+          activityType={editActivityType}
+          activityDescription={editActivityDescription}
+          onActivityTypeChange={setEditActivityType}
+          onActivityDescriptionChange={setEditActivityDescription}
+          onSave={handleEditActivity}
+        />
       </div>
     </div>
   );
