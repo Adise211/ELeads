@@ -313,6 +313,8 @@ const LeadsTable = ({
         toggleNotes(leadId);
       } else if (expandedActivities === leadId) {
         toggleActivities(leadId);
+      } else {
+        toggleNotes(leadId);
       }
     },
     renderExpandedContent: (lead: types.LeadDTO) => {

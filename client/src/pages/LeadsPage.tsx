@@ -346,10 +346,12 @@ const LeadsPage = () => {
 
   const toggleNotes = (leadId: string) => {
     setExpandedNotes(expandedNotes === leadId ? null : leadId);
+    setExpandedActivities(null);
   };
 
   const toggleActivities = (leadId: string) => {
     setExpandedActivities(expandedActivities === leadId ? null : leadId);
+    setExpandedNotes(null);
   };
 
   return (
