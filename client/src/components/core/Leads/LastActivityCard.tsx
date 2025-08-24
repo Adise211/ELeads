@@ -1,23 +1,27 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { types } from "@eleads/shared";
-import { useState } from "react";
 
 interface LastActivityCardProps {
   leads: types.LeadDTO[];
 }
 
 const LastActivityCard = ({ leads }: LastActivityCardProps) => {
-  const [mockLeads] = useState<types.LeadDTO[]>(leads);
-
-  // Get activities from all leads
-  const activities = mockLeads
-    .flatMap((lead) =>
-      lead.activities?.slice(0, 1).map((activity) => ({
-        ...activity,
-        leadName: `${lead.firstName} ${lead.lastName}`,
-        leadCompany: lead.company,
-      }))
+  console.log("leads", leads);
+  // Get all activities from all leads and sort by date (newest first)
+  const activities = leads
+    .flatMap(
+      (lead) =>
+        lead.activities?.map((activity) => ({
+          ...activity,
+          leadName: `${lead.firstName} ${lead.lastName}`,
+          leadCompany: lead.company,
+        })) || []
     )
+    .sort((a, b) => {
+      // Sort by createdAt date, newest first
+      if (!a.createdAt || !b.createdAt) return 0;
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    })
     .slice(0, 5);
 
   return (
@@ -40,7 +44,9 @@ const LastActivityCard = ({ leads }: LastActivityCardProps) => {
                     </p>
                     <p className="text-xs text-muted-foreground">{activity?.description}</p>
                     <p className="text-xs text-muted-foreground">
-                      {activity?.createdAt?.toLocaleDateString()}
+                      {activity?.createdAt
+                        ? new Date(activity.createdAt).toLocaleString()
+                        : "No date"}
                     </p>
                   </div>
                 </div>
