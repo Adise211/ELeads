@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { AppTable, type TableColumn, type TablePaginationProps } from "@/components/ui/app-table";
-import { FileText, Calendar } from "lucide-react";
+import { FileText, Calendar, Receipt, Search } from "lucide-react";
 
 interface BillingRecord {
   id: string;
@@ -163,6 +163,39 @@ const BillingTable = ({
     pageSizeOptions: [5, 10, 20, 50],
   };
 
+  // Custom empty state component
+  const EmptyState = () => {
+    const hasSearchOrFilter = searchTerm || statusFilter !== "all";
+
+    if (hasSearchOrFilter) {
+      return (
+        <div className="flex flex-col items-center justify-center text-muted-foreground py-12">
+          <Search className="h-12 w-12 mb-4 opacity-50" />
+          <h3 className="text-lg font-medium mb-2">No invoices found</h3>
+          <p className="text-center max-w-md">
+            No billing records match your current search criteria. Try adjusting your filters or
+            search terms.
+          </p>
+        </div>
+      );
+    }
+
+    return (
+      <div className="flex flex-col items-center justify-center text-muted-foreground py-12">
+        <Receipt className="h-12 w-12 mb-4 opacity-50" />
+        <h3 className="text-lg font-medium mb-2">No billing records yet</h3>
+        <p className="text-center max-w-md mb-4">
+          Get started by creating your first invoice. Track payments, manage client billing, and
+          monitor your revenue.
+        </p>
+        <Button>
+          <FileText className="h-4 w-4 mr-2" />
+          Create First Invoice
+        </Button>
+      </div>
+    );
+  };
+
   // Define table columns for AppTable
   const columns: TableColumn<BillingRecord>[] = [
     {
@@ -247,6 +280,7 @@ const BillingTable = ({
       columns={columns}
       getItemId={(record) => record.id}
       pagination={paginationProps}
+      emptyState={<EmptyState />}
     />
   );
 };
