@@ -12,7 +12,7 @@
     "start": "node dist/server.js",
     "dev:watch": "NODE_ENV=development npx tsc -w & nodemon dist/server.js",
     "prod:watch": "NODE_ENV=production nodemon dist/server.js",
-    "generate:enums": "npx tsc scripts/generate-enums.ts && node scripts/generate-enums.js",
+    "generate:enums": "npx tsx scripts/generate-enums.ts",
     "migrate": "npx prisma migrate dev",
     "migrate:prod": "npx dotenv-cli -e .env.production -- npx prisma migrate deploy",
     "studio": "npx prisma studio"
@@ -23,6 +23,7 @@
     "dotenv-cli": "^10.0.0",
     "nodemon": "^3.1.10",
     "prisma": "^6.10.1",
+    "tsx": "^4.20.5",
     "typescript": "^5.8.3"
   },
   "dependencies": {

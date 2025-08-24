@@ -28,31 +28,34 @@ enum Permission {
 }
 
 model User {
-  id          String       @id @default(cuid())
-  email       String       @unique
-  firstName   String
-  lastName    String
-  password    String
-  role        UserRole     @default(USER)
-  avatarUrl   String?
-  isActive    Boolean      @default(true)
-  phone       String?
-  workspaceId String?
-  workspace   Workspace?   @relation(fields: [workspaceId], references: [id])
-  permissions Permission[] @default([])
-  leads       Lead[]
-  activities  Activity[] // Added relation field for Activity
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  id              String       @id @default(cuid())
+  email           String       @unique
+  firstName       String
+  lastName        String
+  password        String
+  role            UserRole     @default(USER)
+  avatarUrl       String?
+  isActive        Boolean      @default(true)
+  phone           String?
+  workspaceId     String?
+  workspace       Workspace?   @relation(fields: [workspaceId], references: [id])
+  permissions     Permission[] @default([])
+  leads           Lead[]
+  activities      Activity[] // Added relation field for Activity
+  assignedClients Client[]
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
 }
 
 model Workspace {
-  id             String   @id @default(cuid())
+  id             String    @id @default(cuid())
   name           String
   users          User[]
   workspaceLeads Lead[]
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  clients        Client[]
+  billings       Billing[]
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 }
 
 enum LeadStatus {
@@ -84,6 +87,8 @@ model Lead {
   workspace    Workspace  @relation(fields: [workspaceId], references: [id])
   workspaceId  String
   isActive     Boolean    @default(true)
+  // Client Relationship
+  convertedTo  Client?
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
 }
@@ -116,4 +121,70 @@ model Activity {
   userId      String
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
+}
+
+model Billing {
+  id                 String        @id @default(cuid())
+  client             Client        @relation(fields: [clientId], references: [id])
+  clientId           String
+  billedAmount       Decimal       @default(0) @db.Decimal(10, 2)
+  currency           String        @default("USD")
+  billingCycle       String? // monthly, quarterly, annually
+  paymentTerms       String? // net 30, net 60, etc.
+  userPercentage     Decimal       @default(0) @db.Decimal(10, 2)
+  billingStatus      BillingStatus @default(PENDING)
+  billingDate        DateTime?
+  billingDueDate     DateTime?
+  billingNotes       String?
+  billingAttachments String[]
+  workspace          Workspace     @relation(fields: [workspaceId], references: [id])
+  workspaceId        String
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+}
+
+model Client {
+  id            String         @id @default(cuid())
+  name          String?
+  email         String?
+  phone         String?
+  address       String?
+  city          String?
+  state         String?
+  zipCode       String?
+  country       String?
+  company       String?
+  industry      String?
+  website       String?
+  billing       Billing[]
+  status        ClientStatus   @default(ACTIVE)
+  priority      ClientPriority @default(MEDIUM)
+  workspace     Workspace      @relation(fields: [workspaceId], references: [id])
+  workspaceId   String
+  assignedTo    User?          @relation(fields: [assignedToId], references: [id])
+  assignedToId  String?
+  // Lead Relationship
+  convertedFrom Lead?          @relation(fields: [leadId], references: [id])
+  leadId        String?        @unique
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+}
+
+enum ClientStatus {
+  ACTIVE
+  INACTIVE
+  PROSPECT
+}
+
+enum ClientPriority {
+  LOW
+  MEDIUM
+  HIGH
+  VIP
+}
+
+enum BillingStatus {
+  PENDING
+  PAID
+  OVERDUE
 }

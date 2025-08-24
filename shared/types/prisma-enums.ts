@@ -32,3 +32,22 @@ export enum ActivityType {
   OTHER = "OTHER"
 }
 
+export enum ClientStatus {
+  ACTIVE = "ACTIVE",
+  INACTIVE = "INACTIVE",
+  PROSPECT = "PROSPECT"
+}
+
+export enum ClientPriority {
+  LOW = "LOW",
+  MEDIUM = "MEDIUM",
+  HIGH = "HIGH",
+  VIP = "VIP"
+}
+
+export enum BillingStatus {
+  PENDING = "PENDING",
+  PAID = "PAID",
+  OVERDUE = "OVERDUE"
+}
+
