@@ -21,8 +21,10 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useWorkspaceStore } from "@/stores/workspaceStore";
 import { showSuccessToast } from "@/utils/toast";
-import { StatsCards, LeadsTable, ActionBar, LeadActivityDialog } from "@/components/core/Leads";
+import { LeadsTable, ActionBar, LeadActivityDialog } from "@/components/core/Leads";
+import StatsCards from "@/components/core/StatsCards";
 import { industriesList } from "@/components/core/Leads/leads.data";
+import { Users, UserPlus, TrendingUp, Clock } from "lucide-react";
 import { types, schemas } from "@eleads/shared";
 import { leadsService } from "@/services";
 import sanitizeHtml from "sanitize-html";
@@ -363,10 +365,32 @@ const LeadsPage = () => {
 
         {/* Stats Cards */}
         <StatsCards
-          totalLeads={totalLeads}
-          newLeads={newLeads}
-          inProgressLeads={inProgressLeads}
-          lostLeads={lostLeads}
+          cards={[
+            {
+              title: "Total Leads",
+              value: totalLeads,
+              description: "All registered leads",
+              icon: Users,
+            },
+            {
+              title: "New Leads",
+              value: newLeads,
+              description: "Uncontacted leads",
+              icon: UserPlus,
+            },
+            {
+              title: "In Progress",
+              value: inProgressLeads,
+              description: "Leads in contact",
+              icon: TrendingUp,
+            },
+            {
+              title: "Lost",
+              value: lostLeads,
+              description: "Leads lost",
+              icon: Clock,
+            },
+          ]}
         />
 
         {/* Action Bar */}
