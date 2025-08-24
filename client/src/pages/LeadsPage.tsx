@@ -21,7 +21,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useWorkspaceStore } from "@/stores/workspaceStore";
 import { showSuccessToast } from "@/utils/toast";
-import { LeadsTable, ActionBar, LeadActivityDialog } from "@/components/core/Leads";
+import { LeadsTable, LeadsActionBar, LeadActivityDialog } from "@/components/core/Leads";
 import StatsCards from "@/components/core/StatsCards";
 import { industriesList } from "@/components/core/Leads/leads.data";
 import { Users, UserPlus, TrendingUp, Clock } from "lucide-react";
@@ -394,7 +394,7 @@ const LeadsPage = () => {
         />
 
         {/* Action Bar */}
-        <ActionBar
+        <LeadsActionBar
           searchTerm={searchTerm}
           setSearchTerm={setSearchTerm}
           statusFilter={statusFilter}

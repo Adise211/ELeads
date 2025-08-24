@@ -1,16 +1,7 @@
 import React, { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { DollarSign, CheckCircle, Clock, AlertCircle, Plus, Search, Filter } from "lucide-react";
+import { DollarSign, CheckCircle, Clock, AlertCircle } from "lucide-react";
 import StatsCards from "@/components/core/StatsCards";
-import BillingTable from "@/components/core/Billing/BillingTable";
+import { BillingTable, BillingActionBar } from "@/components/core/Billing";
 
 // Sample billing data for stats calculation
 const sampleBillingRecords = [
@@ -45,6 +36,11 @@ const BillingPage = () => {
   React.useEffect(() => {
     setCurrentPage(1);
   }, [searchTerm, statusFilter]);
+
+  const handleCreateInvoice = () => {
+    // TODO: Implement create invoice functionality
+    console.log("Create invoice clicked");
+  };
 
   const totalBilled = sampleBillingRecords.reduce((sum, record) => sum + record.billedAmount, 0);
   const paidAmount = sampleBillingRecords
@@ -98,40 +94,14 @@ const BillingPage = () => {
           ]}
         />
 
-        {/* Action Bar */}
-        <div className="flex flex-col sm:flex-row gap-4 mb-6">
-          <div className="flex items-center gap-4 flex-1">
-            <div className="relative w-100">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-              <Input
-                placeholder="Search invoices by client name, company, or ID..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-            <div className="flex gap-2">
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-[150px]">
-                  <Filter className="h-4 w-4 mr-2" />
-                  <SelectValue placeholder="Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Statuses</SelectItem>
-                  <SelectItem value="PENDING">Pending</SelectItem>
-                  <SelectItem value="PAID">Paid</SelectItem>
-                  <SelectItem value="OVERDUE">Overdue</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-          <div className="flex gap-2">
-            <Button>
-              <Plus className="h-4 w-4 mr-2" />
-              Create Invoice
-            </Button>
-          </div>
-        </div>
+        {/* Billing Action Bar */}
+        <BillingActionBar
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+          statusFilter={statusFilter}
+          setStatusFilter={setStatusFilter}
+          onCreateInvoice={handleCreateInvoice}
+        />
 
         {/* Billing Table Component */}
         <BillingTable
