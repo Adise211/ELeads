@@ -13,7 +13,8 @@
     "build:shared": "npm run build --workspaces=shared",
     "build:client": "npm run build --workspaces=client",
     "build:server": "npm run build --workspaces=server",
-    "build": "npm run build:shared && npm run build:client && npm run build:server"
+    "build": "npm run build:shared && npm run build:client && npm run build:server",
+    "update:shared": "cd shared && npm run build && cd ../server && npm install && cd ../client && npm install"
   },
   "author": "Adise",
   "license": "ISC",
