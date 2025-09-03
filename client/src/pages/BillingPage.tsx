@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { DollarSign, CheckCircle, Clock, AlertCircle } from "lucide-react";
 import StatsCards from "@/components/core/StatsCards";
 import { BillingTable, BillingActionBar } from "@/components/core/Billing";
+import { showSuccessToast } from "@/utils/toast";
 
 // Sample billing data for stats calculation
 const sampleBillingRecords = [
@@ -38,8 +39,9 @@ const BillingPage = () => {
   }, [searchTerm, statusFilter]);
 
   const handleCreateInvoice = () => {
-    // TODO: Implement create invoice functionality
-    console.log("Create invoice clicked");
+    // TODO: Implement actual invoice creation logic
+    // This would typically involve calling an API service
+    showSuccessToast("Invoice created successfully!");
   };
 
   const totalBilled = sampleBillingRecords.reduce((sum, record) => sum + record.billedAmount, 0);

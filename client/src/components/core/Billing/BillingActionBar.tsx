@@ -8,6 +8,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Plus, Search, Filter } from "lucide-react";
+import { useState } from "react";
+import BillingDialog from "./BillingDialog";
 
 interface BillingActionBarProps {
   searchTerm: string;
@@ -17,6 +19,36 @@ interface BillingActionBarProps {
   onCreateInvoice: () => void;
 }
 
+interface InvoiceData {
+  clientId: string;
+  clientName: string;
+  clientCompany: string;
+  billedAmount: number;
+  currency: string;
+  billingCycle: string;
+  paymentTerms: string;
+  userPercentage: number;
+  billingDate: string;
+  billingDueDate: string;
+  billingNotes: string;
+  description: string;
+}
+
+const DEFAULT_INVOICE: InvoiceData = {
+  clientId: "",
+  clientName: "",
+  clientCompany: "",
+  billedAmount: 0,
+  currency: "USD",
+  billingCycle: "one-time",
+  paymentTerms: "net 30",
+  userPercentage: 15,
+  billingDate: new Date().toISOString().split("T")[0],
+  billingDueDate: "",
+  billingNotes: "",
+  description: "",
+};
+
 const BillingActionBar = ({
   searchTerm,
   setSearchTerm,
@@ -24,6 +56,45 @@ const BillingActionBar = ({
   setStatusFilter,
   onCreateInvoice,
 }: BillingActionBarProps) => {
+  const [isCreateInvoiceOpen, setIsCreateInvoiceOpen] = useState(false);
+  const [newInvoice, setNewInvoice] = useState<InvoiceData>({ ...DEFAULT_INVOICE });
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const handleCreateInvoice = () => {
+    // Reset errors
+    setErrors({});
+
+    // Basic validation
+    const newErrors: Record<string, string> = {};
+
+    if (!newInvoice.clientName) {
+      newErrors.clientName = "Client is required";
+    }
+
+    if (!newInvoice.billedAmount || newInvoice.billedAmount <= 0) {
+      newErrors.billedAmount = "Amount must be greater than 0";
+    }
+
+    if (!newInvoice.billingDueDate) {
+      newErrors.billingDueDate = "Due date is required";
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    // TODO: Call API to create invoice
+    console.log("Creating invoice:", newInvoice);
+
+    // Call the parent handler
+    onCreateInvoice();
+
+    // Reset form and close dialog
+    setNewInvoice({ ...DEFAULT_INVOICE });
+    setIsCreateInvoiceOpen(false);
+  };
+
   return (
     <div className="billing-action-bar flex flex-col sm:flex-row gap-4 mb-6">
       <div className="flex items-center gap-4 flex-1">
@@ -52,11 +123,21 @@ const BillingActionBar = ({
         </div>
       </div>
       <div className="flex gap-2">
-        <Button onClick={onCreateInvoice}>
+        <Button onClick={() => setIsCreateInvoiceOpen(true)}>
           <Plus className="h-4 w-4 mr-2" />
           Create Invoice
         </Button>
       </div>
+
+      {/* Billing Dialog */}
+      <BillingDialog
+        isOpen={isCreateInvoiceOpen}
+        onOpenChange={setIsCreateInvoiceOpen}
+        invoice={newInvoice}
+        onInvoiceChange={setNewInvoice}
+        onSubmit={handleCreateInvoice}
+        errors={errors}
+      />
     </div>
   );
 };
