@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState, useEffect } from "react";
 import { DollarSign, CheckCircle, Clock, AlertCircle } from "lucide-react";
 import StatsCards from "@/components/core/StatsCards";
 import { BillingTable, BillingActionBar } from "@/components/core/Billing";
@@ -34,7 +34,7 @@ const BillingPage = () => {
   const [itemsPerPage, setItemsPerPage] = useState(10);
 
   // Reset to first page when filters change
-  React.useEffect(() => {
+  useEffect(() => {
     setCurrentPage(1);
   }, [searchTerm, statusFilter]);
 

@@ -116,3 +116,21 @@ export const deleteActivitySchema = z.object({
     activityId: z.string().min(1, { message: "Activity ID is required" }),
   }),
 });
+
+export const createBillingSchema = z.object({
+  body: schemas.createBillingSchema,
+});
+
+export const updateBillingSchema = z.object({
+  body: schemas.updateBillingSchema,
+});
+
+export const deleteBillingSchema = z.object({
+  params: schemas.deleteBillingSchema,
+});
+
+export const getBillingSchema = z.object({
+  params: z.object({
+    billingId: z.string().min(1, { message: "Billing ID is required" }),
+  }),
+});
