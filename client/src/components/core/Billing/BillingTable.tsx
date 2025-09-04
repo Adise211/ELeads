@@ -166,9 +166,9 @@ const BillingTable = ({
         ),
     },
     {
-      key: "userPercentage",
+      key: "userCommission",
       header: "Commission",
-      render: (record) => formatPercentage(record.userPercentage),
+      render: (record) => formatPercentage(record.userCommission),
     },
     {
       key: "actions",

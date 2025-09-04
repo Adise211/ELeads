@@ -35,7 +35,7 @@ interface InvoiceData {
   currency: string;
   billingCycle: string;
   paymentTerms: string;
-  userPercentage: number;
+  userCommission: number;
   billingDate: string;
   billingDueDate: string;
   billingNotes: string;
@@ -148,17 +148,17 @@ const BillingDialog = ({
 
           {/* Commission Percentage */}
           <div className="space-y-2">
-            <Label htmlFor="userPercentage">Commission %</Label>
+            <Label htmlFor="userCommission">Commission %</Label>
             <Input
-              id="userPercentage"
+              id="userCommission"
               type="number"
               step="0.1"
-              value={invoice.userPercentage}
+              value={invoice.userCommission}
               onChange={(e) =>
-                onInvoiceChange({ ...invoice, userPercentage: parseFloat(e.target.value) || 0 })
+                onInvoiceChange({ ...invoice, userCommission: parseFloat(e.target.value) || 0 })
               }
               placeholder="15.0"
-              error={errors.userPercentage}
+              error={errors.userCommission}
             />
           </div>
 

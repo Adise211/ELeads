@@ -131,7 +131,7 @@ model Billing {
   currency           String        @default("USD")
   billingCycle       String? // monthly, quarterly, annually
   paymentTerms       String? // net 30, net 60, etc.
-  userPercentage     Decimal       @default(0) @db.Decimal(10, 2)
+  userCommission     Decimal       @default(0) @db.Decimal(10, 2)
   billingStatus      BillingStatus @default(PENDING)
   billingDate        DateTime?
   billingDueDate     DateTime?

@@ -27,7 +27,7 @@ interface InvoiceData {
   currency: string;
   billingCycle: string;
   paymentTerms: string;
-  userPercentage: number;
+  userCommission: number;
   billingDate: string;
   billingDueDate: string;
   billingNotes: string;
@@ -42,7 +42,7 @@ const DEFAULT_INVOICE: InvoiceData = {
   currency: "USD",
   billingCycle: "one-time",
   paymentTerms: "net 30",
-  userPercentage: 15,
+  userCommission: 15,
   billingDate: new Date().toISOString().split("T")[0],
   billingDueDate: "",
   billingNotes: "",

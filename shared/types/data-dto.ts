@@ -113,7 +113,7 @@ export type BillingDTO = {
   currency: string;
   billingCycle?: string;
   paymentTerms?: string;
-  userPercentage: number;
+  userCommission: number;
   billingStatus: BillingStatus;
   billingDate?: string;
   billingDueDate?: string;
