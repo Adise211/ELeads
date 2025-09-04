@@ -3,22 +3,8 @@ import { DollarSign, CheckCircle, Clock, AlertCircle } from "lucide-react";
 import StatsCards from "@/components/core/StatsCards";
 import { BillingTable, BillingActionBar } from "@/components/core/Billing";
 import { showSuccessToast } from "@/utils/toast";
-
-// Sample billing data for stats calculation
-const sampleBillingRecords = [
-  {
-    billedAmount: 5000.0,
-    billingStatus: "PAID" as const,
-  },
-  {
-    billedAmount: 12500.0,
-    billingStatus: "PENDING" as const,
-  },
-  {
-    billedAmount: 25000.0,
-    billingStatus: "OVERDUE" as const,
-  },
-];
+import { types } from "@eleads/shared";
+import { useWorkspaceStore } from "@/stores/workspaceStore";
 
 const formatCurrency = (amount: number, currency: string) => {
   return new Intl.NumberFormat("en-US", {
@@ -28,15 +14,30 @@ const formatCurrency = (amount: number, currency: string) => {
 };
 
 const BillingPage = () => {
+  const workspaceBillings = useWorkspaceStore((state) => state.workspaceBillings);
+  const [billings, setBillings] = useState<types.BillingDTO[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
 
+  useEffect(() => {
+    console.log("workspaceBillings in billing page", workspaceBillings);
+    setBillings(workspaceBillings);
+  }, [workspaceBillings]);
+
   // Reset to first page when filters change
   useEffect(() => {
     setCurrentPage(1);
   }, [searchTerm, statusFilter]);
+
+  const filteredBillings = billings.filter((record) => {
+    const matchesSearch =
+      record.clientId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      record.billedAmount.toString().includes(searchTerm.toLowerCase());
+    const matchesStatus = statusFilter === "all" || record.billingStatus === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
 
   const handleCreateInvoice = () => {
     // TODO: Implement actual invoice creation logic
@@ -44,15 +45,16 @@ const BillingPage = () => {
     showSuccessToast("Invoice created successfully!");
   };
 
-  const totalBilled = sampleBillingRecords.reduce((sum, record) => sum + record.billedAmount, 0);
-  const paidAmount = sampleBillingRecords
-    .filter((record) => record.billingStatus === "PAID")
+  const totalBilled = filteredBillings.reduce((sum, record) => sum + record.billedAmount, 0);
+  // filter billings by status
+  const paidAmount = filteredBillings
+    .filter((record) => record.billingStatus === types.BillingStatus.PAID)
     .reduce((sum, record) => sum + record.billedAmount, 0);
-  const pendingAmount = sampleBillingRecords
-    .filter((record) => record.billingStatus === "PENDING")
+  const pendingAmount = filteredBillings
+    .filter((record) => record.billingStatus === types.BillingStatus.PENDING)
     .reduce((sum, record) => sum + record.billedAmount, 0);
-  const overdueAmount = sampleBillingRecords
-    .filter((record) => record.billingStatus === "OVERDUE")
+  const overdueAmount = filteredBillings
+    .filter((record) => record.billingStatus === types.BillingStatus.OVERDUE)
     .reduce((sum, record) => sum + record.billedAmount, 0);
 
   return (
@@ -107,6 +109,7 @@ const BillingPage = () => {
 
         {/* Billing Table Component */}
         <BillingTable
+          billings={filteredBillings}
           searchTerm={searchTerm}
           statusFilter={statusFilter}
           currentPage={currentPage}

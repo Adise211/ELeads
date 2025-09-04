@@ -2,107 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { AppTable, type TableColumn, type TablePaginationProps } from "@/components/ui/app-table";
 import { FileText, Calendar, Receipt, Search } from "lucide-react";
-
-interface BillingRecord {
-  id: string;
-  client: {
-    id: string;
-    name: string;
-    company: string;
-  };
-  billedAmount: number;
-  currency: string;
-  billingCycle?: string;
-  paymentTerms?: string;
-  userPercentage: number;
-  billingStatus: "PENDING" | "PAID" | "OVERDUE";
-  billingDate?: Date;
-  billingDueDate?: Date;
-  billingNotes?: string;
-  billingAttachments: string[];
-  workspace: {
-    id: string;
-    name: string;
-  };
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-// Sample billing data
-const sampleBillingRecords: BillingRecord[] = [
-  {
-    id: "bill_001",
-    client: {
-      id: "client_1",
-      name: "John Doe",
-      company: "TechCorp Industries",
-    },
-    billedAmount: 5000.0,
-    currency: "USD",
-    billingCycle: "monthly",
-    paymentTerms: "net 30",
-    userPercentage: 15.0,
-    billingStatus: "PAID",
-    billingDate: new Date("2024-01-15"),
-    billingDueDate: new Date("2024-02-14"),
-    billingNotes: "Consulting services for Q1 project",
-    billingAttachments: ["invoice_001.pdf", "contract.pdf"],
-    workspace: {
-      id: "ws_1",
-      name: "Main Workspace",
-    },
-    createdAt: new Date("2024-01-10"),
-    updatedAt: new Date("2024-01-16"),
-  },
-  {
-    id: "bill_002",
-    client: {
-      id: "client_2",
-      name: "Emily Chen",
-      company: "Startup.io",
-    },
-    billedAmount: 12500.0,
-    currency: "USD",
-    billingCycle: "quarterly",
-    paymentTerms: "net 15",
-    userPercentage: 20.0,
-    billingStatus: "PENDING",
-    billingDate: new Date("2024-01-20"),
-    billingDueDate: new Date("2024-02-04"),
-    billingNotes: "Software development and maintenance",
-    billingAttachments: ["invoice_002.pdf"],
-    workspace: {
-      id: "ws_1",
-      name: "Main Workspace",
-    },
-    createdAt: new Date("2024-01-18"),
-    updatedAt: new Date("2024-01-20"),
-  },
-  {
-    id: "bill_003",
-    client: {
-      id: "client_3",
-      name: "David Wilson",
-      company: "Enterprise Solutions Ltd",
-    },
-    billedAmount: 25000.0,
-    currency: "USD",
-    billingCycle: "annually",
-    paymentTerms: "net 60",
-    userPercentage: 25.0,
-    billingStatus: "OVERDUE",
-    billingDate: new Date("2023-12-01"),
-    billingDueDate: new Date("2024-01-30"),
-    billingNotes: "Annual enterprise license and support",
-    billingAttachments: ["invoice_003.pdf", "license_agreement.pdf", "support_contract.pdf"],
-    workspace: {
-      id: "ws_1",
-      name: "Main Workspace",
-    },
-    createdAt: new Date("2023-11-25"),
-    updatedAt: new Date("2024-01-15"),
-  },
-];
+import { types } from "@eleads/shared";
 
 const statusColors = {
   PENDING: "bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-300",
@@ -122,6 +22,7 @@ const formatPercentage = (percentage: number) => {
 };
 
 interface BillingTableProps {
+  billings: types.BillingDTO[];
   searchTerm: string;
   statusFilter: string;
   currentPage: number;
@@ -130,7 +31,13 @@ interface BillingTableProps {
   onPageSizeChange: (pageSize: number) => void;
 }
 
+const generateInvoiceIdForDisplay = (index: number) => {
+  const _index = index + 1;
+  return `invoice_${_index.toString().padStart(4, "0")}`;
+};
+
 const BillingTable = ({
+  billings,
   searchTerm,
   statusFilter,
   currentPage,
@@ -138,11 +45,11 @@ const BillingTable = ({
   onPageChange,
   onPageSizeChange,
 }: BillingTableProps) => {
-  const filteredBillingRecords = sampleBillingRecords.filter((record) => {
+  const filteredBillingRecords = billings.filter((record) => {
     const matchesSearch =
-      record.client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      record.client.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      record.id.toLowerCase().includes(searchTerm.toLowerCase());
+      record.clientId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      record.billedAmount.toString().includes(searchTerm.toLowerCase());
+    //TODO: add client name and company to the billing record and filter by them
 
     const matchesStatus = statusFilter === "all" || record.billingStatus === statusFilter;
 
@@ -188,6 +95,7 @@ const BillingTable = ({
           Get started by creating your first invoice. Track payments, manage client billing, and
           monitor your revenue.
         </p>
+        {/* TODO: open create invoice dialog */}
         <Button>
           <FileText className="h-4 w-4 mr-2" />
           Create First Invoice
@@ -197,19 +105,21 @@ const BillingTable = ({
   };
 
   // Define table columns for AppTable
-  const columns: TableColumn<BillingRecord>[] = [
+  const columns: TableColumn<types.BillingDTO>[] = [
     {
       key: "id",
       header: "Invoice ID",
-      render: (record) => <span className="font-medium">{record.id}</span>,
+      render: (_, index: number) => (
+        <span className="font-medium">{generateInvoiceIdForDisplay(index)}</span>
+      ),
     },
     {
       key: "client",
       header: "Client",
       render: (record) => (
         <div>
-          <div className="font-medium">{record.client.name}</div>
-          <div className="text-sm text-muted-foreground">{record.client.company}</div>
+          <div className="font-medium">{record.client?.company}</div>
+          <div className="text-sm text-muted-foreground">{record.client?.name}</div>
         </div>
       ),
     },
@@ -225,7 +135,7 @@ const BillingTable = ({
     {
       key: "billingCycle",
       header: "Cycle",
-      render: (record) => <span className="capitalize">{record.billingCycle || "—"}</span>,
+      render: (record) => <span className="capitalize">{record.billingCycle || "N/A"}</span>,
     },
     {
       key: "billingStatus",
@@ -242,15 +152,17 @@ const BillingTable = ({
           <div className="flex items-center space-x-1">
             <Calendar className="h-4 w-4 text-muted-foreground" />
             <span>
-              {record.billingDueDate.toLocaleDateString("en-US", {
-                month: "short",
-                day: "2-digit",
-                year: "numeric",
-              })}
+              {record.billingDueDate
+                ? new Date(record.billingDueDate).toLocaleDateString("en-US", {
+                    month: "short",
+                    day: "2-digit",
+                    year: "numeric",
+                  })
+                : "N/A"}
             </span>
           </div>
         ) : (
-          "—"
+          "N/A"
         ),
     },
     {
@@ -278,7 +190,7 @@ const BillingTable = ({
     <AppTable
       data={filteredBillingRecords}
       columns={columns}
-      getItemId={(record) => record.id}
+      getItemId={(record) => record.id || ""}
       pagination={paginationProps}
       emptyState={<EmptyState />}
     />

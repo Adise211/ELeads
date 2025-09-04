@@ -131,6 +131,9 @@ export const getWorkspaceBillings = async (workspaceId: string) => {
     where: {
       workspaceId,
     },
+    include: {
+      client: true,
+    },
   });
   return billings;
 };

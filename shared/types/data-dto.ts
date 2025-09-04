@@ -1,4 +1,11 @@
-import { ActivityType, ClientPriority, ClientStatus, LeadStatus, UserRole } from "./prisma-enums";
+import {
+  ActivityType,
+  BillingStatus,
+  ClientPriority,
+  ClientStatus,
+  LeadStatus,
+  UserRole,
+} from "./prisma-enums";
 
 // DTO stands for Data Transfer Object.
 // It is a simple object used to transfer data between different layers or parts of an application,
@@ -101,11 +108,13 @@ export type ClientDTO = {
 export type BillingDTO = {
   id?: string;
   clientId: string;
+  client?: ClientDTO;
   billedAmount: number;
   currency: string;
   billingCycle?: string;
   paymentTerms?: string;
   userPercentage: number;
+  billingStatus: BillingStatus;
   billingDate?: string;
   billingDueDate?: string;
   billingNotes?: string;

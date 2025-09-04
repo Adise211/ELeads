@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { BillingDTO } from "../types/data-dto.js";
+import { BillingStatus } from "../types/prisma-enums.js";
 
 export const createBillingSchema: z.ZodType<BillingDTO> = z.object({
   clientId: z.string().min(1, { message: "Client ID is required" }),
@@ -8,6 +9,7 @@ export const createBillingSchema: z.ZodType<BillingDTO> = z.object({
   billingCycle: z.string().optional(),
   paymentTerms: z.string().optional(),
   userPercentage: z.number().min(1, { message: "User percentage is required" }),
+  billingStatus: z.nativeEnum(BillingStatus).default(BillingStatus.PENDING),
   billingDate: z.string().optional(),
   billingDueDate: z.string().optional(),
   billingNotes: z.string().optional(),
@@ -23,6 +25,7 @@ export const updateBillingSchema: z.ZodType<BillingDTO> = z.object({
   billingCycle: z.string().optional(),
   paymentTerms: z.string().optional(),
   userPercentage: z.number().min(1, { message: "User percentage is required" }),
+  billingStatus: z.nativeEnum(BillingStatus).default(BillingStatus.PENDING),
   billingDate: z.string().optional(),
   billingDueDate: z.string().optional(),
   billingNotes: z.string().optional(),
