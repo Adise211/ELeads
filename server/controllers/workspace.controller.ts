@@ -4,6 +4,8 @@ import { NextFunction, Request, Response } from "express";
 import {
   getWorkspaceLeads as getWorkspaceLeadsModel,
   getWorkspaceUsers as getWorkspaceUsersModel,
+  getWorkspaceBillings as getWorkspaceBillingsModel,
+  getWorkspaceClients as getWorkspaceClientsModel,
 } from "../models/workspace.model.js";
 import { omitFields } from "../lib/data.helper.js";
 
@@ -31,6 +33,36 @@ export const getWorkspaceUsers = async (req: Request, res: Response, next: NextF
       success: true,
       message: "Users fetched successfully",
       data: safeUsers,
+    };
+    res.status(consts.httpCodes.SUCCESS).json(successResponse);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getWorkspaceBillings = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { workspaceId } = (req as any).user;
+    const billings = await getWorkspaceBillingsModel(workspaceId);
+    const successResponse: SuccessResponse = {
+      success: true,
+      message: "Billings fetched successfully",
+      data: billings,
+    };
+    res.status(consts.httpCodes.SUCCESS).json(successResponse);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getWorkspaceClients = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { workspaceId } = (req as any).user;
+    const clients = await getWorkspaceClientsModel(workspaceId);
+    const successResponse: SuccessResponse = {
+      success: true,
+      message: "Clients fetched successfully",
+      data: clients,
     };
     res.status(consts.httpCodes.SUCCESS).json(successResponse);
   } catch (error) {
