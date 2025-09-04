@@ -18,7 +18,7 @@ export const leadSchema: z.ZodType<LeadDTO> = z.object({
   company: z.string().min(1, { message: "Company is required" }),
   jobTitle: z.string().optional(),
   industry: z.string().optional(),
-  status: z.nativeEnum(LeadStatus).default(LeadStatus.NEW),
+  status: z.nativeEnum(LeadStatus),
   website: z.string().optional(),
   address: z.string().optional(),
   city: z.string().optional(),

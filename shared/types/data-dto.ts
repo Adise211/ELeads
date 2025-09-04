@@ -111,7 +111,9 @@ export type BillingDTO = {
   client?: ClientDTO;
   billedAmount: number;
   currency: string;
+  // TODO: add billing cycle enum
   billingCycle?: string;
+  // TODO: add payment terms enum
   paymentTerms?: string;
   userCommission: number;
   billingStatus: BillingStatus;

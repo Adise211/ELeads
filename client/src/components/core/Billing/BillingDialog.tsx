@@ -17,29 +17,16 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { types } from "@eleads/shared";
+import { useWorkspaceStore } from "@/stores/workspaceStore";
 
 interface BillingDialogProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  invoice: InvoiceData;
-  onInvoiceChange: (invoice: InvoiceData) => void;
+  invoice: types.BillingDTO;
+  onInvoiceChange: (invoice: types.BillingDTO) => void;
   onSubmit: () => void;
   errors: Record<string, string>;
-}
-
-interface InvoiceData {
-  clientId: string;
-  clientName: string;
-  clientCompany: string;
-  billedAmount: number;
-  currency: string;
-  billingCycle: string;
-  paymentTerms: string;
-  userCommission: number;
-  billingDate: string;
-  billingDueDate: string;
-  billingNotes: string;
-  description: string;
 }
 
 const BillingDialog = ({
@@ -50,14 +37,14 @@ const BillingDialog = ({
   onSubmit,
   errors,
 }: BillingDialogProps) => {
-  const isSubmitDisabled = !invoice.clientName || !invoice.billedAmount || !invoice.billingDueDate;
+  // const isSubmitDisabled = !invoice.clientId || !invoice.billedAmount || !invoice.billingDueDate;
+  const workspaceClients = useWorkspaceStore((state) => state.workspaceClients);
 
-  // Sample clients data - in real app this would come from props or API
-  const sampleClients = [
-    { id: "client_1", name: "John Doe", company: "TechCorp Industries" },
-    { id: "client_2", name: "Emily Chen", company: "Startup.io" },
-    { id: "client_3", name: "David Wilson", company: "Enterprise Solutions Ltd" },
-  ];
+  const clients = workspaceClients.map((client) => ({
+    id: client.id,
+    name: client.name,
+    company: client.company,
+  }));
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -78,12 +65,9 @@ const BillingDialog = ({
                 <Select
                   value={invoice.clientId}
                   onValueChange={(value) => {
-                    const client = sampleClients.find((c) => c.id === value);
                     onInvoiceChange({
                       ...invoice,
                       clientId: value,
-                      clientName: client?.name || "",
-                      clientCompany: client?.company || "",
                     });
                   }}
                 >
@@ -91,24 +75,14 @@ const BillingDialog = ({
                     <SelectValue placeholder="Select client" />
                   </SelectTrigger>
                   <SelectContent>
-                    {sampleClients.map((client) => (
-                      <SelectItem key={client.id} value={client.id}>
-                        {client.name} - {client.company}
+                    {clients.map((client) => (
+                      <SelectItem key={client.id} value={client?.id || ""}>
+                        {client.company}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
-                {errors.clientName && <p className="text-sm text-red-500">{errors.clientName}</p>}
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="clientCompany">Company</Label>
-                <Input
-                  id="clientCompany"
-                  value={invoice.clientCompany}
-                  onChange={(e) => onInvoiceChange({ ...invoice, clientCompany: e.target.value })}
-                  placeholder="Company name"
-                  error={errors.clientCompany}
-                />
+                {errors.clientId && <p className="text-sm text-red-500">{errors.clientId}</p>}
               </div>
             </div>
           </div>
@@ -227,18 +201,6 @@ const BillingDialog = ({
             />
           </div>
 
-          {/* Description */}
-          <div className="col-span-2 space-y-2">
-            <Label htmlFor="description">Description</Label>
-            <Input
-              id="description"
-              value={invoice.description}
-              onChange={(e) => onInvoiceChange({ ...invoice, description: e.target.value })}
-              placeholder="Brief description of services or products"
-              error={errors.description}
-            />
-          </div>
-
           {/* Billing Notes */}
           <div className="col-span-2 space-y-2">
             <Label htmlFor="billingNotes">Billing Notes</Label>
@@ -256,9 +218,7 @@ const BillingDialog = ({
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
-          <Button onClick={onSubmit} disabled={isSubmitDisabled}>
-            Create Invoice
-          </Button>
+          <Button onClick={onSubmit}>Create Invoice</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

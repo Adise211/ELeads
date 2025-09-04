@@ -2,9 +2,10 @@ import { useState, useEffect } from "react";
 import { DollarSign, CheckCircle, Clock, AlertCircle } from "lucide-react";
 import StatsCards from "@/components/core/StatsCards";
 import { BillingTable, BillingActionBar } from "@/components/core/Billing";
-import { showSuccessToast } from "@/utils/toast";
+import { showSuccessToast, showErrorToast } from "@/utils/toast";
 import { types } from "@eleads/shared";
 import { useWorkspaceStore } from "@/stores/workspaceStore";
+import { billingsService } from "@/services";
 
 const formatCurrency = (amount: number, currency: string) => {
   return new Intl.NumberFormat("en-US", {
@@ -15,14 +16,15 @@ const formatCurrency = (amount: number, currency: string) => {
 
 const BillingPage = () => {
   const workspaceBillings = useWorkspaceStore((state) => state.workspaceBillings);
+  const setWorkspaceBillings = useWorkspaceStore((state) => state.setWorkspaceBillings);
   const [billings, setBillings] = useState<types.BillingDTO[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [isCreating, setIsCreating] = useState(false);
 
   useEffect(() => {
-    console.log("workspaceBillings in billing page", workspaceBillings);
     setBillings(workspaceBillings);
   }, [workspaceBillings]);
 
@@ -39,10 +41,30 @@ const BillingPage = () => {
     return matchesSearch && matchesStatus;
   });
 
-  const handleCreateInvoice = () => {
-    // TODO: Implement actual invoice creation logic
-    // This would typically involve calling an API service
-    showSuccessToast("Invoice created successfully!");
+  const handleCreateInvoice = async (billingData: types.BillingDTO) => {
+    setIsCreating(true);
+
+    try {
+      // Call the API to create the billing
+      const response = await billingsService.createBilling(billingData);
+
+      if (response.success) {
+        showSuccessToast("Invoice created successfully!");
+
+        // Add the new billing to the workspace store
+        const newBilling = response.data as types.BillingDTO;
+        console.log("newBilling", newBilling);
+        const updatedBillings = [...workspaceBillings, newBilling];
+        setWorkspaceBillings(updatedBillings);
+      } else {
+        showErrorToast("Failed to create invoice. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error creating billing:", error);
+      showErrorToast("An error occurred while creating the invoice. Please try again.");
+    } finally {
+      setIsCreating(false);
+    }
   };
 
   const totalBilled = filteredBillings.reduce((sum, record) => sum + record.billedAmount, 0);
@@ -105,6 +127,7 @@ const BillingPage = () => {
           statusFilter={statusFilter}
           setStatusFilter={setStatusFilter}
           onCreateInvoice={handleCreateInvoice}
+          isCreating={isCreating}
         />
 
         {/* Billing Table Component */}
