@@ -1,6 +1,7 @@
 import z from "zod";
 import { schemas } from "@eleads/shared";
 
+// User
 export const loginUserSchema = z.object({
   body: z.object({
     email: z.string().email({ message: "Invalid email address" }),
@@ -61,6 +62,7 @@ export const registerUserSchema = z.object({
     ),
 });
 
+// Lead
 export const createLeadSchema = z.object({
   body: schemas.leadSchema,
 });
@@ -69,6 +71,7 @@ export const updateLeadSchema = z.object({
   body: schemas.leadSchema,
 });
 
+// Note
 export const createNoteSchema = z.object({
   body: z.intersection(
     schemas.noteSchema,
@@ -93,6 +96,7 @@ export const deleteNoteSchema = z.object({
   }),
 });
 
+// Activity
 export const createActivitySchema = z.object({
   body: z.intersection(
     schemas.activitySchema,
@@ -117,6 +121,7 @@ export const deleteActivitySchema = z.object({
   }),
 });
 
+// Billing
 export const createBillingSchema = z.object({
   body: schemas.createBillingSchema,
 });
@@ -132,5 +137,24 @@ export const deleteBillingSchema = z.object({
 export const getBillingSchema = z.object({
   params: z.object({
     billingId: z.string().min(1, { message: "Billing ID is required" }),
+  }),
+});
+
+// Client
+export const createClientSchema = z.object({
+  body: schemas.createClientSchema,
+});
+
+export const updateClientSchema = z.object({
+  body: schemas.updateClientSchema,
+});
+
+export const deleteClientSchema = z.object({
+  params: schemas.deleteClientSchema,
+});
+
+export const getClientSchema = z.object({
+  params: z.object({
+    clientId: z.string().min(1, { message: "Client ID is required" }),
   }),
 });

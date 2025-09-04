@@ -77,18 +77,18 @@ export type NoteDTO = {
 
 export type ClientDTO = {
   id?: string;
-  name: string;
+  name?: string;
   email: string;
   phone: string;
-  address: string;
-  city: string;
-  state: string;
-  zipCode: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  zipCode?: string;
   country: string;
   company: string;
-  industry: string;
-  website: string;
-  billing: BillingDTO[];
+  industry?: string;
+  website?: string;
+  // billing?: BillingDTO[];
   status: ClientStatus;
   priority: ClientPriority;
   workspaceId: string;
