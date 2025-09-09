@@ -91,20 +91,7 @@ const BillingDialog = ({
           <div className="space-y-2">
             <Label htmlFor="billedAmount">Amount *</Label>
             <div className="flex gap-2">
-              <Select
-                value={invoice.currency}
-                onValueChange={(value) => onInvoiceChange({ ...invoice, currency: value })}
-              >
-                <SelectTrigger className="w-24">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="USD">USD</SelectItem>
-                  <SelectItem value="EUR">EUR</SelectItem>
-                  <SelectItem value="GBP">GBP</SelectItem>
-                  <SelectItem value="CAD">CAD</SelectItem>
-                </SelectContent>
-              </Select>
+              <Input value="USD" className="w-24 bg-gray-50" disabled />
               <Input
                 id="billedAmount"
                 type="number"
