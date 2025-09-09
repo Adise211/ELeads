@@ -1,49 +1,12 @@
 import ChartSection from "@/components/core/Dashboard/ChartSection";
 import CardsSection from "@/components/core/Dashboard/CardsSection";
 import LastActivityCard from "@/components/core/Leads/LastActivityCard";
-import { types } from "@eleads/shared";
+// import { types } from "@eleads/shared";
 import WelcomeDialog from "@/components/core/WelcomeDialog";
+import { useWorkspaceStore } from "@/stores/workspaceStore";
 
 const HomePage = () => {
-  // Mock data for LastActivityCard - you can replace this with real data from your API
-  const mockLeads: types.LeadDTO[] = [
-    {
-      id: "1",
-      firstName: "John",
-      lastName: "Doe",
-      company: "Tech Corp",
-      activities: [
-        {
-          id: "1",
-          type: "EMAIL" as types.ActivityType,
-          description: "Follow-up email sent to John Doe",
-          createdAt: new Date("2024-01-15"),
-        },
-      ],
-      email: "john.doe@example.com",
-      phone: "+1234567890",
-      status: "NEW" as types.LeadStatus,
-      country: "USA",
-    },
-    {
-      id: "2",
-      firstName: "Jane",
-      lastName: "Smith",
-      company: "Design Studio",
-      activities: [
-        {
-          id: "2",
-          type: "CALL" as types.ActivityType,
-          description: "Initial contact call completed",
-          createdAt: new Date("2024-01-14"),
-        },
-      ],
-      email: "jane.smith@example.com",
-      phone: "+1234567890",
-      status: "NEW" as types.LeadStatus,
-      country: "USA",
-    },
-  ];
+  const workspaceLeads = useWorkspaceStore((state) => state.workspaceLeads);
 
   return (
     <div className="flex flex-1 flex-col">
@@ -55,7 +18,7 @@ const HomePage = () => {
             <ChartSection />
           </div>
           <div className="px-4 lg:px-6">
-            <LastActivityCard leads={mockLeads} />
+            <LastActivityCard leads={workspaceLeads} />
           </div>
           {/* <DataTable data={data} /> */}
         </div>

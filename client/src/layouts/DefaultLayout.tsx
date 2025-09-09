@@ -10,6 +10,8 @@ export default function DefaultLayout() {
   const { user } = useAuthStore();
   const setWorkspaceLeads = useWorkspaceStore((state) => state.setWorkspaceLeads);
   const setWorkspaceUsers = useWorkspaceStore((state) => state.setWorkspaceUsers);
+  const setWorkspaceBillings = useWorkspaceStore((state) => state.setWorkspaceBillings);
+  const setWorkspaceClients = useWorkspaceStore((state) => state.setWorkspaceClients);
 
   useEffect(() => {
     if (user) {
@@ -25,8 +27,20 @@ export default function DefaultLayout() {
           setWorkspaceUsers(response.data || []);
         }
       });
+      // get workspace billings
+      workspaceService.getWorkspaceBillings().then((response) => {
+        if (response.success) {
+          setWorkspaceBillings(response.data || []);
+        }
+      });
+      // get workspace clients
+      workspaceService.getWorkspaceClients().then((response) => {
+        if (response.success) {
+          setWorkspaceClients(response.data || []);
+        }
+      });
     }
-  }, [user, setWorkspaceLeads, setWorkspaceUsers]);
+  }, [user, setWorkspaceLeads, setWorkspaceUsers, setWorkspaceBillings, setWorkspaceClients]);
 
   return (
     <SidebarProvider>

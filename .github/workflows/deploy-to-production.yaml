@@ -1,0 +1,111 @@
+name: Deploy to Production
+permissions:
+  contents: read
+on:
+  push:
+    branches: [main, production]
+  workflow_dispatch:
+
+jobs:
+  setup:
+    name: Setup and Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          cache: "npm"
+
+      - name: Build shared package
+        run: |
+          cd shared
+          npm install
+          npm run build
+
+      - name: Install client dependencies
+        run: |
+          cd client
+          npm install
+
+      - name: Install server dependencies
+        run: |
+          cd server
+          npm install
+
+      - name: Upload shared package
+        uses: actions/upload-artifact@v4
+        with:
+          name: shared-package
+          path: shared/
+
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    # if setup fails, this job will not run
+    needs: setup
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          cache: "npm"
+
+      - name: Download shared package
+        uses: actions/download-artifact@v4
+        with:
+          name: shared-package
+          path: shared/
+
+      - name: Install server dependencies
+        run: |
+          cd server
+          npm install
+
+      - name: Run server tests
+        run: |
+          cd server
+          npm test
+
+  migrate-database:
+    name: Run Prisma Migrations
+    runs-on: ubuntu-latest
+    # if setup or test fails, this job will not run
+    needs: [setup, test]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          cache: "npm"
+
+      - name: Download shared package
+        uses: actions/download-artifact@v4
+        with:
+          name: shared-package
+          path: shared/
+
+      - name: Install server dependencies
+        run: |
+          cd server
+          npm install
+
+      - name: Run Prisma migrations
+        run: |
+          cd server
+          npm run migrate:prod
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          # Add other environment variables as needed

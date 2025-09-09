@@ -124,3 +124,26 @@ export const getWorkspaceLeads = async (workspaceId: string) => {
   });
   return leads;
 };
+
+// Get all billings in a workspace
+export const getWorkspaceBillings = async (workspaceId: string) => {
+  const billings = await prisma.billing.findMany({
+    where: {
+      workspaceId,
+    },
+    include: {
+      client: true,
+    },
+  });
+  return billings;
+};
+
+// Get all clients in a workspace
+export const getWorkspaceClients = async (workspaceId: string) => {
+  const clients = await prisma.client.findMany({
+    where: {
+      workspaceId,
+    },
+  });
+  return clients;
+};

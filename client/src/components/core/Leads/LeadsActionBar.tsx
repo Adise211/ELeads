@@ -21,7 +21,7 @@ import { Plus, Search, Filter, Download } from "lucide-react";
 import { types } from "@eleads/shared";
 import { industriesList } from "./leads.data";
 
-interface ActionBarProps {
+interface LeadsActionBarProps {
   searchTerm: string;
   setSearchTerm: (value: string) => void;
   statusFilter: string;
@@ -37,7 +37,7 @@ interface ActionBarProps {
   errors: Record<string, string>;
 }
 
-const ActionBar = ({
+const LeadsActionBar = ({
   searchTerm,
   setSearchTerm,
   statusFilter,
@@ -51,7 +51,7 @@ const ActionBar = ({
   handleAddLead,
   handleExport,
   errors,
-}: ActionBarProps) => {
+}: LeadsActionBarProps) => {
   return (
     <div className="leads-action-bar flex flex-col sm:flex-row gap-4 mb-6">
       <div className="flex items-center gap-4 flex-1">
@@ -269,4 +269,4 @@ const ActionBar = ({
   );
 };
 
-export default ActionBar;
+export default LeadsActionBar;

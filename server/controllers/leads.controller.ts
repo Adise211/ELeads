@@ -31,7 +31,7 @@ export const createLead = async (req: Request, res: Response, next: NextFunction
       message: "Lead created successfully",
       data: createdLead,
     };
-    res.status(consts.httpCodes.SUCCESS).json(successResponse);
+    res.status(consts.httpCodes.CREATED).json(successResponse);
   } catch (error) {
     next(error);
   }

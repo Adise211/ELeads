@@ -1,6 +1,11 @@
 // scripts/generate-enums.ts
-const fs = require("fs");
-const path = require("path");
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+
+// Get __dirname equivalent in ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Resolve the path to schema.prisma relative to this script
 const schemaPath = path.join(__dirname, "../prisma/schema.prisma");
@@ -24,7 +29,7 @@ while ((match = enumRegex.exec(schema)) !== null) {
     .split("\n")
     .map((line) => line.trim())
     .filter(Boolean)
-    .map((val) => `${val} = \"${val}\"`)
+    .map((val) => `${val} = "${val}"`)
     .join(",\n  ");
   output += `export enum ${enumName} {\n  ${values}\n}\n\n`;
 }
