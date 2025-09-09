@@ -66,17 +66,21 @@ const BillingPage = () => {
     }
   };
 
-  const totalBilled = filteredBillings.reduce((sum, record) => sum + record.billedAmount, 0);
+  const totalBilled = filteredBillings.reduce(
+    (sum, record) => sum + Number(record.billedAmount),
+    0
+  );
+
   // filter billings by status
   const paidAmount = filteredBillings
     .filter((record) => record.billingStatus === types.BillingStatus.PAID)
-    .reduce((sum, record) => sum + record.billedAmount, 0);
+    .reduce((sum, record) => sum + Number(record.billedAmount), 0);
   const pendingAmount = filteredBillings
     .filter((record) => record.billingStatus === types.BillingStatus.PENDING)
-    .reduce((sum, record) => sum + record.billedAmount, 0);
+    .reduce((sum, record) => sum + Number(record.billedAmount), 0);
   const overdueAmount = filteredBillings
     .filter((record) => record.billingStatus === types.BillingStatus.OVERDUE)
-    .reduce((sum, record) => sum + record.billedAmount, 0);
+    .reduce((sum, record) => sum + Number(record.billedAmount), 0);
 
   return (
     <div className="min-h-screen bg-background p-6">
