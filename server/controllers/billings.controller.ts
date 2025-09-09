@@ -22,7 +22,7 @@ export const createBilling = async (req: Request, res: Response, next: NextFunct
       message: "Billing created successfully",
       data: billing,
     };
-    res.status(consts.httpCodes.SUCCESS).json(successResponse);
+    res.status(consts.httpCodes.CREATED).json(successResponse);
   } catch (error: any) {
     console.log("error in createBilling", error);
     next(new AppError(error.message, consts.httpCodes.INTERNAL_SERVER_ERROR));

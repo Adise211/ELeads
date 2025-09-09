@@ -37,6 +37,12 @@ jobs:
           cd server
           npm install
 
+      - name: Upload shared package
+        uses: actions/upload-artifact@v4
+        with:
+          name: shared-package
+          path: shared/
+
   test:
     name: Run Tests
     runs-on: ubuntu-latest
