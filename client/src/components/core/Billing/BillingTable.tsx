@@ -47,7 +47,7 @@ const BillingTable = ({
 }: BillingTableProps) => {
   const filteredBillingRecords = billings.filter((record) => {
     const matchesSearch =
-      record.clientId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      record.clientId?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       record.billedAmount.toString().includes(searchTerm.toLowerCase());
     //TODO: add client name and company to the billing record and filter by them
 
