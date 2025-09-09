@@ -6,7 +6,6 @@ interface LastActivityCardProps {
 }
 
 const LastActivityCard = ({ leads }: LastActivityCardProps) => {
-  console.log("leads", leads);
   // Get all activities from all leads and sort by date (newest first)
   const activities = leads
     .flatMap(

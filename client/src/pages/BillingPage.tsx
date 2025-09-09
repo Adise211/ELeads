@@ -35,7 +35,7 @@ const BillingPage = () => {
 
   const filteredBillings = billings.filter((record) => {
     const matchesSearch =
-      record.clientId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      record.client?.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
       record.billedAmount.toString().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === "all" || record.billingStatus === statusFilter;
     return matchesSearch && matchesStatus;
@@ -53,7 +53,6 @@ const BillingPage = () => {
 
         // Add the new billing to the workspace store
         const newBilling = response.data as types.BillingDTO;
-        console.log("newBilling", newBilling);
         const updatedBillings = [...workspaceBillings, newBilling];
         setWorkspaceBillings(updatedBillings);
       } else {

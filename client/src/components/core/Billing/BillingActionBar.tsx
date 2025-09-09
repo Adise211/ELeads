@@ -13,7 +13,6 @@ import BillingDialog from "./BillingDialog";
 import { types, schemas } from "@eleads/shared";
 
 const DEFAULT_INVOICE: types.BillingDTO = {
-  clientId: "",
   billedAmount: 0,
   currency: "USD",
   billingCycle: "one-time",
@@ -24,7 +23,6 @@ const DEFAULT_INVOICE: types.BillingDTO = {
   billingDueDate: "",
   billingNotes: "",
   billingAttachments: [],
-  workspaceId: "",
 };
 
 interface BillingActionBarProps {
@@ -57,14 +55,14 @@ const BillingActionBar = ({
         setErrors((prev) => ({ ...prev, [issue.path.join(".")]: issue.message }));
       });
       return;
+    } else {
+      // Call the parent handler with the invoice data
+      onCreateInvoice(newInvoice);
+
+      // Reset form and close dialog
+      setNewInvoice({ ...DEFAULT_INVOICE });
+      setIsCreateInvoiceOpen(false);
     }
-
-    // Call the parent handler with the invoice data
-    onCreateInvoice(newInvoice);
-
-    // Reset form and close dialog
-    setNewInvoice({ ...DEFAULT_INVOICE });
-    setIsCreateInvoiceOpen(false);
   };
 
   useEffect(() => {

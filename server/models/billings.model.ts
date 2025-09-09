@@ -8,7 +8,11 @@ export const createBilling = async (data: types.BillingDTO, workspaceId: string)
   const billing = await prisma.billing.create({
     data: {
       ...billingData,
+      clientId: billingData.clientId!,
       workspaceId: workspaceId,
+    },
+    include: {
+      client: true,
     },
   });
   return billing;

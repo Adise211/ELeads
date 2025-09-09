@@ -13,7 +13,7 @@
   "author": "Adise",
   "license": "ISC",
   "dependencies": {
-    "zod": "^3.22.0"
+    "zod": "^4.0.14"
   },
   "devDependencies": {
     "typescript": "^5.0.0"

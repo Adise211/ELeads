@@ -107,7 +107,7 @@ export type ClientDTO = {
 
 export type BillingDTO = {
   id?: string;
-  clientId: string;
+  clientId?: string;
   client?: ClientDTO;
   billedAmount: number;
   currency: string;
@@ -117,11 +117,10 @@ export type BillingDTO = {
   paymentTerms?: string;
   userCommission: number;
   billingStatus: BillingStatus;
-  billingDate?: string;
-  billingDueDate?: string;
+  billingDate: string;
+  billingDueDate: string;
   billingNotes?: string;
   billingAttachments?: string[];
-  workspaceId: string;
   createdAt?: Date;
   updatedAt?: Date;
 };
