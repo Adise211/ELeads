@@ -10,7 +10,7 @@ jobs:
   setup:
     name: Setup and Build
     runs-on: ubuntu-latest
-    environment: production
+    environment: Production
 
     steps:
       - name: Checkout code
