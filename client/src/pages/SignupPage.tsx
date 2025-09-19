@@ -4,14 +4,17 @@ import PersonalInfoStep from "@/components/core/Auth/PersonalInfoStep";
 import WorkspaceStep from "@/components/core/Auth/WorkspaceStep";
 import { ChevronRight } from "lucide-react";
 import type { SignupFormData } from "../../client.types";
-import { signupFormSchema } from "@/lib/form-validation-schema";
 import { authService } from "@/services";
 import { showSuccessToast } from "@/utils/toast";
 import { useNavigate } from "react-router-dom";
+import { schemas } from "@eleads/shared";
+import AppAlert from "@/components/ui/app-alert";
+import { AxiosError } from "axios";
 
 const SignupPage = () => {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
+  const [errorMessage, setErrorMessage] = useState("");
   const [formData, setFormData] = useState<SignupFormData>({
     firstName: "",
     lastName: "",
@@ -36,45 +39,37 @@ const SignupPage = () => {
   };
 
   const handleComplete = async () => {
-    const validationResult = signupFormSchema.safeParse(formData);
-
-    if (!validationResult.success) {
-      console.log("Validation errors:", validationResult.error);
+    let workspace = {};
+    // create the workspace data
+    if (formData.workspaceType === "new") {
+      workspace = {
+        name: formData.workspaceName,
+      };
     } else {
-      const {
-        firstName,
-        lastName,
-        email,
-        password,
-        phone,
-        workspaceName,
-        workspaceType,
-        workspaceId,
-      } = formData;
+      workspace = {
+        id: formData.workspaceId,
+      };
+    }
+    // get the user data from the form data
+    const { firstName, lastName, email, password, phone } = formData;
+    // create the signup data
+    const sigenupData = { user: { firstName, lastName, email, password, phone }, workspace };
 
-      let workspace = {};
-      if (workspaceType === "new") {
-        workspace = {
-          name: workspaceName,
-        };
-      } else {
-        workspace = {
-          id: workspaceId,
-        };
-      }
-
+    const validationResult = schemas.registerUserSchema.safeParse(sigenupData);
+    if (!validationResult.success) {
+      // console.log("Validation errors:", validationResult.error);
+    } else {
       try {
-        const data = {
-          user: { firstName, lastName, email, password, phone },
-          workspace,
-        };
-        const response = await authService.register(data);
+        const response = await authService.register(sigenupData);
         if (response.success) {
           showSuccessToast(response.message || "Registration successful!");
           navigate("/login");
         }
       } catch (error) {
         console.log("Error in signup user", error);
+        setErrorMessage(
+          error instanceof AxiosError ? error?.response?.data.message : "Failed to register user"
+        );
       }
     }
   };
@@ -162,6 +157,12 @@ const SignupPage = () => {
             onBack={handleWorkspaceBack}
           />
         )}
+
+        {
+          <div className="mt-4">
+            {errorMessage && <AppAlert message={errorMessage} type="error" />}
+          </div>
+        }
 
         {/* Footer */}
         <div className="mt-8 text-center">

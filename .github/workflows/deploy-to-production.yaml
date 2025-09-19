@@ -10,6 +10,7 @@ jobs:
   setup:
     name: Setup and Build
     runs-on: ubuntu-latest
+    environment: Production
 
     steps:
       - name: Checkout code
@@ -101,6 +102,13 @@ jobs:
         run: |
           cd server
           npm install
+
+      - name: Create .env.production file
+        run: |
+          cd server
+          echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" > .env.production
+          # Add other environment variables as needed
+          # echo "OTHER_VAR=${{ secrets.OTHER_VAR }}" >> .env.production
 
       - name: Run Prisma migrations
         run: |
