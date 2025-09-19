@@ -19,12 +19,12 @@ export type UserDTO = {
   role: UserRole;
   avatarUrl: string | null;
   isActive: boolean;
-  phone: string;
-  workspaceId: string;
-  workspace: WorkspaceDTO;
-  permissions: string[];
-  leads: LeadDTO[];
-  activities: ActivityDTO[];
+  phone: string | null;
+  workspaceId: string | null;
+  workspace: WorkspaceDTO | null;
+  permissions: string[] | null;
+  leads: LeadDTO[] | null;
+  activities: ActivityDTO[] | null;
   createdAt?: Date;
   updatedAt?: Date;
 };
