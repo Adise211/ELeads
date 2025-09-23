@@ -13,6 +13,7 @@ import BillingDialog from "./BillingDialog";
 import { types, schemas } from "@eleads/shared";
 
 const DEFAULT_INVOICE: types.BillingDTO = {
+  clientId: "",
   billedAmount: 0,
   currency: "USD",
   billingCycle: "one-time",
