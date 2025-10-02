@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { DollarSign, CheckCircle, Clock, AlertCircle } from "lucide-react";
 import StatsCards from "@/components/core/StatsCards";
 import { BillingTable, BillingActionBar } from "@/components/core/Billing";
+import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
 import { showSuccessToast, showErrorToast } from "@/utils/toast";
 import { types } from "@eleads/shared";
 import { useWorkspaceStore } from "@/stores/workspaceStore";
@@ -23,6 +24,10 @@ const BillingPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [isCreating, setIsCreating] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [billingToDelete, setBillingToDelete] = useState<string | null>(null);
+  const [editingBilling, setEditingBilling] = useState<types.BillingDTO | null>(null);
 
   useEffect(() => {
     setBillings(workspaceBillings);
@@ -64,6 +69,77 @@ const BillingPage = () => {
     } finally {
       setIsCreating(false);
     }
+  };
+
+  const handleUpdateInvoice = async (billingData: types.BillingDTO) => {
+    try {
+      // Call the API to update the billing
+      const response = await billingsService.updateBilling(billingData);
+
+      if (response.success) {
+        showSuccessToast("Invoice updated successfully!");
+
+        // Update the billing in the workspace store
+        const updatedBilling = response.data as types.BillingDTO;
+        const updatedBillings = workspaceBillings.map((billing) =>
+          billing.id === updatedBilling.id ? updatedBilling : billing
+        );
+        setWorkspaceBillings(updatedBillings);
+
+        // Clear the editing state
+        setEditingBilling(null);
+      } else {
+        showErrorToast("Failed to update invoice. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error updating billing:", error);
+      showErrorToast("An error occurred while updating the invoice. Please try again.");
+    }
+  };
+
+  const handleDeleteInvoice = async (billingId: string) => {
+    setIsDeleting(true);
+
+    try {
+      // Call the API to delete the billing
+      const response = await billingsService.deleteBilling(billingId);
+
+      if (response.success) {
+        showSuccessToast("Invoice deleted successfully!");
+
+        // Remove the billing from the workspace store
+        const updatedBillings = workspaceBillings.filter((billing) => billing.id !== billingId);
+        setWorkspaceBillings(updatedBillings);
+      } else {
+        showErrorToast("Failed to delete invoice. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error deleting billing:", error);
+      showErrorToast("An error occurred while deleting the invoice. Please try again.");
+    } finally {
+      setIsDeleting(false);
+      setDeleteDialogOpen(false);
+      setBillingToDelete(null);
+    }
+  };
+
+  const handleDeleteClick = (billingId: string) => {
+    setBillingToDelete(billingId);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    if (billingToDelete) {
+      handleDeleteInvoice(billingToDelete);
+    }
+  };
+
+  const handleEditBilling = (billing: types.BillingDTO) => {
+    setEditingBilling(billing);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingBilling(null);
   };
 
   const totalBilled = filteredBillings.reduce(
@@ -131,6 +207,9 @@ const BillingPage = () => {
           setStatusFilter={setStatusFilter}
           onCreateInvoice={handleCreateInvoice}
           isCreating={isCreating}
+          editInvoice={editingBilling}
+          onEditInvoice={handleUpdateInvoice}
+          onCancelEdit={handleCancelEdit}
         />
 
         {/* Billing Table Component */}
@@ -145,6 +224,19 @@ const BillingPage = () => {
             setItemsPerPage(newPageSize);
             setCurrentPage(1); // Reset to first page when changing page size
           }}
+          onEditBilling={handleEditBilling}
+          onDeleteBilling={handleDeleteClick}
+        />
+
+        {/* Delete Confirmation Dialog */}
+        <ConfirmationDialog
+          isOpen={deleteDialogOpen}
+          onOpenChange={setDeleteDialogOpen}
+          title="Delete Invoice"
+          description="Are you sure you want to delete this invoice? This action cannot be undone."
+          confirmText="Delete"
+          onConfirm={handleDeleteConfirm}
+          isLoading={isDeleting}
         />
       </div>
     </div>

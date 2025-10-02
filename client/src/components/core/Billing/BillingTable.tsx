@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { AppTable, type TableColumn, type TablePaginationProps } from "@/components/ui/app-table";
-import { FileText, Calendar, Receipt, Search } from "lucide-react";
+import { FileText, Calendar, Receipt, Search, Edit, Trash2 } from "lucide-react";
 import { types } from "@eleads/shared";
 
 const statusColors = {
@@ -29,6 +29,8 @@ interface BillingTableProps {
   itemsPerPage: number;
   onPageChange: (page: number) => void;
   onPageSizeChange: (pageSize: number) => void;
+  onEditBilling?: (billing: types.BillingDTO) => void;
+  onDeleteBilling?: (billingId: string) => void;
 }
 
 const generateInvoiceIdForDisplay = (index: number) => {
@@ -44,6 +46,8 @@ const BillingTable = ({
   itemsPerPage,
   onPageChange,
   onPageSizeChange,
+  onEditBilling,
+  onDeleteBilling,
 }: BillingTableProps) => {
   const filteredBillingRecords = billings.filter((record) => {
     const matchesSearch =
@@ -172,15 +176,27 @@ const BillingTable = ({
     },
     {
       key: "actions",
-      header: "Actions",
-      render: () => (
-        <div className="flex items-center space-x-2">
+      header: "",
+      render: (record) => (
+        <div className="flex items-end justify-end space-x-2">
           <Button variant="outline" size="sm">
             <FileText className="h-4 w-4" />
           </Button>
-          <Button variant="outline" size="sm">
-            View
-          </Button>
+          {onEditBilling && (
+            <Button variant="outline" size="sm" onClick={() => onEditBilling(record)}>
+              <Edit className="h-4 w-4" />
+            </Button>
+          )}
+          {onDeleteBilling && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onDeleteBilling(record.id || "")}
+              className="text-red-600 hover:text-red-700 hover:bg-red-50"
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          )}
         </div>
       ),
     },

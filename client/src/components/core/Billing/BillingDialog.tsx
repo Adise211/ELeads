@@ -29,6 +29,7 @@ interface BillingDialogProps {
   onInvoiceChange: (invoice: types.BillingDTO) => void;
   onSubmit: () => void;
   errors: Record<string, string>;
+  isEditMode?: boolean;
 }
 
 const BillingDialog = ({
@@ -38,6 +39,7 @@ const BillingDialog = ({
   onInvoiceChange,
   onSubmit,
   errors,
+  isEditMode = false,
 }: BillingDialogProps) => {
   // const isSubmitDisabled = !invoice.clientId || !invoice.billedAmount || !invoice.billingDueDate;
   const workspaceClients = useWorkspaceStore((state) => state.workspaceClients);
@@ -77,9 +79,11 @@ const BillingDialog = ({
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="!max-w-[90vw] !w-[60vw] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Create New Invoice</DialogTitle>
+          <DialogTitle>{isEditMode ? "Edit Invoice" : "Create New Invoice"}</DialogTitle>
           <DialogDescription>
-            Create a new invoice for your client. Fill in all the required billing information.
+            {isEditMode
+              ? "Update the invoice information for your client. Modify the billing details as needed."
+              : "Create a new invoice for your client. Fill in all the required billing information."}
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-6 py-4">
@@ -340,7 +344,7 @@ const BillingDialog = ({
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
-          <Button onClick={onSubmit}>Create Invoice</Button>
+          <Button onClick={onSubmit}>{isEditMode ? "Update Invoice" : "Create Invoice"}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
