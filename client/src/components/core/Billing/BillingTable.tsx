@@ -3,6 +3,9 @@ import { Badge } from "@/components/ui/badge";
 import { AppTable, type TableColumn, type TablePaginationProps } from "@/components/ui/app-table";
 import { FileText, Calendar, Receipt, Search, Edit, Trash2 } from "lucide-react";
 import { types } from "@eleads/shared";
+import ProtectedUI from "@/components/providers/ProtectedUI";
+import BillingDetailsDialog from "./BillingDetailsDialog";
+import { useState } from "react";
 
 const statusColors = {
   PENDING: "bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-300",
@@ -49,6 +52,33 @@ const BillingTable = ({
   onEditBilling,
   onDeleteBilling,
 }: BillingTableProps) => {
+  const [selectedBilling, setSelectedBilling] = useState<types.BillingDTO | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  const handleViewBilling = (billing: types.BillingDTO) => {
+    setSelectedBilling(billing);
+    setIsDialogOpen(true);
+  };
+
+  const handleCloseDialog = () => {
+    setIsDialogOpen(false);
+    setSelectedBilling(null);
+  };
+
+  // Get billing history for the selected billing (filter by clientId and billingCycle)
+  const getBillingHistory = (billing: types.BillingDTO) => {
+    if (billing.billingCycle === "one-time") return [];
+
+    return billings
+      .filter(
+        (b) =>
+          b.clientId === billing.clientId &&
+          b.billingCycle === billing.billingCycle &&
+          b.id !== billing.id
+      )
+      .sort((a, b) => new Date(b.billingDate).getTime() - new Date(a.billingDate).getTime());
+  };
+
   const filteredBillingRecords = billings.filter((record) => {
     const matchesSearch =
       record.clientId?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -179,37 +209,63 @@ const BillingTable = ({
       header: "",
       render: (record) => (
         <div className="flex items-end justify-end space-x-2">
-          <Button variant="outline" size="sm">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handleViewBilling(record)}
+            title="View billing details"
+          >
             <FileText className="h-4 w-4" />
           </Button>
-          {onEditBilling && (
-            <Button variant="outline" size="sm" onClick={() => onEditBilling(record)}>
-              <Edit className="h-4 w-4" />
-            </Button>
-          )}
-          {onDeleteBilling && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => onDeleteBilling(record.id || "")}
-              className="text-red-600 hover:text-red-700 hover:bg-red-50"
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
-          )}
+          <ProtectedUI
+            allowedPermissions={[types.Permission.EDIT_BILLING, types.Permission.MANAGE_BILLING]}
+            allowedRoles={[types.UserRole.ADMIN]}
+          >
+            {onEditBilling && (
+              <Button variant="outline" size="sm" onClick={() => onEditBilling(record)}>
+                <Edit className="h-4 w-4" />
+              </Button>
+            )}
+          </ProtectedUI>
+          <ProtectedUI
+            allowedPermissions={[types.Permission.DELETE_BILLING, types.Permission.MANAGE_BILLING]}
+            allowedRoles={[types.UserRole.ADMIN]}
+          >
+            {onDeleteBilling && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => onDeleteBilling(record.id || "")}
+                className="text-red-600 hover:text-red-700 hover:bg-red-50"
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            )}
+          </ProtectedUI>
         </div>
       ),
     },
   ];
 
   return (
-    <AppTable
-      data={filteredBillingRecords}
-      columns={columns}
-      getItemId={(record) => record.id || ""}
-      pagination={paginationProps}
-      emptyState={<EmptyState />}
-    />
+    <>
+      <AppTable
+        data={filteredBillingRecords}
+        columns={columns}
+        getItemId={(record) => record.id || ""}
+        pagination={paginationProps}
+        emptyState={<EmptyState />}
+      />
+
+      {selectedBilling && (
+        <BillingDetailsDialog
+          billing={selectedBilling}
+          isOpen={isDialogOpen}
+          onClose={handleCloseDialog}
+          billingHistory={getBillingHistory(selectedBilling)}
+        />
+      )}
+    </>
   );
 };
 
