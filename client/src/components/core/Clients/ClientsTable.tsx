@@ -1,10 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { AppTable, type TableColumn, type TablePaginationProps } from "@/components/ui/app-table";
-import { Users, Building2, Phone, Mail, Globe, Edit, Trash2 } from "lucide-react";
+import { Users, Building2, Phone, Mail, Globe, FileText, Edit, Trash2 } from "lucide-react";
 import { types, schemas } from "@eleads/shared";
 import ProtectedUI from "@/components/providers/ProtectedUI";
 import ClientDialog from "./ClientDialog";
+import ClientDetailsDialog from "./ClientDetailsDialog";
 import { useState } from "react";
 
 const statusColors = {
@@ -88,9 +89,21 @@ const ClientsTable = ({
   onEditClient,
   onDeleteClient,
 }: ClientsTableProps) => {
+  const [selectedClient, setSelectedClient] = useState<types.ClientDTO | null>(null);
+  const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editClientData, setEditClientData] = useState<types.ClientDTO>({ ...DEFAULT_CLIENT });
   const [editErrors, setEditErrors] = useState<Record<string, string>>({});
+
+  const handleViewClient = (client: types.ClientDTO) => {
+    setSelectedClient(client);
+    setIsViewDialogOpen(true);
+  };
+
+  const handleCloseViewDialog = () => {
+    setIsViewDialogOpen(false);
+    setSelectedClient(null);
+  };
 
   const handleEditClient = (client: types.ClientDTO) => {
     const normalizedClient = normalizeClientData(client);
@@ -171,11 +184,11 @@ const ClientsTable = ({
         <div className="space-y-1">
           <div className="flex items-center space-x-2 text-sm">
             <Mail className="w-3 h-3 text-gray-400" />
-            <span className="text-gray-900 truncate">{client.email}</span>
+            <span className="text-gray-900 truncate">{client.email || "N/A"}</span>
           </div>
           <div className="flex items-center space-x-2 text-sm">
             <Phone className="w-3 h-3 text-gray-400" />
-            <span className="text-gray-500 truncate">{client.phone}</span>
+            <span className="text-gray-500 truncate">{client.phone || "N/A"}</span>
           </div>
         </div>
       ),
@@ -183,32 +196,41 @@ const ClientsTable = ({
     {
       key: "location",
       header: "Location",
-      render: (client: types.ClientDTO) => (
-        <div className="space-y-1">
-          {client.city && client.state && (
-            <div className="text-sm text-gray-900">
-              {client.city}, {client.state}
-            </div>
-          )}
-          {client.country && <div className="text-sm text-gray-500">{client.country}</div>}
-        </div>
-      ),
+      render: (client: types.ClientDTO) =>
+        client.city || client.state || client.country ? (
+          <div className="space-y-1">
+            {client.city && client.state && (
+              <div className="text-sm text-gray-900">
+                {client.city}, {client.state}
+              </div>
+            )}
+            {client.country && <div className="text-sm text-gray-500">{client.country}</div>}
+          </div>
+        ) : (
+          <span className="text-sm text-gray-400">N/A</span>
+        ),
     },
     {
       key: "industry",
       header: "Industry",
-      render: (client: types.ClientDTO) => (
-        <div className="text-sm text-gray-900">{client.industry || "N/A"}</div>
-      ),
+      render: (client: types.ClientDTO) =>
+        client.industry ? (
+          <div className="text-sm text-gray-900">{client.industry}</div>
+        ) : (
+          <span className="text-sm text-gray-400">N/A</span>
+        ),
     },
     {
       key: "status",
       header: "Status",
-      render: (client: types.ClientDTO) => (
-        <Badge variant="secondary" className={`text-xs ${statusColors[client.status]}`}>
-          {client.status}
-        </Badge>
-      ),
+      render: (client: types.ClientDTO) =>
+        client.status ? (
+          <Badge variant="secondary" className={`text-xs ${statusColors[client.status]}`}>
+            {client.status}
+          </Badge>
+        ) : (
+          <span className="text-sm text-gray-400">N/A</span>
+        ),
     },
     {
       key: "website",
@@ -235,34 +257,33 @@ const ClientsTable = ({
     },
     {
       key: "actions",
-      header: "Actions",
+      header: "",
       render: (client: types.ClientDTO) => (
-        <div className="flex items-center space-x-2">
-          <ProtectedUI
-            allowedPermissions={[types.Permission.EDIT_BILLING, types.Permission.MANAGE_BILLING]}
-            allowedRoles={[types.UserRole.ADMIN]}
+        <div className="flex items-end justify-end space-x-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handleViewClient(client)}
+            title="View client details"
           >
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => handleEditClient(client)}
-              className="text-blue-600 hover:text-blue-800"
-            >
-              <Edit className="w-4 h-4" />
+            <FileText className="h-4 w-4" />
+          </Button>
+          <ProtectedUI allowedRoles={[types.UserRole.ADMIN, types.UserRole.MANAGER]}>
+            <Button variant="outline" size="sm" onClick={() => handleEditClient(client)}>
+              <Edit className="h-4 w-4" />
             </Button>
           </ProtectedUI>
-          <ProtectedUI
-            allowedPermissions={[types.Permission.DELETE_BILLING, types.Permission.MANAGE_BILLING]}
-            allowedRoles={[types.UserRole.ADMIN]}
-          >
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => handleDeleteClient(client.id || "")}
-              className="text-red-600 hover:text-red-800"
-            >
-              <Trash2 className="w-4 h-4" />
-            </Button>
+          <ProtectedUI allowedRoles={[types.UserRole.ADMIN]}>
+            {onDeleteClient && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleDeleteClient(client.id || "")}
+                className="text-red-600 hover:text-red-700 hover:bg-red-50"
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            )}
           </ProtectedUI>
         </div>
       ),
@@ -294,6 +315,15 @@ const ClientsTable = ({
           </div>
         }
       />
+
+      {/* View Client Dialog */}
+      {selectedClient && (
+        <ClientDetailsDialog
+          client={selectedClient}
+          isOpen={isViewDialogOpen}
+          onClose={handleCloseViewDialog}
+        />
+      )}
 
       {/* Edit Client Dialog */}
       <ClientDialog
