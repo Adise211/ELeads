@@ -86,12 +86,12 @@ export type ClientDTO = {
   id?: string;
   name?: string;
   email: string;
-  phone: string;
+  phone?: string;
   address?: string;
   city?: string;
   state?: string;
   zipCode?: string;
-  country: string;
+  country?: string;
   company: string;
   industry?: string;
   website?: string;
