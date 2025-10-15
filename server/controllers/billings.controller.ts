@@ -50,15 +50,16 @@ export const updateBilling = async (req: Request, res: Response, next: NextFunct
   }
 };
 
+// TODO: add soft delete (isActive = false)
 export const deleteBilling = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { workspaceId } = (req as any).user;
-    const data = req.body;
-    const billing = await deleteBillingModel(data.id, workspaceId);
+    const data = req.params;
+    await deleteBillingModel(data?.id as string, workspaceId);
     const successResponse: SuccessResponse = {
       success: true,
       message: "Billing deleted successfully",
-      data: billing,
+      data: { id: data?.id },
     };
     res.status(consts.httpCodes.SUCCESS).json(successResponse);
   } catch (error: any) {
