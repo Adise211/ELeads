@@ -2,6 +2,7 @@
 export { authService } from "./api/auth.service";
 export { leadsService } from "./api/leads.service";
 export { billingsService } from "./api/billings.service";
+export { clientsService } from "./api/clients.service";
 // export { usersService } from "./api/users.service";
 export { workspaceService } from "./api/workspace.service";
 export { default as api } from "./httpConfig";
