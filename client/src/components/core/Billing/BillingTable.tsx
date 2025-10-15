@@ -49,7 +49,7 @@ const normalizeInvoiceData = (invoice: types.BillingDTO): types.BillingDTO => {
     currency: invoice.currency || "USD",
     billingCycle: invoice.billingCycle || "one-time",
     paymentTerms: invoice.paymentTerms || "net 30",
-    userCommission: invoice.userCommission || 15,
+    userCommission: invoice.userCommission || 0,
     billingStatus: invoice.billingStatus || types.BillingStatus.PENDING,
     billingDate: invoice.billingDate.split("T")[0] || new Date().toISOString().split("T")[0],
     billingDueDate: invoice.billingDueDate.split("T")[0] || "",

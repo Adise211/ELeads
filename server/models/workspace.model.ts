@@ -135,7 +135,13 @@ export const getWorkspaceBillings = async (workspaceId: string) => {
       client: true,
     },
   });
-  return billings;
+
+  // Convert Decimal fields back to numbers for each billing
+  return billings.map((billing) => ({
+    ...billing,
+    billedAmount: Number(billing.billedAmount),
+    userCommission: Number(billing.userCommission),
+  }));
 };
 
 // Get all clients in a workspace

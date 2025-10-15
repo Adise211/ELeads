@@ -15,5 +15,11 @@ export const createBilling = async (data: types.BillingDTO, workspaceId: string)
       client: true,
     },
   });
-  return billing;
+
+  // Convert Decimal fields back to numbers - Only for the fields that are Decimal (because Prisma converts Decimal to string )
+  return {
+    ...billing,
+    billedAmount: Number(billing.billedAmount),
+    userCommission: Number(billing.userCommission),
+  };
 };
