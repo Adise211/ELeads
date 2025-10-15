@@ -15,7 +15,8 @@ export function authenticateToken(req: Request, res: Response, next: NextFunctio
       token = req.cookies?.[accessTokenCookieName];
     }
     if (!token) {
-      next(new AppError("No token provided", httpCodes.UNAUTHORIZED));
+      console.log("[AUTH MIDDLEWARE] No token provided");
+      next(new AppError("Unauthorized", httpCodes.UNAUTHORIZED));
     } else {
       const user = verifyAccessToken(token);
 
@@ -23,7 +24,8 @@ export function authenticateToken(req: Request, res: Response, next: NextFunctio
       next();
     }
   } catch (err) {
-    next(new AppError("Invalid or expired token", httpCodes.FORBIDDEN));
+    console.log("[AUTH MIDDLEWARE] Invalid or expired token");
+    next(new AppError("Unauthorized", httpCodes.FORBIDDEN));
   }
 }
 

@@ -19,8 +19,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { types } from "@eleads/shared";
 import { useWorkspaceStore } from "@/stores/workspaceStore";
-import { useState } from "react";
-import { Upload, X, FileText } from "lucide-react";
+import { useState, useMemo } from "react";
+import { Upload, X, FileText, Search } from "lucide-react";
 
 interface BillingDialogProps {
   isOpen: boolean;
@@ -44,12 +44,27 @@ const BillingDialog = ({
   // const isSubmitDisabled = !invoice.clientId || !invoice.billedAmount || !invoice.billingDueDate;
   const workspaceClients = useWorkspaceStore((state) => state.workspaceClients);
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
+  const [clientSearchTerm, setClientSearchTerm] = useState("");
 
   const clients = workspaceClients.map((client) => ({
     id: client.id,
     name: client.name,
     company: client.company,
   }));
+
+  // Filter clients based on search term
+  const filteredClients = useMemo(() => {
+    if (!clientSearchTerm.trim()) {
+      return clients;
+    }
+
+    const searchLower = clientSearchTerm.toLowerCase();
+    return clients.filter(
+      (client) =>
+        client.name?.toLowerCase().includes(searchLower) ||
+        client.company?.toLowerCase().includes(searchLower)
+    );
+  }, [clients, clientSearchTerm]);
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
@@ -77,7 +92,7 @@ const BillingDialog = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="!max-w-[90vw] !w-[60vw] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="!max-w-[90vw] !w-[70vw] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{isEditMode ? "Edit Invoice" : "Create New Invoice"}</DialogTitle>
           <DialogDescription>
@@ -99,6 +114,8 @@ const BillingDialog = ({
                   ...invoice,
                   clientId: value,
                 });
+                // Clear search when a client is selected
+                setClientSearchTerm("");
               }}
             >
               <SelectTrigger
@@ -107,14 +124,37 @@ const BillingDialog = ({
                 <SelectValue placeholder="Choose a client from your workspace" />
               </SelectTrigger>
               <SelectContent>
-                {clients.map((client) => (
-                  <SelectItem key={client.id} value={client?.id || ""}>
-                    <div className="flex flex-col">
-                      <span className="font-medium">{client.company}</span>
-                      <span className="text-sm text-gray-500">{client.name}</span>
+                {/* Search Input */}
+                <div className="p-2 border-b">
+                  <div className="relative">
+                    <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      placeholder="Search clients..."
+                      value={clientSearchTerm}
+                      onChange={(e) => setClientSearchTerm(e.target.value)}
+                      className="pl-8 h-8"
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                  </div>
+                </div>
+
+                {/* Client List */}
+                <div className="max-h-60 overflow-y-auto">
+                  {filteredClients.length > 0 ? (
+                    filteredClients.map((client) => (
+                      <SelectItem key={client.id} value={client?.id || ""}>
+                        <div className="flex flex-col">
+                          <span className="font-medium">{client.company}</span>
+                          <span className="text-sm text-gray-500">{client.name}</span>
+                        </div>
+                      </SelectItem>
+                    ))
+                  ) : (
+                    <div className="p-3 text-sm text-muted-foreground text-center">
+                      No clients found matching "{clientSearchTerm}"
                     </div>
-                  </SelectItem>
-                ))}
+                  )}
+                </div>
               </SelectContent>
             </Select>
             {errors.clientId && <p className="text-sm text-red-500 mt-1">{errors.clientId}</p>}

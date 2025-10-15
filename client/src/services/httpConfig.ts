@@ -18,10 +18,9 @@ api.interceptors.response.use(
     // Handle specific error status codes globally
     if (error.response) {
       switch (error.response.status) {
-        // case httpCodes.UNAUTHORIZED:
-        // showErrorToast("Unauthorized");
-        // redirect to login
-        // break;
+        case consts.httpCodes.UNAUTHORIZED:
+          // Don't show error toast
+          break;
         case consts.httpCodes.INTERNAL_SERVER_ERROR:
           // show error toast if user is logged in
           if (isUserLoggedIn) {
