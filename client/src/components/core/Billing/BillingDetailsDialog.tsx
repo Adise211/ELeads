@@ -9,7 +9,6 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import {
   FileText,
   Calendar,
@@ -139,17 +138,7 @@ const BillingDetailsDialog: React.FC<BillingDetailsDialogProps> = ({
                 </div>
               </div>
 
-              {billing.billingNotes && (
-                <>
-                  <Separator />
-                  <div>
-                    <span className="font-medium">Notes:</span>
-                    <p className="text-muted-foreground mt-1">{billing.billingNotes}</p>
-                  </div>
-                </>
-              )}
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4">
                 <div>
                   <span className="font-medium">Billing Cycle:</span>
                   <p className="text-muted-foreground capitalize">
@@ -167,6 +156,25 @@ const BillingDetailsDialog: React.FC<BillingDetailsDialogProps> = ({
               </div>
             </CardContent>
           </Card>
+
+          {/* Invoice Notes Section */}
+          {billing.billingNotes && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <FileText className="h-5 w-5" />
+                  Invoice Notes
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="bg-muted/50 rounded-lg p-4">
+                  <p className="text-sm leading-relaxed whitespace-pre-wrap">
+                    {billing.billingNotes}
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           {/* File Preview Section */}
           <Card>
