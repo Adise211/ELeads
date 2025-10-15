@@ -147,7 +147,7 @@ model Billing {
 
 model Client {
   id            String         @id @default(cuid())
-  name          String?
+  name          String         @default("")
   email         String         @default("")
   phone         String?
   address       String?

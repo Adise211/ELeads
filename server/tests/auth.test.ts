@@ -29,6 +29,7 @@ function createMockWorkspace(overrides: Partial<Workspace> = {}): Workspace {
   return {
     id: "workspace-123",
     name: "Test Workspace",
+    isActive: true,
     createdAt: new Date(),
     updatedAt: new Date(),
     ...overrides,

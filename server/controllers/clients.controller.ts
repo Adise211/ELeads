@@ -19,6 +19,7 @@ export const createClient = async (req: Request, res: Response, next: NextFuncti
     };
     return res.status(consts.httpCodes.CREATED).json(successResponse);
   } catch (error) {
+    console.log("Error in createClient", error);
     next(error);
   }
 };

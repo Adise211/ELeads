@@ -3,7 +3,7 @@ import { ClientDTO } from "../types/data-dto.js";
 import { ClientPriority, ClientStatus } from "../types/prisma-enums.js";
 // import { createBillingSchema } from "./billing.schema.js";
 const baseClientSchema = z.object({
-  name: z.optional(z.string()),
+  name: z.string().min(1, { message: "Name is required" }),
   email: z
     .string()
     .min(1, { message: "Email is required" })

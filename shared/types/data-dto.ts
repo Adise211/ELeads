@@ -84,7 +84,7 @@ export type NoteDTO = {
 
 export type ClientDTO = {
   id?: string;
-  name?: string;
+  name: string;
   email: string;
   phone?: string;
   address?: string;
