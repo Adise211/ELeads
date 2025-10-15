@@ -33,9 +33,6 @@ interface BillingActionBarProps {
   setStatusFilter: (value: string) => void;
   onCreateInvoice: (billingData: types.BillingDTO) => void;
   isCreating?: boolean;
-  editInvoice?: types.BillingDTO | null;
-  onEditInvoice?: (billingData: types.BillingDTO) => void;
-  onCancelEdit?: () => void;
 }
 
 const BillingActionBar = ({
@@ -45,16 +42,10 @@ const BillingActionBar = ({
   setStatusFilter,
   onCreateInvoice,
   isCreating = false,
-  editInvoice,
-  onEditInvoice,
-  onCancelEdit,
 }: BillingActionBarProps) => {
   const [isCreateInvoiceOpen, setIsCreateInvoiceOpen] = useState(false);
-  const [isEditInvoiceOpen, setIsEditInvoiceOpen] = useState(false);
   const [newInvoice, setNewInvoice] = useState<types.BillingDTO>({ ...DEFAULT_INVOICE });
-  const [editInvoiceData, setEditInvoiceData] = useState<types.BillingDTO>({ ...DEFAULT_INVOICE });
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [editErrors, setEditErrors] = useState<Record<string, string>>({});
 
   const handleCreateInvoice = () => {
     // Reset errors
@@ -75,49 +66,13 @@ const BillingActionBar = ({
     }
   };
 
-  const handleEditInvoice = () => {
-    // Reset errors
-    setEditErrors({});
-    const validationResult = schemas.createBillingSchema.safeParse(editInvoiceData);
-    if (!validationResult.success) {
-      validationResult.error.issues.forEach((issue) => {
-        setEditErrors((prev) => ({ ...prev, [issue.path.join(".")]: issue.message }));
-      });
-      return;
-    } else {
-      // Call the parent handler with the invoice data
-      if (onEditInvoice) {
-        onEditInvoice(editInvoiceData);
-      }
-
-      // Reset form and close dialog
-      setEditInvoiceData({ ...DEFAULT_INVOICE });
-      setIsEditInvoiceOpen(false);
-    }
-  };
-
-  // Handle edit invoice prop changes
-  useEffect(() => {
-    if (editInvoice) {
-      setEditInvoiceData({ ...editInvoice });
-      setIsEditInvoiceOpen(true);
-    }
-  }, [editInvoice]);
-
   useEffect(() => {
     // Reset form and errors when dialog is closed
     if (!isCreateInvoiceOpen) {
       setNewInvoice({ ...DEFAULT_INVOICE });
       setErrors({});
     }
-    if (!isEditInvoiceOpen) {
-      setEditInvoiceData({ ...DEFAULT_INVOICE });
-      setEditErrors({});
-      if (onCancelEdit) {
-        onCancelEdit();
-      }
-    }
-  }, [isCreateInvoiceOpen, isEditInvoiceOpen, onCancelEdit]);
+  }, [isCreateInvoiceOpen]);
 
   return (
     <div className="billing-action-bar flex flex-col sm:flex-row gap-4 mb-6">
@@ -162,17 +117,6 @@ const BillingActionBar = ({
         onSubmit={handleCreateInvoice}
         errors={errors}
         isEditMode={false}
-      />
-
-      {/* Edit Billing Dialog */}
-      <BillingDialog
-        isOpen={isEditInvoiceOpen}
-        onOpenChange={setIsEditInvoiceOpen}
-        invoice={editInvoiceData}
-        onInvoiceChange={setEditInvoiceData}
-        onSubmit={handleEditInvoice}
-        errors={editErrors}
-        isEditMode={true}
       />
     </div>
   );

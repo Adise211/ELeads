@@ -27,7 +27,6 @@ const BillingPage = () => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [billingToDelete, setBillingToDelete] = useState<string | null>(null);
-  const [editingBilling, setEditingBilling] = useState<types.BillingDTO | null>(null);
 
   useEffect(() => {
     setBillings(workspaceBillings);
@@ -85,9 +84,6 @@ const BillingPage = () => {
           billing.id === updatedBilling.id ? updatedBilling : billing
         );
         setWorkspaceBillings(updatedBillings);
-
-        // Clear the editing state
-        setEditingBilling(null);
       } else {
         showErrorToast("Failed to update invoice. Please try again.");
       }
@@ -132,14 +128,6 @@ const BillingPage = () => {
     if (billingToDelete) {
       handleDeleteInvoice(billingToDelete);
     }
-  };
-
-  const handleEditBilling = (billing: types.BillingDTO) => {
-    setEditingBilling(billing);
-  };
-
-  const handleCancelEdit = () => {
-    setEditingBilling(null);
   };
 
   const totalBilled = filteredBillings.reduce(
@@ -207,9 +195,6 @@ const BillingPage = () => {
           setStatusFilter={setStatusFilter}
           onCreateInvoice={handleCreateInvoice}
           isCreating={isCreating}
-          editInvoice={editingBilling}
-          onEditInvoice={handleUpdateInvoice}
-          onCancelEdit={handleCancelEdit}
         />
 
         {/* Billing Table Component */}
@@ -224,7 +209,7 @@ const BillingPage = () => {
             setItemsPerPage(newPageSize);
             setCurrentPage(1); // Reset to first page when changing page size
           }}
-          onEditBilling={handleEditBilling}
+          onEditInvoice={handleUpdateInvoice}
           onDeleteBilling={handleDeleteClick}
         />
 

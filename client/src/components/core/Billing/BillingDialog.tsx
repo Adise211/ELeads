@@ -66,6 +66,12 @@ const BillingDialog = ({
     );
   }, [clients, clientSearchTerm]);
 
+  // Find the selected client for display
+  const selectedClient = useMemo(() => {
+    if (!invoice.clientId) return null;
+    return clients.find((client) => client.id === invoice.clientId);
+  }, [clients, invoice.clientId]);
+
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
     setUploadedFiles((prev) => [...prev, ...files]);
@@ -119,9 +125,18 @@ const BillingDialog = ({
               }}
             >
               <SelectTrigger
-                className={`h-11 w-full ${errors.clientId ? "!border-red-500 focus:!border-red-500 focus:!ring-red-500" : ""}`}
+                className={`!h-14 w-full py-2 ${errors.clientId ? "!border-red-500 focus:!border-red-500 focus:!ring-red-500" : ""}`}
               >
-                <SelectValue placeholder="Choose a client from your workspace" />
+                <SelectValue placeholder="Choose a client from your workspace">
+                  {selectedClient ? (
+                    <div className="flex flex-col">
+                      <span className="font-medium">{selectedClient.company}</span>
+                      <span className="text-sm text-gray-500">{selectedClient.name}</span>
+                    </div>
+                  ) : (
+                    "Choose a client from your workspace"
+                  )}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {/* Search Input */}
@@ -176,7 +191,7 @@ const BillingDialog = ({
                   id="billedAmount"
                   type="number"
                   step="0.01"
-                  value={invoice.billedAmount}
+                  value={invoice.billedAmount || 0}
                   onChange={(e) =>
                     onInvoiceChange({ ...invoice, billedAmount: parseFloat(e.target.value) || 0 })
                   }
@@ -196,7 +211,7 @@ const BillingDialog = ({
                   id="userCommission"
                   type="number"
                   step="0.1"
-                  value={invoice.userCommission}
+                  value={invoice.userCommission || 0}
                   onChange={(e) =>
                     onInvoiceChange({
                       ...invoice,
@@ -223,7 +238,7 @@ const BillingDialog = ({
                 Billing Cycle
               </Label>
               <Select
-                value={invoice.billingCycle}
+                value={invoice.billingCycle || "one-time"}
                 onValueChange={(value) => onInvoiceChange({ ...invoice, billingCycle: value })}
               >
                 <SelectTrigger className="h-11 w-full">
@@ -244,7 +259,7 @@ const BillingDialog = ({
                 Payment Terms
               </Label>
               <Select
-                value={invoice.paymentTerms}
+                value={invoice.paymentTerms || "net 30"}
                 onValueChange={(value) => onInvoiceChange({ ...invoice, paymentTerms: value })}
               >
                 <SelectTrigger className="h-11 w-full">
@@ -271,7 +286,7 @@ const BillingDialog = ({
               <Input
                 id="billingDate"
                 type="date"
-                value={invoice.billingDate}
+                value={invoice.billingDate || ""}
                 onChange={(e) => onInvoiceChange({ ...invoice, billingDate: e.target.value })}
                 error={errors.billingDate}
                 className="h-11 w-full"
@@ -285,7 +300,7 @@ const BillingDialog = ({
               <Input
                 id="billingDueDate"
                 type="date"
-                value={invoice.billingDueDate}
+                value={invoice.billingDueDate || ""}
                 onChange={(e) => onInvoiceChange({ ...invoice, billingDueDate: e.target.value })}
                 error={errors.billingDueDate}
                 className="h-11 w-full"
@@ -300,7 +315,7 @@ const BillingDialog = ({
             </Label>
             <Textarea
               id="billingNotes"
-              value={invoice.billingNotes}
+              value={invoice.billingNotes || ""}
               onChange={(e) => onInvoiceChange({ ...invoice, billingNotes: e.target.value })}
               placeholder="Add any additional notes, terms, or special instructions for this invoice..."
               className="min-h-[120px] resize-none w-full"

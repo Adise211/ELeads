@@ -2,9 +2,10 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { AppTable, type TableColumn, type TablePaginationProps } from "@/components/ui/app-table";
 import { FileText, Calendar, Receipt, Search, Edit, Trash2 } from "lucide-react";
-import { types } from "@eleads/shared";
+import { types, schemas } from "@eleads/shared";
 import ProtectedUI from "@/components/providers/ProtectedUI";
 import BillingDetailsDialog from "./BillingDetailsDialog";
+import BillingDialog from "./BillingDialog";
 import { useState } from "react";
 
 const statusColors = {
@@ -24,6 +25,39 @@ const formatPercentage = (percentage: number) => {
   return `${percentage}%`;
 };
 
+const DEFAULT_INVOICE: types.BillingDTO = {
+  clientId: "",
+  billedAmount: 0,
+  currency: "USD",
+  billingCycle: "one-time",
+  paymentTerms: "net 30",
+  userCommission: 15,
+  billingStatus: types.BillingStatus.PENDING,
+  billingDate: new Date().toISOString().split("T")[0],
+  billingDueDate: "",
+  billingNotes: "",
+  billingAttachments: [],
+};
+
+// Function to normalize invoice data to ensure all fields have proper values
+const normalizeInvoiceData = (invoice: types.BillingDTO): types.BillingDTO => {
+  return {
+    ...DEFAULT_INVOICE,
+    ...invoice,
+    clientId: invoice.clientId || "",
+    billedAmount: invoice.billedAmount || 0,
+    currency: invoice.currency || "USD",
+    billingCycle: invoice.billingCycle || "one-time",
+    paymentTerms: invoice.paymentTerms || "net 30",
+    userCommission: invoice.userCommission || 15,
+    billingStatus: invoice.billingStatus || types.BillingStatus.PENDING,
+    billingDate: invoice.billingDate.split("T")[0] || new Date().toISOString().split("T")[0],
+    billingDueDate: invoice.billingDueDate.split("T")[0] || "",
+    billingNotes: invoice.billingNotes || "",
+    billingAttachments: invoice.billingAttachments || [],
+  };
+};
+
 interface BillingTableProps {
   billings: types.BillingDTO[];
   searchTerm: string;
@@ -32,7 +66,7 @@ interface BillingTableProps {
   itemsPerPage: number;
   onPageChange: (page: number) => void;
   onPageSizeChange: (pageSize: number) => void;
-  onEditBilling?: (billing: types.BillingDTO) => void;
+  onEditInvoice?: (billingData: types.BillingDTO) => void;
   onDeleteBilling?: (billingId: string) => void;
 }
 
@@ -49,11 +83,14 @@ const BillingTable = ({
   itemsPerPage,
   onPageChange,
   onPageSizeChange,
-  onEditBilling,
+  onEditInvoice,
   onDeleteBilling,
 }: BillingTableProps) => {
   const [selectedBilling, setSelectedBilling] = useState<types.BillingDTO | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editInvoiceData, setEditInvoiceData] = useState<types.BillingDTO>({ ...DEFAULT_INVOICE });
+  const [editErrors, setEditErrors] = useState<Record<string, string>>({});
 
   const handleViewBilling = (billing: types.BillingDTO) => {
     setSelectedBilling(billing);
@@ -63,6 +100,38 @@ const BillingTable = ({
   const handleCloseDialog = () => {
     setIsDialogOpen(false);
     setSelectedBilling(null);
+  };
+
+  const handleEditBilling = (billing: types.BillingDTO) => {
+    const normalizedData = normalizeInvoiceData(billing);
+    setEditInvoiceData(normalizedData);
+    setIsEditDialogOpen(true);
+  };
+
+  const handleEditInvoice = () => {
+    // Reset errors
+    setEditErrors({});
+    const validationResult = schemas.updateBillingSchema.safeParse(editInvoiceData);
+    if (!validationResult.success) {
+      validationResult.error.issues.forEach((issue) => {
+        setEditErrors((prev) => ({ ...prev, [issue.path.join(".")]: issue.message }));
+      });
+      return;
+    } else {
+      // Call the parent handler with the invoice data
+      if (onEditInvoice) {
+        onEditInvoice(editInvoiceData);
+      }
+      // Close dialog and reset state
+      setIsEditDialogOpen(false);
+      setEditInvoiceData({ ...DEFAULT_INVOICE });
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditDialogOpen(false);
+    setEditInvoiceData({ ...DEFAULT_INVOICE });
+    setEditErrors({});
   };
 
   // Get billing history for the selected billing (filter by clientId and billingCycle)
@@ -221,11 +290,9 @@ const BillingTable = ({
             allowedPermissions={[types.Permission.EDIT_BILLING, types.Permission.MANAGE_BILLING]}
             allowedRoles={[types.UserRole.ADMIN]}
           >
-            {onEditBilling && (
-              <Button variant="outline" size="sm" onClick={() => onEditBilling(record)}>
-                <Edit className="h-4 w-4" />
-              </Button>
-            )}
+            <Button variant="outline" size="sm" onClick={() => handleEditBilling(record)}>
+              <Edit className="h-4 w-4" />
+            </Button>
           </ProtectedUI>
           <ProtectedUI
             allowedPermissions={[types.Permission.DELETE_BILLING, types.Permission.MANAGE_BILLING]}
@@ -265,6 +332,23 @@ const BillingTable = ({
           billingHistory={getBillingHistory(selectedBilling)}
         />
       )}
+
+      {/* Edit Billing Dialog */}
+      <BillingDialog
+        isOpen={isEditDialogOpen}
+        onOpenChange={(open) => {
+          if (!open) {
+            handleCancelEdit();
+          } else {
+            setIsEditDialogOpen(open);
+          }
+        }}
+        invoice={editInvoiceData}
+        onInvoiceChange={setEditInvoiceData}
+        onSubmit={handleEditInvoice}
+        errors={editErrors}
+        isEditMode={true}
+      />
     </>
   );
 };
