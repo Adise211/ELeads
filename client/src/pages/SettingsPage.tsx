@@ -96,22 +96,11 @@ const TestPage = () => {
   // };
 
   return (
-    <div className="min-h-screen bg-gradient-subtle p-6">
-      <div className="max-w-4xl mx-auto space-y-6">
-        {/* Header */}
-        {/* <div className="flex items-center gap-3 mb-8">
-          <div className="p-2 bg-gradient-primary rounded-lg shadow-glow">
-            <SettingsIcon className="h-6 w-6 text-primary-foreground" />
-          </div>
-          <div>
-            <h1 className="text-3xl font-bold text-foreground">Settings</h1>
-            <p className="text-muted-foreground">Manage your account and workspace preferences</p>
-          </div>
-        </div> */}
-
+    <div className="max-h-screen h-[calc(100vh-28px)] bg-gradient-subtle p-6">
+      <div className="max-w-7xl h-full mx-auto space-y-6">
         {/* Upper Card - Current User Info */}
-        <Card className="shadow-elegant border-border/50">
-          <CardContent className="p-6">
+        <Card className="shadow-elegant border-border/50 h-[25%]">
+          <CardContent className="p-6 h-full">
             <div className="flex items-center gap-6">
               <div className="relative">
                 <Avatar className="h-20 w-20 border-4 border-primary/20">
@@ -163,7 +152,7 @@ const TestPage = () => {
         </Card>
 
         {/* Lower Card - Tabbed Settings */}
-        <Card className="shadow-elegant border-border/50 overflow-hidden h-[520px]">
+        <Card className="shadow-elegant border-border/50 overflow-hidden h-[72%]">
           <Tabs defaultValue="account" className="w-full h-full">
             <div className="px-6 pt-6">
               <TabsList className="grid w-full grid-cols-4 bg-muted/50">
@@ -189,7 +178,7 @@ const TestPage = () => {
             {/* Account Tab */}
             <TabsContent
               value="account"
-              className="px-6 pb-6 space-y-6 h-[calc(600px-120px)] overflow-y-auto"
+              className="px-6 pb-6 space-y-6 h-[calc(100%-120px)] overflow-y-auto"
             >
               <AccountTab
                 user={user as types.UserDTO}
@@ -202,7 +191,7 @@ const TestPage = () => {
             {/* Permissions Tab */}
             <TabsContent
               value="permissions"
-              className="px-6 pb-6 space-y-6 h-[calc(600px-120px)] overflow-y-auto"
+              className="px-6 pb-6 space-y-6 h-[calc(100%-120px)] overflow-y-auto"
             >
               <PermissionsTab workspaceUsers={mockWorkspaceUsers} />
             </TabsContent>
@@ -210,7 +199,7 @@ const TestPage = () => {
             {/* Notifications Tab */}
             <TabsContent
               value="notifications"
-              className="px-6 pb-6 space-y-6 h-[calc(600px-120px)] overflow-y-auto"
+              className="px-6 pb-6 space-y-6 h-[calc(100%-120px)] overflow-y-auto"
             >
               <NotificationsTab />
             </TabsContent>
@@ -218,7 +207,7 @@ const TestPage = () => {
             {/* Preference Tab */}
             <TabsContent
               value="preference"
-              className="px-6 pb-6 space-y-6 h-[calc(600px-120px)] overflow-y-auto"
+              className="px-6 pb-6 space-y-6 h-[calc(100%-120px)] overflow-y-auto"
             >
               <PreferenceTab />
             </TabsContent>

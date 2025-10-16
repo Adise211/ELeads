@@ -1,4 +1,4 @@
-import { Bell, ChevronsUpDown, LogOut, Sparkles, User } from "lucide-react";
+import { Bell, ChevronsUpDown, LogOut, User } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -18,6 +18,8 @@ import {
 import { authService } from "@/services";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/stores/authStore";
+import { SoonBadge } from "../featureBadges";
+import { useGeneralStore } from "@/stores/generalStore";
 
 export function NavUser({
   user,
@@ -31,6 +33,7 @@ export function NavUser({
   const { isMobile } = useSidebar();
   const navigate = useNavigate();
   const clearUser = useAuthStore((state) => state.clearUser);
+  const soonFeatures = useGeneralStore((state) => state.soonFeatures);
 
   const logoutUser = () => {
     authService
@@ -83,21 +86,22 @@ export function NavUser({
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <DropdownMenuItem>
+            {/* <DropdownMenuGroup>
+              <DropdownMenuItem >
                 <Sparkles />
                 Upgrade to Pro
               </DropdownMenuItem>
             </DropdownMenuGroup>
-            <DropdownMenuSeparator />
+            <DropdownMenuSeparator /> */}
             <DropdownMenuGroup>
               <DropdownMenuItem>
                 <User />
                 Account
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem disabled={soonFeatures.notifications}>
                 <Bell />
                 Notifications
+                {soonFeatures.notifications && <SoonBadge />}
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
