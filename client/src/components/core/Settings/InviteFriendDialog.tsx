@@ -7,6 +7,8 @@ import AppDialog from "@/components/core/AppDialog";
 import AppSelect from "@/components/core/AppSelect";
 import { Mail, X } from "lucide-react";
 import { useState } from "react";
+import { consts } from "@eleads/shared";
+import { formatPermissionDisplay } from "@/utils/utilFunc";
 
 interface InviteFriendDialogProps {
   open: boolean;
@@ -44,24 +46,24 @@ const InviteFriendDialog = ({ open, onOpenChange, onInvite }: InviteFriendDialog
     setInvitePermissions(invitePermissions.filter((p) => p !== permissionToRemove));
   };
 
-  const roleOptions = [
-    { value: "USER", label: "User" },
-    { value: "MANAGER", label: "Manager" },
-    { value: "ADMIN", label: "Admin" },
-  ];
+  const roleOptions = Object.entries(consts.roleOptions).map(([key, value]) => ({
+    value: value,
+    label: key.charAt(0) + key.slice(1).toLowerCase(),
+  }));
 
-  const permissionOptions = [
-    { value: "read:users", label: "Read Users" },
-    { value: "write:users", label: "Write Users" },
-    { value: "admin:workspace", label: "Admin Workspace" },
-    { value: "read:leads", label: "Read Leads" },
-    { value: "write:leads", label: "Write Leads" },
-  ];
+  const permissionOptions = Object.entries(consts.permissionsOptions).map(([key, value]) => ({
+    value: value,
+    label: key
+      .replace(/_/g, " ")
+      .toLowerCase()
+      .replace(/\b\w/g, (l) => l.toUpperCase()),
+    disabled: value === consts.permissionsOptions.MANAGE_OWN_LEADS,
+  }));
 
   const getPermissionOptions = (currentPermissions: string[]) => {
     return permissionOptions.map((option) => ({
       ...option,
-      disabled: currentPermissions.includes(option.value),
+      disabled: option.disabled || currentPermissions.includes(option.value),
     }));
   };
 
@@ -114,7 +116,7 @@ const InviteFriendDialog = ({ open, onOpenChange, onInvite }: InviteFriendDialog
             {invitePermissions.map((permission) => (
               <div key={permission} className="flex items-center gap-1">
                 <Badge variant="outline" className="text-xs">
-                  {permission}
+                  {formatPermissionDisplay(permission)}
                 </Badge>
                 <ButtonIcon
                   onClick={() => handleRemoveInvitePermission(permission)}
