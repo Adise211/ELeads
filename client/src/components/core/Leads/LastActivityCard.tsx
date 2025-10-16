@@ -1,12 +1,22 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { types } from "@eleads/shared";
+import { useWorkspaceStore } from "@/stores/workspaceStore";
+import { useUserDataStore } from "@/stores/userDataStore";
 
 interface LastActivityCardProps {
-  leads: types.LeadDTO[];
+  isPersonalView: boolean;
 }
 
-const LastActivityCard = ({ leads }: LastActivityCardProps) => {
-  // Get all activities from all leads and sort by date (newest first)
+const LastActivityCard = ({ isPersonalView }: LastActivityCardProps) => {
+  // Workspace data
+  const workspaceLeads = useWorkspaceStore((state) => state.workspaceLeads);
+
+  // User personal data
+  const userLeads = useUserDataStore((state) => state.userLeads);
+
+  // Use appropriate data based on view
+  const leads = isPersonalView ? userLeads : workspaceLeads;
+
+  // Get all activities from leads and sort by date (newest first)
   const activities = leads
     .flatMap(
       (lead) =>
@@ -26,8 +36,12 @@ const LastActivityCard = ({ leads }: LastActivityCardProps) => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Recent Activities</CardTitle>
-        <CardDescription>Latest lead interactions across your team</CardDescription>
+        <CardTitle>{isPersonalView ? "Your Recent Activities" : "Recent Activities"}</CardTitle>
+        <CardDescription>
+          {isPersonalView
+            ? "Latest interactions with your assigned leads"
+            : "Latest lead interactions across your team"}
+        </CardDescription>
       </CardHeader>
       <CardContent>
         {activities.length > 0 ? (
@@ -70,7 +84,9 @@ const LastActivityCard = ({ leads }: LastActivityCardProps) => {
             </div>
             <p className="text-sm font-medium text-muted-foreground mb-1">No recent activities</p>
             <p className="text-xs text-muted-foreground">
-              Activities will appear here when you interact with leads
+              {isPersonalView
+                ? "Activities with your assigned leads will appear here"
+                : "Activities will appear here when you interact with leads"}
             </p>
           </div>
         )}

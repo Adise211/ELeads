@@ -1,10 +1,11 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { types } from "@eleads/shared";
 import { Users, Building2, Mail, Phone, MapPin } from "lucide-react";
+import { useWorkspaceStore } from "@/stores/workspaceStore";
+import { useUserDataStore } from "@/stores/userDataStore";
 
 interface NewestClientsCardProps {
-  clients: types.ClientDTO[];
+  isPersonalView: boolean;
 }
 
 const statusColors = {
@@ -13,7 +14,16 @@ const statusColors = {
   PROSPECT: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300",
 };
 
-const NewestClientsCard = ({ clients }: NewestClientsCardProps) => {
+const NewestClientsCard = ({ isPersonalView }: NewestClientsCardProps) => {
+  // Workspace data
+  const workspaceClients = useWorkspaceStore((state) => state.workspaceClients);
+
+  // User personal data
+  const userClients = useUserDataStore((state) => state.userClients);
+
+  // Use appropriate data based on view
+  const clients = isPersonalView ? userClients : workspaceClients;
+
   // Sort clients by createdAt date (newest first) and take the first 5
   const newestClients = clients
     .filter((client) => client.createdAt) // Only include clients with creation date
@@ -26,8 +36,12 @@ const NewestClientsCard = ({ clients }: NewestClientsCardProps) => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Newest Clients</CardTitle>
-        <CardDescription>Recently added clients to your workspace</CardDescription>
+        <CardTitle>{isPersonalView ? "Your Newest Clients" : "Newest Clients"}</CardTitle>
+        <CardDescription>
+          {isPersonalView
+            ? "Recently added clients assigned to you"
+            : "Recently added clients to your workspace"}
+        </CardDescription>
       </CardHeader>
       <CardContent>
         {newestClients.length > 0 ? (
@@ -100,7 +114,9 @@ const NewestClientsCard = ({ clients }: NewestClientsCardProps) => {
             </div>
             <p className="text-sm font-medium text-muted-foreground mb-1">No clients yet</p>
             <p className="text-xs text-muted-foreground">
-              New clients will appear here when they are added to your workspace
+              {isPersonalView
+                ? "New clients assigned to you will appear here"
+                : "New clients will appear here when they are added to your workspace"}
             </p>
           </div>
         )}
