@@ -175,8 +175,8 @@ const BillingDialog = ({
             {errors.clientId && <p className="text-sm text-red-500 mt-1">{errors.clientId}</p>}
           </div>
 
-          {/* Row 2: Financial Details - Two Columns */}
-          <div className="grid grid-cols-2 gap-4">
+          {/* Row 2: Financial Details - Three Columns */}
+          <div className="flex gap-4 justify-between">
             <div className="space-y-2">
               <Label htmlFor="billedAmount" className="text-sm font-medium text-gray-700">
                 Invoice Amount *
@@ -200,6 +200,30 @@ const BillingDialog = ({
                   className="flex-1 h-11"
                 />
               </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="billingStatus" className="text-sm font-medium text-gray-700">
+                Billing Status
+              </Label>
+              <Select
+                value={invoice.billingStatus || types.BillingStatus.PENDING}
+                onValueChange={(value) =>
+                  onInvoiceChange({ ...invoice, billingStatus: value as types.BillingStatus })
+                }
+              >
+                <SelectTrigger className="!h-11 w-60">
+                  <SelectValue placeholder="Select billing status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="PENDING">Pending</SelectItem>
+                  <SelectItem value="PAID">Paid</SelectItem>
+                  <SelectItem value="OVERDUE">Overdue</SelectItem>
+                </SelectContent>
+              </Select>
+              {errors.billingStatus && (
+                <p className="text-sm text-red-500 mt-1">{errors.billingStatus}</p>
+              )}
             </div>
 
             <div className="space-y-2">
