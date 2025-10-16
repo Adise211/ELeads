@@ -22,7 +22,7 @@ import { useAuthStore } from "@/stores/authStore";
 import ProtectedUI from "@/components/providers/ProtectedUI";
 import { formatPermissionDisplay } from "@/utils/utilFunc";
 
-interface WorkspaceUser {
+export interface WorkspaceUser {
   id: string;
   email: string;
   firstName: string;
@@ -33,10 +33,10 @@ interface WorkspaceUser {
 }
 
 interface PermissionsTabProps {
-  workspaceUsers: WorkspaceUser[];
+  settingsWorkspaceUsers: WorkspaceUser[];
 }
 
-const PermissionsTab = ({ workspaceUsers }: PermissionsTabProps) => {
+const PermissionsTab = ({ settingsWorkspaceUsers }: PermissionsTabProps) => {
   const [editingUser, setEditingUser] = useState<WorkspaceUser | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedRole, setSelectedRole] = useState<string>("");
@@ -47,7 +47,7 @@ const PermissionsTab = ({ workspaceUsers }: PermissionsTabProps) => {
   const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
 
   const handleEditUser = (userId: string) => {
-    const user = workspaceUsers.find((u) => u.id === userId);
+    const user = settingsWorkspaceUsers.find((u) => u.id === userId);
     if (user) {
       setEditingUser(user);
       setSelectedRole(user.role);
@@ -163,7 +163,7 @@ const PermissionsTab = ({ workspaceUsers }: PermissionsTabProps) => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {workspaceUsers.map((workspaceUser) => (
+            {settingsWorkspaceUsers.map((workspaceUser) => (
               <TableRow key={workspaceUser.id}>
                 <TableCell>
                   <div className="flex items-center gap-3">
