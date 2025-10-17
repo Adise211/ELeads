@@ -3,10 +3,12 @@ import { ButtonIcon } from "@/components/ui/button-icon";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import AppDialog from "@/components/core/AppDialog";
-import { Mail, Phone, Lock, Save, Edit, Check } from "lucide-react";
-import { showSuccessToast } from "@/utils/toast";
+import { Mail, Phone, Lock, Save, Edit, Check, X } from "lucide-react";
+import { showSuccessToast, showErrorToast } from "@/utils/toast";
 import { types } from "@eleads/shared";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { authService } from "@/services/api/auth.service";
+import { formatToTitleCase } from "@/utils/utilFunc";
 
 interface AccountTabProps {
   user: types.UserDTO;
@@ -18,31 +20,169 @@ interface AccountTabProps {
 const AccountTab = ({ user, setUser, isLoading, setIsLoading }: AccountTabProps) => {
   const [editingFields, setEditingFields] = useState<Record<string, boolean>>({});
   const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
+  const [passwordForm, setPasswordForm] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
+  const [originalValues, setOriginalValues] = useState<Record<string, string>>({
+    firstName: user.firstName,
+    lastName: user.lastName,
+    email: user.email,
+    phone: user.phone || "",
+  });
+  const [tempValues, setTempValues] = useState<Record<string, string>>({
+    firstName: user.firstName,
+    lastName: user.lastName,
+    email: user.email,
+    phone: user.phone || "",
+  });
+
+  // Sync tempValues with user prop when user changes
+  useEffect(() => {
+    setTempValues({
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      phone: user.phone || "",
+    });
+    setOriginalValues({
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      phone: user.phone || "",
+    });
+  }, [user]);
 
   const toggleFieldEdit = (fieldName: string) => {
+    if (!editingFields[fieldName]) {
+      // Starting to edit - store the current value as original
+      setOriginalValues((prev) => ({
+        ...prev,
+        [fieldName]: String(user[fieldName as keyof typeof user] || ""),
+      }));
+    }
     setEditingFields((prev) => ({
       ...prev,
       [fieldName]: !prev[fieldName],
     }));
   };
 
-  const handleFieldSave = (fieldName: string) => {
-    // Here you would typically save the field to the backend
+  const handleFieldSave = async (fieldName: string) => {
+    try {
+      setIsLoading(true);
+
+      // Prepare the user data for the API call using current temp values
+      const userData = {
+        firstName: tempValues.firstName,
+        lastName: tempValues.lastName,
+        email: tempValues.email,
+        phone: tempValues.phone || undefined,
+      };
+
+      const response = await authService.updateUserInfo(userData);
+
+      if (response.success && response.data) {
+        // Update the store only after successful API response
+        setUser(response.data as types.UserDTO);
+
+        // Update original values to current values
+        setOriginalValues((prev) => ({
+          ...prev,
+          [fieldName]: tempValues[fieldName],
+        }));
+
+        setEditingFields((prev) => ({
+          ...prev,
+          [fieldName]: false,
+        }));
+        showSuccessToast(`${formatToTitleCase(fieldName)} has been updated.`);
+      }
+    } catch (error: unknown) {
+      console.error("Update user info error:", error);
+
+      // Revert the temp values to original values on error
+      setTempValues((prev) => ({
+        ...prev,
+        [fieldName]: originalValues[fieldName],
+      }));
+
+      const errorMessage =
+        (error as { response?: { data?: { message?: string } } })?.response?.data?.message ||
+        "Failed to update user information. Please try again.";
+      showErrorToast(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleFieldCancel = (fieldName: string) => {
+    // Restore the temp value to original value
+    setTempValues((prev) => ({
+      ...prev,
+      [fieldName]: originalValues[fieldName],
+    }));
     setEditingFields((prev) => ({
       ...prev,
       [fieldName]: false,
     }));
-    showSuccessToast(`${fieldName} has been updated.`);
+  };
+
+  const resetPasswordForm = () => {
+    setPasswordForm({
+      currentPassword: "",
+      newPassword: "",
+      confirmPassword: "",
+    });
   };
 
   const handlePasswordChange = async () => {
-    setIsLoading(true);
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false);
+    // Validation
+    if (
+      !passwordForm.currentPassword ||
+      !passwordForm.newPassword ||
+      !passwordForm.confirmPassword
+    ) {
+      showErrorToast("Please fill in all password fields.");
+      return;
+    }
+
+    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+      showErrorToast("New password and confirm password do not match.");
+      return;
+    }
+
+    if (passwordForm.newPassword.length < 8) {
+      showErrorToast("New password must be at least 8 characters long.");
+      return;
+    }
+
+    if (passwordForm.currentPassword === passwordForm.newPassword) {
+      showErrorToast("New password must be different from current password.");
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      await authService.changePassword(passwordForm.currentPassword, passwordForm.newPassword);
+
+      // Reset form and close dialog
+      setPasswordForm({
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      });
       setIsPasswordDialogOpen(false);
       showSuccessToast("Your password has been successfully changed.");
-    }, 1000);
+    } catch (error: unknown) {
+      console.error("Password change error:", error);
+      const errorMessage =
+        (error as { response?: { data?: { message?: string } } })?.response?.data?.message ||
+        "Failed to change password. Please try again.";
+      showErrorToast(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -54,26 +194,34 @@ const AccountTab = ({ user, setUser, isLoading, setIsLoading }: AccountTabProps)
           <div className="relative">
             <Input
               id="firstName"
-              value={user.firstName}
-              onChange={(e) => setUser({ ...user, firstName: e.target.value })}
+              value={tempValues.firstName}
+              onChange={(e) => setTempValues((prev) => ({ ...prev, firstName: e.target.value }))}
               className="transition-smooth focus:shadow-glow pr-10"
               disabled={!editingFields.firstName}
             />
-            <ButtonIcon
-              onClick={() =>
-                editingFields.firstName
-                  ? handleFieldSave("firstName")
-                  : toggleFieldEdit("firstName")
-              }
-              icon={
-                editingFields.firstName ? (
-                  <Check className="h-4 w-4" />
-                ) : (
-                  <Edit className="h-4 w-4" />
-                )
-              }
-              className="absolute top-1/2 right-3 transform -translate-y-1/2 h-6 w-6 text-muted-foreground hover:text-foreground transition-colors"
-            />
+            <div className="absolute top-1/2 right-3 transform -translate-y-1/2 flex items-center gap-1">
+              {editingFields.firstName ? (
+                <>
+                  <ButtonIcon
+                    onClick={() => handleFieldSave("firstName")}
+                    icon={<Check className="h-4 w-4" />}
+                    className="h-6 w-6 text-green-600 hover:text-green-700 transition-colors"
+                    disabled={isLoading}
+                  />
+                  <ButtonIcon
+                    onClick={() => handleFieldCancel("firstName")}
+                    icon={<X className="h-4 w-4" />}
+                    className="h-6 w-6 text-red-600 hover:text-red-700 transition-colors"
+                  />
+                </>
+              ) : (
+                <ButtonIcon
+                  onClick={() => toggleFieldEdit("firstName")}
+                  icon={<Edit className="h-4 w-4" />}
+                  className="h-6 w-6 text-muted-foreground hover:text-foreground transition-colors"
+                />
+              )}
+            </div>
           </div>
         </div>
         <div className="space-y-2">
@@ -81,24 +229,34 @@ const AccountTab = ({ user, setUser, isLoading, setIsLoading }: AccountTabProps)
           <div className="relative">
             <Input
               id="lastName"
-              value={user.lastName}
-              onChange={(e) => setUser({ ...user, lastName: e.target.value })}
+              value={tempValues.lastName}
+              onChange={(e) => setTempValues((prev) => ({ ...prev, lastName: e.target.value }))}
               className="transition-smooth focus:shadow-glow pr-10"
               disabled={!editingFields.lastName}
             />
-            <ButtonIcon
-              onClick={() =>
-                editingFields.lastName ? handleFieldSave("lastName") : toggleFieldEdit("lastName")
-              }
-              icon={
-                editingFields.lastName ? (
-                  <Check className="h-4 w-4" />
-                ) : (
-                  <Edit className="h-4 w-4" />
-                )
-              }
-              className="absolute top-1/2 right-3 transform -translate-y-1/2 h-6 w-6 text-muted-foreground hover:text-foreground transition-colors"
-            />
+            <div className="absolute top-1/2 right-3 transform -translate-y-1/2 flex items-center gap-1">
+              {editingFields.lastName ? (
+                <>
+                  <ButtonIcon
+                    onClick={() => handleFieldSave("lastName")}
+                    icon={<Check className="h-4 w-4" />}
+                    className="h-6 w-6 text-green-600 hover:text-green-700 transition-colors"
+                    disabled={isLoading}
+                  />
+                  <ButtonIcon
+                    onClick={() => handleFieldCancel("lastName")}
+                    icon={<X className="h-4 w-4" />}
+                    className="h-6 w-6 text-red-600 hover:text-red-700 transition-colors"
+                  />
+                </>
+              ) : (
+                <ButtonIcon
+                  onClick={() => toggleFieldEdit("lastName")}
+                  icon={<Edit className="h-4 w-4" />}
+                  className="h-6 w-6 text-muted-foreground hover:text-foreground transition-colors"
+                />
+              )}
+            </div>
           </div>
         </div>
         <div className="space-y-2">
@@ -110,20 +268,34 @@ const AccountTab = ({ user, setUser, isLoading, setIsLoading }: AccountTabProps)
             <Input
               id="email"
               type="email"
-              value={user.email}
-              onChange={(e) => setUser({ ...user, email: e.target.value })}
+              value={tempValues.email}
+              onChange={(e) => setTempValues((prev) => ({ ...prev, email: e.target.value }))}
               className="transition-smooth focus:shadow-glow pr-10"
               disabled={!editingFields.email}
             />
-            <ButtonIcon
-              onClick={() =>
-                editingFields.email ? handleFieldSave("email") : toggleFieldEdit("email")
-              }
-              icon={
-                editingFields.email ? <Check className="h-4 w-4" /> : <Edit className="h-4 w-4" />
-              }
-              className="absolute top-1/2 right-3 transform -translate-y-1/2 h-6 w-6 text-muted-foreground hover:text-foreground transition-colors"
-            />
+            <div className="absolute top-1/2 right-3 transform -translate-y-1/2 flex items-center gap-1">
+              {editingFields.email ? (
+                <>
+                  <ButtonIcon
+                    onClick={() => handleFieldSave("email")}
+                    icon={<Check className="h-4 w-4" />}
+                    className="h-6 w-6 text-green-600 hover:text-green-700 transition-colors"
+                    disabled={isLoading}
+                  />
+                  <ButtonIcon
+                    onClick={() => handleFieldCancel("email")}
+                    icon={<X className="h-4 w-4" />}
+                    className="h-6 w-6 text-red-600 hover:text-red-700 transition-colors"
+                  />
+                </>
+              ) : (
+                <ButtonIcon
+                  onClick={() => toggleFieldEdit("email")}
+                  icon={<Edit className="h-4 w-4" />}
+                  className="h-6 w-6 text-muted-foreground hover:text-foreground transition-colors"
+                />
+              )}
+            </div>
           </div>
         </div>
         <div className="space-y-2">
@@ -134,20 +306,34 @@ const AccountTab = ({ user, setUser, isLoading, setIsLoading }: AccountTabProps)
           <div className="relative">
             <Input
               id="phone"
-              value={user.phone || ""}
-              onChange={(e) => setUser({ ...user, phone: e.target.value })}
+              value={tempValues.phone}
+              onChange={(e) => setTempValues((prev) => ({ ...prev, phone: e.target.value }))}
               className="transition-smooth focus:shadow-glow pr-10"
               disabled={!editingFields.phone}
             />
-            <ButtonIcon
-              onClick={() =>
-                editingFields.phone ? handleFieldSave("phone") : toggleFieldEdit("phone")
-              }
-              icon={
-                editingFields.phone ? <Check className="h-4 w-4" /> : <Edit className="h-4 w-4" />
-              }
-              className="absolute top-1/2 right-3 transform -translate-y-1/2 h-6 w-6 text-muted-foreground hover:text-foreground transition-colors"
-            />
+            <div className="absolute top-1/2 right-3 transform -translate-y-1/2 flex items-center gap-1">
+              {editingFields.phone ? (
+                <>
+                  <ButtonIcon
+                    onClick={() => handleFieldSave("phone")}
+                    icon={<Check className="h-4 w-4" />}
+                    className="h-6 w-6 text-green-600 hover:text-green-700 transition-colors"
+                    disabled={isLoading}
+                  />
+                  <ButtonIcon
+                    onClick={() => handleFieldCancel("phone")}
+                    icon={<X className="h-4 w-4" />}
+                    className="h-6 w-6 text-red-600 hover:text-red-700 transition-colors"
+                  />
+                </>
+              ) : (
+                <ButtonIcon
+                  onClick={() => toggleFieldEdit("phone")}
+                  icon={<Edit className="h-4 w-4" />}
+                  className="h-6 w-6 text-muted-foreground hover:text-foreground transition-colors"
+                />
+              )}
+            </div>
           </div>
         </div>
         {/* Password */}
@@ -168,10 +354,21 @@ const AccountTab = ({ user, setUser, isLoading, setIsLoading }: AccountTabProps)
               trigger={<Button variant="outline">Change Password</Button>}
               title="Change Password"
               open={isPasswordDialogOpen}
-              onOpenChange={setIsPasswordDialogOpen}
+              onOpenChange={(open) => {
+                setIsPasswordDialogOpen(open);
+                if (!open) {
+                  resetPasswordForm();
+                }
+              }}
               footer={
                 <>
-                  <Button variant="outline" onClick={() => setIsPasswordDialogOpen(false)}>
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setIsPasswordDialogOpen(false);
+                      resetPasswordForm();
+                    }}
+                  >
                     Cancel
                   </Button>
                   <Button onClick={handlePasswordChange} disabled={isLoading}>
@@ -186,6 +383,10 @@ const AccountTab = ({ user, setUser, isLoading, setIsLoading }: AccountTabProps)
                 <Input
                   id="currentPassword"
                   type="password"
+                  value={passwordForm.currentPassword}
+                  onChange={(e) =>
+                    setPasswordForm((prev) => ({ ...prev, currentPassword: e.target.value }))
+                  }
                   className="transition-smooth focus:shadow-glow"
                 />
               </div>
@@ -194,6 +395,10 @@ const AccountTab = ({ user, setUser, isLoading, setIsLoading }: AccountTabProps)
                 <Input
                   id="newPassword"
                   type="password"
+                  value={passwordForm.newPassword}
+                  onChange={(e) =>
+                    setPasswordForm((prev) => ({ ...prev, newPassword: e.target.value }))
+                  }
                   className="transition-smooth focus:shadow-glow"
                 />
               </div>
@@ -202,6 +407,10 @@ const AccountTab = ({ user, setUser, isLoading, setIsLoading }: AccountTabProps)
                 <Input
                   id="confirmPassword"
                   type="password"
+                  value={passwordForm.confirmPassword}
+                  onChange={(e) =>
+                    setPasswordForm((prev) => ({ ...prev, confirmPassword: e.target.value }))
+                  }
                   className="transition-smooth focus:shadow-glow"
                 />
               </div>

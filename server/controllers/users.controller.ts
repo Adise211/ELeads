@@ -6,7 +6,12 @@ import {
   getWorkspaceById,
   addUserToWorkspace,
 } from "../models/workspace.model.js";
-import { getUserByEmail, createUser } from "../models/users.model.js";
+import {
+  getUserByEmail,
+  createUser,
+  changeUserPassword as changePassword,
+  updateUserInfo as updateUserInfoModel,
+} from "../models/users.model.js";
 import { userErrorsMsg, workspaceErrorsMsg } from "../utils/errorCodes.js";
 import { AppError } from "../middleware/errorHandler.middleware.js";
 import { hashPassword, comparePassword, rolePermissionMap } from "../lib/auth.helper.js";
@@ -164,6 +169,60 @@ export const logoutUser = async (req: Request, res: Response, next: NextFunction
     const successResponse: SuccessResponse = {
       success: true,
       message: "User logged out successfully",
+    };
+    res.status(consts.httpCodes.SUCCESS).json(successResponse);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const changeUserPassword = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    const user = await getUserByEmail((req as any).user.email);
+    if (!user) {
+      throw new AppError(userErrorsMsg.USER_NOT_FOUND, consts.httpCodes.NOT_FOUND);
+    }
+
+    // Verify old password
+    const isPasswordCorrect = await comparePassword(currentPassword, user.password);
+    if (!isPasswordCorrect) {
+      throw new AppError(userErrorsMsg.INCORRECT_PASSWORD, consts.httpCodes.UNAUTHORIZED);
+    }
+    // Hash new password
+    const hashedNewPassword = await hashPassword(newPassword);
+    // Change password
+    const updatedUser = await changePassword(user.id, hashedNewPassword);
+    if (!updatedUser) {
+      throw new AppError(userErrorsMsg.USER_NOT_FOUND, consts.httpCodes.NOT_FOUND);
+    }
+
+    const successResponse: SuccessResponse = {
+      success: true,
+      message: "Password changed successfully",
+      data: {},
+    };
+
+    res.status(consts.httpCodes.SUCCESS).json(successResponse);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateUserInfo = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { firstName, lastName, email, phone } = req.body;
+    const user = await getUserByEmail((req as any).user.email);
+    if (!user) {
+      throw new AppError(userErrorsMsg.USER_NOT_FOUND, consts.httpCodes.NOT_FOUND);
+    }
+    const updatedUser = await updateUserInfoModel(user.id, { firstName, lastName, email, phone });
+    // Omit password from the response
+    const safeUser = omitFields(updatedUser, ["password"]);
+    const successResponse: SuccessResponse = {
+      success: true,
+      message: "User info updated successfully",
+      data: safeUser,
     };
     res.status(consts.httpCodes.SUCCESS).json(successResponse);
   } catch (error) {

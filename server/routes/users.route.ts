@@ -4,6 +4,8 @@ import {
   loginUser,
   logoutUser,
   registerUser,
+  changeUserPassword,
+  updateUserInfo,
 } from "../controllers/users.controller.js";
 import { authenticateToken } from "../middleware/auth.middleware.js";
 import { validate } from "../middleware/validation.middleware.js";
@@ -37,5 +39,15 @@ router.get("/me", authenticateToken, getAuthenticatedUser);
 // @desc: Logout user
 // @access: Public
 router.get("/logout", logoutUser);
+
+// @path: /api/users/change-password
+// @desc: Change user password
+// @access: Private
+router.post("/change-password", authenticateToken, changeUserPassword);
+
+// @path: /api/users/update-info
+// @desc: Update user info
+// @access: Private
+router.put("/update-info", authenticateToken, updateUserInfo);
 
 export default router;

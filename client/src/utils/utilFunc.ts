@@ -32,3 +32,16 @@ export function formatPermissionDisplay(permissionKey: string): string {
       return permissionKey.replace(/_/g, "-").toLowerCase();
   }
 }
+
+/**
+ * Converts camelCase or snake_case strings to Title Case with proper spacing
+ * @param text - The string to convert (e.g., "firstName", "user_name", "email")
+ * @returns Formatted string (e.g., "First Name", "User Name", "Email")
+ */
+export function formatToTitleCase(text: string): string {
+  return text
+    .replace(/([A-Z])/g, " $1") // Add space before capital letters
+    .replace(/_/g, " ") // Replace underscores with spaces
+    .replace(/^./, (str) => str.toUpperCase()) // Capitalize first letter
+    .trim(); // Remove any leading/trailing spaces
+}

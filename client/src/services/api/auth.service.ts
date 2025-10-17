@@ -40,4 +40,31 @@ export const authService = {
     const response = await api.post("/users/refresh");
     return response.data;
   },
+
+  /**
+   * Change user password
+   */
+  changePassword: async (
+    currentPassword: string,
+    newPassword: string
+  ): Promise<SuccessResponse> => {
+    const response = await api.post("/users/change-password", {
+      currentPassword,
+      newPassword,
+    });
+    return response.data;
+  },
+
+  /**
+   * Update user information
+   */
+  updateUserInfo: async (userData: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone?: string;
+  }): Promise<SuccessResponse> => {
+    const response = await api.put("/users/update-info", userData);
+    return response.data;
+  },
 };

@@ -27,7 +27,7 @@ export const getUserByEmail = async (email: string) => {
 };
 
 // Update a user
-export const updateUser = async (userId: string, data: Record<string, any>) => {
+export const updateUserInfo = async (userId: string, data: Record<string, any>) => {
   const user = await prisma.user.update({
     where: { id: userId },
     data,
@@ -61,6 +61,14 @@ export const updateUserPermissions = async (userId: string, permissions: Permiss
   const user = await prisma.user.update({
     where: { id: userId },
     data: { permissions },
+  });
+  return user;
+};
+
+export const changeUserPassword = async (userId: string, newHashedPassword: string) => {
+  const user = await prisma.user.update({
+    where: { id: userId },
+    data: { password: newHashedPassword },
   });
   return user;
 };
