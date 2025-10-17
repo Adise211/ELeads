@@ -97,18 +97,18 @@ const checkPasswordStrength = async (password: string) => {
 const createUserInStytch = async (data: {
   email: string;
   password: string;
-  name: {
-    first_name: string;
-    last_name: string;
+  name?: {
+    first_name?: string;
+    last_name?: string;
   };
-  trusted_metadata: {
-    dbWorkspaceId: string;
-    dbUserId: string;
+  trusted_metadata?: {
+    dbWorkspaceId?: string;
+    dbUserId?: string;
   };
   sessionDurationMin: number;
 }) => {
   try {
-    console.log("[CREATE USER IN STYTCH] - creating user in Stytch...", data);
+    console.log("[STYTCH SERVICE - CREATE USER] - creating user in Stytch...");
     // Validate input data - return error if missing required fields
     if (!data.email || !data.password || !data.sessionDurationMin) {
       return {
@@ -124,15 +124,129 @@ const createUserInStytch = async (data: {
       session_duration_minutes: data.sessionDurationMin,
     };
     const response = await stytchClient.passwords.create(params);
-
     return response;
   } catch (error) {
     console.error("Error creating user in Stytch: ", error);
   }
 };
 
+// Initialize user login with password
+const initUserLoginWithPassword = async (data: {
+  email: string;
+  password: string;
+  sessionDurationMin: number;
+}) => {
+  try {
+    const response = await stytchClient.passwords.authenticate({
+      email: data.email,
+      password: data.password,
+      session_duration_minutes: data.sessionDurationMin,
+    });
+    if (response.status_code === 200) {
+      return {
+        error: false,
+        isUserNeedToBeCreated: false,
+        message: "User authenticated successfully",
+        data: response,
+      };
+    }
+  } catch (error) {
+    console.error("Error logging user in Stytch: ", error);
+    if (
+      error &&
+      typeof error === "object" &&
+      "error_type" in error &&
+      error.error_type === "email_not_found"
+    ) {
+      return {
+        error: true,
+        isUserNeedToBeCreated: true,
+        message: "User not found in Stytch, need to be created",
+        data: null,
+      };
+    }
+    // Default fallback
+    return {
+      error: true,
+      isUserNeedToBeCreated: false,
+      message: "Authentication failed",
+      data: null,
+    };
+  }
+};
+
+/**
+ *
+ * @param data - The data to login a user in Stytch
+ * @param data.email - The email of the user
+ * @param data.password - The password of the user
+ * @param data.name - The name of the user
+ * @param data.name.first_name - The first name of the user
+ * @param data.name.last_name - The last name of the user
+ * @param data.trusted_metadata - The trusted metadata of the user
+ * @param data.trusted_metadata.dbWorkspaceId - The ID of the workspace
+ * @param data.trusted_metadata.dbUserId - The ID of the user
+ * @param data.sessionDurationMin - The duration of the session in minutes
+ * @returns The response from the Stytch API
+ */
+const loginUserInStytch = async (data: {
+  email: string;
+  password: string;
+  name?: {
+    first_name?: string;
+    last_name?: string;
+  };
+  trusted_metadata?: {
+    dbWorkspaceId?: string;
+    dbUserId?: string;
+  };
+  sessionDurationMin: number;
+}) => {
+  try {
+    // Check if user exists in Stytch
+    const response = await initUserLoginWithPassword(data);
+    if (response && !response.error && !response.isUserNeedToBeCreated) {
+      console.log("[STYTCH SERVICE - LOGIN USER] - user is exists in Stytch");
+      return response.data;
+    } else if (response && response.error && response.isUserNeedToBeCreated) {
+      console.log(
+        "[STYTCH SERVICE - LOGIN USER] - user is NOT exists in Stytch, creating user in Stytch...",
+        response
+      );
+      // Create user in Stytch if not exists
+      const user = await createUserInStytch({
+        email: data.email,
+        password: data.password,
+        name: data.name,
+        trusted_metadata: data.trusted_metadata,
+        sessionDurationMin: data.sessionDurationMin,
+      });
+      return user;
+    } else {
+      console.log(
+        "[STYTCH SERVICE - LOGIN USER] - failed to login user in Stytch, even after retry...",
+        response
+      );
+      // User not found in Stytch, even after retry
+      return null;
+    }
+  } catch (error) {
+    console.error("Error logging user in Stytch: ", error);
+  }
+};
+
+// const verifyStytchSessionToken = async (token: string) => {
+//   try {
+//     const response = await stytchClient.sessions.authenticate({ token });
+//     return response;
+//   } catch (error) {
+//     console.error("Error verifying Stytch session token: ", error);
+//   }
+// };
+
 export const stytchService = {
   migratePasswordToStytch,
   checkPasswordStrength,
   createUserInStytch,
+  loginUserInStytch,
 };

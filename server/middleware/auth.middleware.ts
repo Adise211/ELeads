@@ -29,6 +29,30 @@ export function authenticateToken(req: Request, res: Response, next: NextFunctio
   }
 }
 
+// export function authenticateStytchToken(req: Request, res: Response, next: NextFunction) {
+//   try {
+//     // Check for the Authorization header
+//     const authHeader = req.headers["authorization"];
+//     let token = authHeader?.split(" ")[1]; // Bearer <token>
+//     if (!token) {
+//       // Try to get token from cookies
+//       const accessTokenCookieName = process.env.STYTCH_SESSION_TOKEN_NAME as string;
+//       token = req.cookies?.[accessTokenCookieName];
+//     }
+//     if (!token) {
+//       console.log("[AUTH MIDDLEWARE] No token provided");
+//       next(new AppError("Unauthorized", httpCodes.UNAUTHORIZED));
+//     } else {
+//       const user = verifyStytchSessionToken(token);
+//       (req as any).user = user;
+//       next();
+//     }
+//   } catch (err) {
+//     console.log("[AUTH MIDDLEWARE] Invalid or expired token");
+//     next(new AppError("Unauthorized", httpCodes.FORBIDDEN));
+//   }
+// }
+
 export function checkPermission(action: Permission) {
   return (req: Request, res: Response, next: NextFunction) => {
     const { permissions, userId } = (req as any).user;

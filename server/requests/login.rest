@@ -8,8 +8,8 @@ POST {{baseUrl}}/login
 Content-Type: application/json
 
 {
-  "email": "john.doe@example.com",
-  "password": "SecurePass123!"
+  "email": "john.doe666@example.com",
+  "password": "SecurePass123!##!@$"
 }
 
 ### 2. Login User - Valid Credentials (Second User)

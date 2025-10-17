@@ -82,7 +82,7 @@ export const registerUser = async (req: Request, res: Response, next: NextFuncti
       await addUserToWorkspace(createdWorkspace.id, createdUser.id);
       console.log("[REGISTER USER] - user was created in DB!");
 
-      // 7. Create a user in Stytch and set session token in cookie
+      // 7. Create a user in Stytch
       const stytchResponse = await stytchService.createUserInStytch({
         email,
         password,
@@ -102,16 +102,6 @@ export const registerUser = async (req: Request, res: Response, next: NextFuncti
         (stytchResponse as any)?.status_code === 200 &&
         (stytchResponse as any)?.session_token
       ) {
-        res.cookie(
-          process.env.COOKIE_STYTCH_SESSION_TOKEN_NAME as string,
-          (stytchResponse as any)?.session_token,
-          {
-            httpOnly: true, // accessible only by the web server
-            secure: process.env.NODE_ENV === "production", // HTTPS only in production
-            sameSite: "strict",
-            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in ms
-          }
-        );
         console.log("[REGISTER USER] - user was created in Stytch!");
       } else {
         // Continue with the registration process even if createUserInStytch fails
@@ -138,47 +128,81 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
     const user: User | null = await getUserByEmail(email);
     if (!user) {
       throw new AppError(userErrorsMsg.USER_NOT_FOUND, consts.httpCodes.UNAUTHORIZED);
+    }
+
+    // // Compare passwords
+    // const isPasswordCorrect = await comparePassword(password, user.password);
+    // if (!isPasswordCorrect) {
+    //   throw new AppError(userErrorsMsg.INCORRECT_PASSWORD, consts.httpCodes.UNAUTHORIZED);
+    // }
+    const stytchResponse = await stytchService.loginUserInStytch({
+      email,
+      password,
+      name: {
+        first_name: user.firstName,
+        last_name: user.lastName,
+      },
+      trusted_metadata: {
+        dbWorkspaceId: user.workspaceId || "",
+        dbUserId: user.id || "",
+      },
+      sessionDurationMin: 60, // in minutes (1 hour)
+    });
+
+    if (!stytchResponse) {
+      // Register user in Stytch
+      console.log("[LOGIN USER] - user not found in Stytch, even after retry..");
+      res.status(consts.httpCodes.UNAUTHORIZED).json({ message: userErrorsMsg.USER_NOT_FOUND });
     } else {
-      // Compare passwords
-      const isPasswordCorrect = await comparePassword(password, user.password);
-      if (!isPasswordCorrect) {
-        throw new AppError(userErrorsMsg.INCORRECT_PASSWORD, consts.httpCodes.UNAUTHORIZED);
-      }
-
+      console.log("[LOGIN USER] - user found in Stytch, logging in user...");
       // If password is correct, create a payload with user data
-      const payload = {
-        userId: user.id,
-        workspaceId: user.workspaceId,
-        email: user.email,
-        permissions: user.permissions,
-      };
-      // Generate access and refresh tokens
-      const accessToken = generateAccessToken(payload);
-      const refreshToken = generateRefreshToken(payload);
-      const accessTokenCookieName = process.env.COOKIE_ACCESS_TOKEN_NAME as string;
-      const refreshTokenCookieName = process.env.COOKIE_REFRESH_TOKEN_NAME as string;
+      // const payload = {
+      //   userId: user.id,
+      //   workspaceId: user.workspaceId,
+      //   email: user.email,
+      //   permissions: user.permissions,
+      // };
 
-      // set access token in cookie
-      res.cookie(accessTokenCookieName, accessToken, {
-        httpOnly: true, // accessible only by the web server
-        secure: process.env.NODE_ENV === "production", // HTTPS only in production
-        sameSite: "strict",
-        maxAge: 1 * 60 * 60 * 1000, // 1 hour in ms
-      });
+      res.cookie(
+        process.env.COOKIE_STYTCH_SESSION_TOKEN_NAME as string,
+        (stytchResponse as any)?.session_token,
+        {
+          httpOnly: true, // accessible only by the web server
+          secure: process.env.NODE_ENV === "production", // HTTPS only in production
+          sameSite: "strict",
+          maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in ms
+        }
+      );
+      // Generate access and refresh tokens
+      // const accessToken = generateAccessToken(payload);
+      // const refreshToken = generateRefreshToken(payload);
+      // const accessTokenCookieName = process.env.COOKIE_ACCESS_TOKEN_NAME as string;
+      // const refreshTokenCookieName = process.env.COOKIE_REFRESH_TOKEN_NAME as string;
+
+      // // set access token in cookie
+      // res.cookie(accessTokenCookieName, accessToken, {
+      //   httpOnly: true, // accessible only by the web server
+      //   secure: process.env.NODE_ENV === "production", // HTTPS only in production
+      //   sameSite: "strict",
+      //   maxAge: 1 * 60 * 60 * 1000, // 1 hour in ms
+      // });
 
       // set refresh token in cookie
-      res.cookie(refreshTokenCookieName, refreshToken, {
-        httpOnly: true, // accessible only by the web server
-        secure: process.env.NODE_ENV === "production", // HTTPS only in production
-        sameSite: "strict",
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in ms
-      });
+      // res.cookie(refreshTokenCookieName, refreshToken, {
+      //   httpOnly: true, // accessible only by the web server
+      //   secure: process.env.NODE_ENV === "production", // HTTPS only in production
+      //   sameSite: "strict",
+      //   maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in ms
+      // });
 
       // If login is successful
       const successResponse: SuccessResponse = {
         success: true,
         message: "User logged in successfully",
+        data: {},
       };
+      console.log("[LOGIN USER] - user logged in successfully!");
+      console.log("--------------------------------");
       res.status(consts.httpCodes.SUCCESS).json(successResponse);
     }
   } catch (error) {
