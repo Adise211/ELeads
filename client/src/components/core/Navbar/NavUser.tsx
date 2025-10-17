@@ -18,8 +18,9 @@ import {
 import { authService } from "@/services";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/stores/authStore";
-import { SoonBadge } from "../featureBadges";
-import { useGeneralStore } from "@/stores/generalStore";
+import { FeatureBadges } from "../featureBadges";
+import { FEATURE_FLAGS_OPTIONS } from "@/utils/localConsts";
+import type { FeatureBadgeType } from "@/utils/localTypes";
 
 export function NavUser({
   user,
@@ -33,7 +34,6 @@ export function NavUser({
   const { isMobile } = useSidebar();
   const navigate = useNavigate();
   const clearUser = useAuthStore((state) => state.clearUser);
-  const soonFeatures = useGeneralStore((state) => state.soonFeatures);
 
   const logoutUser = () => {
     authService
@@ -98,10 +98,11 @@ export function NavUser({
                 <User />
                 Account
               </DropdownMenuItem>
-              <DropdownMenuItem disabled={soonFeatures.notifications}>
+              <DropdownMenuItem disabled={true}>
                 <Bell />
-                Notifications
-                {soonFeatures.notifications && <SoonBadge />}
+                <FeatureBadges type={FEATURE_FLAGS_OPTIONS.SOON as FeatureBadgeType}>
+                  Notifications
+                </FeatureBadges>
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />

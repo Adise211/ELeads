@@ -1,13 +1,11 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { NewBadge, SoonBadge } from "@/components/core/featureBadges";
-import { useGeneralStore } from "@/stores/generalStore";
+import { FeatureBadges } from "@/components/core/featureBadges";
+import { FEATURE_FLAGS_OPTIONS } from "@/utils/localConsts";
+import type { FeatureBadgeType } from "@/utils/localTypes";
 
 const PreferenceTab = () => {
-  const soonFeatures = useGeneralStore((state) => state.soonFeatures);
-  const newFeatures = useGeneralStore((state) => state.newFeatures);
-
   return (
     <div>
       <h3 className="text-lg font-semibold mb-4">Application Preferences</h3>
@@ -27,29 +25,21 @@ const PreferenceTab = () => {
         </div>
         <div className="flex items-center justify-between">
           <div>
-            <div className="flex items-center gap-2">
-              <p className={`font-medium ${soonFeatures.darkMode ? "text-gray-500" : ""}`}>
-                Dark Mode
-              </p>
-              {soonFeatures.darkMode && <SoonBadge />}
-              {newFeatures.darkMode && <NewBadge />}
-            </div>
+            <FeatureBadges type={FEATURE_FLAGS_OPTIONS.SOON as FeatureBadgeType}>
+              <p className="font-medium">Dark Mode</p>
+            </FeatureBadges>
             <p className="text-sm text-muted-foreground">Switch between light and dark themes</p>
           </div>
-          <Switch disabled={soonFeatures.darkMode} />
+          <Switch disabled={true} />
         </div>
         <div className="flex items-center justify-between">
           <div>
-            <div className="flex items-center gap-2">
-              <p className={`font-medium ${soonFeatures.compactView ? "text-gray-500" : ""}`}>
-                Compact View
-              </p>
-              {soonFeatures.compactView && <SoonBadge />}
-              {newFeatures.compactView && <NewBadge />}
-            </div>
+            <FeatureBadges type={FEATURE_FLAGS_OPTIONS.SOON as FeatureBadgeType}>
+              <p className="font-medium">Compact View</p>
+            </FeatureBadges>
             <p className="text-sm text-muted-foreground">Use a more compact layout</p>
           </div>
-          <Switch disabled={soonFeatures.compactView} />
+          <Switch disabled={true} />
         </div>
       </div>
     </div>
