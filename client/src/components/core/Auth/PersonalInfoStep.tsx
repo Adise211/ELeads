@@ -3,14 +3,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Eye, EyeOff, User, Mail, Phone, Lock } from "lucide-react";
+import { User, Mail, Phone } from "lucide-react";
 
 interface PersonalInfoStepProps {
   formData: {
     firstName: string;
     lastName: string;
     email: string;
-    password: string;
     phone: string;
   };
   onUpdate: (data: Partial<PersonalInfoStepProps["formData"]>) => void;
@@ -18,7 +17,6 @@ interface PersonalInfoStepProps {
 }
 
 export default function PersonalInfoStep({ formData, onUpdate, onNext }: PersonalInfoStepProps) {
-  const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const validateForm = () => {
@@ -34,11 +32,6 @@ export default function PersonalInfoStep({ formData, onUpdate, onNext }: Persona
       newErrors.email = "Email is required";
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = "Email is invalid";
-    }
-    if (!formData.password.trim()) {
-      newErrors.password = "Password is required";
-    } else if (formData.password.length < 8) {
-      newErrors.password = "Password must be at least 8 characters";
     }
 
     setErrors(newErrors);
@@ -124,33 +117,6 @@ export default function PersonalInfoStep({ formData, onUpdate, onNext }: Persona
               />
             </div>
             {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="password" className="text-sm font-medium text-foreground">
-              Password
-            </Label>
-            <div className="relative">
-              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-              <Input
-                id="password"
-                type={showPassword ? "text" : "password"}
-                placeholder="••••••••"
-                value={formData.password}
-                onChange={(e) => onUpdate({ password: e.target.value })}
-                className={`pl-10 pr-10 bg-background/50 border-border ${
-                  errors.password ? "border-destructive" : ""
-                }`}
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-              >
-                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              </button>
-            </div>
-            {errors.password && <p className="text-xs text-destructive">{errors.password}</p>}
           </div>
 
           <div className="space-y-2">

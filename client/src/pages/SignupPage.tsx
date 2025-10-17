@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import PersonalInfoStep from "@/components/core/Auth/PersonalInfoStep";
+import PasswordStep from "@/components/core/Auth/PasswordStep";
 import WorkspaceStep from "@/components/core/Auth/WorkspaceStep";
 import { ChevronRight } from "lucide-react";
 import type { SignupFormData } from "../../client.types";
@@ -34,8 +35,16 @@ const SignupPage = () => {
     setCurrentStep(2);
   };
 
-  const handleWorkspaceBack = () => {
+  const handlePasswordNext = () => {
+    setCurrentStep(3);
+  };
+
+  const handlePasswordBack = () => {
     setCurrentStep(1);
+  };
+
+  const handleWorkspaceBack = () => {
+    setCurrentStep(2);
   };
 
   const handleComplete = async () => {
@@ -93,7 +102,7 @@ const SignupPage = () => {
       <div className="relative z-10 w-full max-w-md mx-auto px-4">
         {/* Step indicator */}
         <div className="mb-8">
-          <div className="flex items-center justify-center space-x-4">
+          <div className="flex items-center justify-center space-x-2">
             <div className="flex items-center">
               <div
                 className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${
@@ -109,7 +118,7 @@ const SignupPage = () => {
               </span>
             </div>
 
-            <div className="flex-1 h-px bg-border relative">
+            <div className="flex-1 h-px bg-border relative max-w-8">
               <ChevronRight className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground bg-background" />
             </div>
 
@@ -122,6 +131,25 @@ const SignupPage = () => {
                 }`}
               >
                 2
+              </div>
+              <span className="ml-2 text-sm font-medium text-foreground hidden sm:inline">
+                Password
+              </span>
+            </div>
+
+            <div className="flex-1 h-px bg-border relative max-w-8">
+              <ChevronRight className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground bg-background" />
+            </div>
+
+            <div className="flex items-center">
+              <div
+                className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${
+                  currentStep >= 3
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-muted text-muted-foreground"
+                }`}
+              >
+                3
               </div>
               <span className="ml-2 text-sm font-medium text-foreground hidden sm:inline">
                 Workspace
@@ -137,7 +165,6 @@ const SignupPage = () => {
               firstName: formData.firstName,
               lastName: formData.lastName,
               email: formData.email,
-              password: formData.password,
               phone: formData.phone,
             }}
             onUpdate={updateFormData}
@@ -146,6 +173,17 @@ const SignupPage = () => {
         )}
 
         {currentStep === 2 && (
+          <PasswordStep
+            formData={{
+              password: formData.password,
+            }}
+            onUpdate={updateFormData}
+            onNext={handlePasswordNext}
+            onBack={handlePasswordBack}
+          />
+        )}
+
+        {currentStep === 3 && (
           <WorkspaceStep
             formData={{
               workspaceType: formData.workspaceType ?? "new",
