@@ -125,7 +125,7 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
       sessionDurationMin: 60, // in minutes (1 hour)
     };
 
-    const stytchResponse = await stytchService.loginUserInStytch(stytchData);
+    const stytchResponse = await stytchService.createOrLoginUserInStytch(stytchData);
 
     if (
       stytchResponse &&

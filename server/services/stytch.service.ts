@@ -123,7 +123,7 @@ const createUserInStytch = async (data: StytchCreatUserParams) => {
 };
 
 // Initialize user login with password
-const initUserLoginWithPassword = async (data: {
+const getAuthUserFromStytch = async (data: {
   email: string;
   password: string;
   sessionDurationMin: number;
@@ -183,10 +183,10 @@ const initUserLoginWithPassword = async (data: {
  * @param data.sessionDurationMin - The duration of the session in minutes
  * @returns The response from the Stytch API
  */
-const loginUserInStytch = async (data: StytchCreatUserParams) => {
+const createOrLoginUserInStytch = async (data: StytchCreatUserParams) => {
   try {
     // Check if user exists in Stytch
-    const response = await initUserLoginWithPassword(data);
+    const response = await getAuthUserFromStytch(data);
     if (response && !response.error && !response.isUserNeedToBeCreated) {
       console.log("[STYTCH SERVICE - LOGIN USER] - user is exists in Stytch");
       return response.data;
@@ -236,7 +236,7 @@ export const stytchService = {
   migratePasswordToStytch,
   checkPasswordStrength,
   createUserInStytch,
-  loginUserInStytch,
+  createOrLoginUserInStytch,
   verifyStytchSession,
   revokeOrLogoutUserFromStytch,
 };
