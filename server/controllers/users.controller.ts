@@ -86,6 +86,14 @@ export const registerUser = async (req: Request, res: Response, next: NextFuncti
       const stytchResponse = await stytchService.createUserInStytch({
         email,
         password,
+        name: {
+          first_name: firstName,
+          last_name: lastName,
+        },
+        trusted_metadata: {
+          dbWorkspaceId: createdWorkspace.id,
+          dbUserId: createdUser.id,
+        },
         sessionDurationMin: 60, // in minutes (1 hour)
       });
 

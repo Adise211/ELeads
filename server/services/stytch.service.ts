@@ -85,16 +85,30 @@ const checkPasswordStrength = async (password: string) => {
  * @param data - The data to create a user in Stytch
  * @param data.email - The email of the user
  * @param data.password - The password of the user
+ * @param data.name - The name of the user
+ * @param data.name.first_name - The first name of the user
+ * @param data.name.last_name - The last name of the user
+ * @param data.trusted_metadata - The trusted metadata of the user
+ * @param data.trusted_metadata.dbWorkspaceId - The ID of the workspace
+ * @param data.trusted_metadata.dbUserId - The ID of the user
  * @param data.sessionDurationMin - The duration of the session in minutes
  * @returns The response from the Stytch API
  */
 const createUserInStytch = async (data: {
   email: string;
   password: string;
+  name: {
+    first_name: string;
+    last_name: string;
+  };
+  trusted_metadata: {
+    dbWorkspaceId: string;
+    dbUserId: string;
+  };
   sessionDurationMin: number;
 }) => {
   try {
-    console.log("[CREATE USER IN STYTCH] - creating user in Stytch...");
+    console.log("[CREATE USER IN STYTCH] - creating user in Stytch...", data);
     // Validate input data - return error if missing required fields
     if (!data.email || !data.password || !data.sessionDurationMin) {
       return {
@@ -105,6 +119,8 @@ const createUserInStytch = async (data: {
     const params = {
       email: data.email,
       password: data.password,
+      name: data.name,
+      trusted_metadata: data.trusted_metadata,
       session_duration_minutes: data.sessionDurationMin,
     };
     const response = await stytchClient.passwords.create(params);
@@ -112,12 +128,6 @@ const createUserInStytch = async (data: {
     return response;
   } catch (error) {
     console.error("Error creating user in Stytch: ", error);
-    // Handle Stytch-specific errors
-    // if (error && typeof error === "object" && "status_code" in error) {
-    //   const stytchError = error as StytchErrorResponse;
-    //   throw newStytchError(stytchError);
-    // }
-    // throw error;
   }
 };
 
