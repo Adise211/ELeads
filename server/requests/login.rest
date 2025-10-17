@@ -1,8 +1,182 @@
-POST http://localhost:8080/api/users/login
+### ELeads API - User Login Tests
+
+# Base URL - Update this to match your server configuration
+@baseUrl = http://localhost:8080/api/users
+
+### 1. Login User - Valid Credentials (Success Case)
+POST {{baseUrl}}/login
 Content-Type: application/json
 
 {
-  "email": "badi@gmail.com",
-  "password": "password123"
+  "email": "john.doe@example.com",
+  "password": "SecurePass123!"
 }
 
+### 2. Login User - Valid Credentials (Second User)
+POST {{baseUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "jane.smith@example.com",
+  "password": "Password123!"
+}
+
+### 3. Login User - Invalid Email (Error Case)
+POST {{baseUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "nonexistent@example.com",
+  "password": "Password123!"
+}
+
+### 4. Login User - Wrong Password (Error Case)
+POST {{baseUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "john.doe@example.com",
+  "password": "WrongPassword123!"
+}
+
+### 5. Login User - Invalid Email Format (Validation Error)
+POST {{baseUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "invalid-email-format",
+  "password": "Password123!"
+}
+
+### 6. Login User - Missing Email (Validation Error)
+POST {{baseUrl}}/login
+Content-Type: application/json
+
+{
+  "password": "Password123!"
+}
+
+### 7. Login User - Missing Password (Validation Error)
+POST {{baseUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "john.doe@example.com"
+}
+
+### 8. Login User - Empty Email (Validation Error)
+POST {{baseUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "",
+  "password": "Password123!"
+}
+
+### 9. Login User - Empty Password (Validation Error)
+POST {{baseUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "john.doe@example.com",
+  "password": ""
+}
+
+### 10. Login User - Password Too Short (Validation Error)
+POST {{baseUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "john.doe@example.com",
+  "password": "123"
+}
+
+### 11. Login User - Case Sensitivity Test (Email)
+POST {{baseUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "JOHN.DOE@EXAMPLE.COM",
+  "password": "SecurePass123!"
+}
+
+### 12. Login User - Case Sensitivity Test (Password)
+POST {{baseUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "john.doe@example.com",
+  "password": "securepass123!"
+}
+
+### 13. Login User - Extra Whitespace in Email
+POST {{baseUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "  john.doe@example.com  ",
+  "password": "SecurePass123!"
+}
+
+### 14. Login User - Different Domain Email
+POST {{baseUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "alex.martinez@company.co.uk",
+  "password": "Password123!"
+}
+
+### 15. Login User - Special Characters in Password
+POST {{baseUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "jose.garcia@example.com",
+  "password": "SecurePass123!"
+}
+
+### 16. Login User - Maximum Valid Password Length Test
+POST {{baseUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "kate.williams@example.com",
+  "password": "Pass1234"
+}
+
+### 17. Login User - SQL Injection Attempt (Security Test)
+POST {{baseUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "admin@example.com'; DROP TABLE users; --",
+  "password": "Password123!"
+}
+
+### 18. Login User - XSS Attempt (Security Test)
+POST {{baseUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "<script>alert('xss')</script>@example.com",
+  "password": "Password123!"
+}
+
+### 19. Login User - Very Long Email (Edge Case)
+POST {{baseUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "verylongemailaddressthatexceedsnormallimitsbutstillvalid@verylongdomainnamethatgoesonandon.com",
+  "password": "Password123!"
+}
+
+### 20. Login User - Unicode Characters in Email
+POST {{baseUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "tëst@ëxämplé.com",
+  "password": "Password123!"
+}

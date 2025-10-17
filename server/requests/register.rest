@@ -1,35 +1,329 @@
-### Register User
-POST http://localhost:8080/api/users/register
+### ELeads API - User Registration Tests
+
+# Base URL - Update this to match your server configuration
+@baseUrl = http://localhost:8080/api/users
+
+### 1. Register User with New Workspace (Success Case)
+POST {{baseUrl}}/register
 Content-Type: application/json
 
 {
-  "firstName": "John",
-  "lastName": "Doe",
-  "email": "john.doe@example.com",
-  "password": "password123",
-  "workspaceName": "My Company",
-  "workspaceDomain": "mycompany.com"
+  "user": {
+    "firstName": "John",
+    "lastName": "Doe",
+    "email": "john.doe@example.com",
+    "password": "SecurePass123!##!@$",
+    "phone": "+1234567890"
+  },
+  "workspace": {
+    "name": "John's Marketing Agency"
+  }
 }
 
-### Register User (Invalid Email)
-POST http://localhost:8080/api/users/register
+### 2. Register User with New Workspace (Minimal Data)
+POST {{baseUrl}}/register
 Content-Type: application/json
 
 {
-  "firstName": "Jane",
-  "lastName": "Smith",
-  "email": "invalid-email",
-  "password": "password123",
-  "workspaceName": "Test Company",
-  "workspaceDomain": "testcompany.com"
+  "user": {
+    "firstName": "Jane",
+    "lastName": "Smith",
+    "email": "jane.smith@example.com",
+    "password": "Password123!$3%%$#%@#$%"
+  },
+  "workspace": {
+    "name": "Jane's Workspace"
+  }
 }
 
-### Register User (Missing Required Fields)
-POST http://localhost:8080/api/users/register
+### 3. Register User Joining Existing Workspace
+POST {{baseUrl}}/register
 Content-Type: application/json
 
 {
-  "firstName": "John",
-  "lastName": "Doe",
-  "email": "john.doe@example.com"
-} 
+  "user": {
+    "firstName": "Alice",
+    "lastName": "Johnson",
+    "email": "alice.johnson@example.com",
+    "password": "StrongPass456!",
+    "phone": "+1987654321"
+  },
+  "workspace": {
+    "id": "workspace-uuid-here"
+  }
+}
+
+### 4. Register User - Missing First Name (Validation Error)
+POST {{baseUrl}}/register
+Content-Type: application/json
+
+{
+  "user": {
+    "lastName": "Doe",
+    "email": "invalid@example.com",
+    "password": "Password123!"
+  },
+  "workspace": {
+    "name": "Test Workspace"
+  }
+}
+
+### 5. Register User - Invalid Email (Validation Error)
+POST {{baseUrl}}/register
+Content-Type: application/json
+
+{
+  "user": {
+    "firstName": "Bob",
+    "lastName": "Wilson",
+    "email": "invalid-email",
+    "password": "Password123!"
+  },
+  "workspace": {
+    "name": "Bob's Workspace"
+  }
+}
+
+### 6. Register User - Weak Password (Validation Error)
+POST {{baseUrl}}/register
+Content-Type: application/json
+
+{
+  "user": {
+    "firstName": "Charlie",
+    "lastName": "Brown",
+    "email": "charlie@example.com",
+    "password": "123"
+  },
+  "workspace": {
+    "name": "Charlie's Workspace"
+  }
+}
+
+### 7. Register User - Missing Workspace Name (Validation Error)
+POST {{baseUrl}}/register
+Content-Type: application/json
+
+{
+  "user": {
+    "firstName": "David",
+    "lastName": "Lee",
+    "email": "david@example.com",
+    "password": "Password123!"
+  },
+  "workspace": {
+    "name": ""
+  }
+}
+
+### 8. Register User - Both Workspace Name and ID (Validation Error)
+POST {{baseUrl}}/register
+Content-Type: application/json
+
+{
+  "user": {
+    "firstName": "Eve",
+    "lastName": "Taylor",
+    "email": "eve@example.com",
+    "password": "Password123!"
+  },
+  "workspace": {
+    "name": "Eve's Workspace",
+    "id": "some-workspace-id"
+  }
+}
+
+### 9. Register User - Missing Workspace (Validation Error)
+POST {{baseUrl}}/register
+Content-Type: application/json
+
+{
+  "user": {
+    "firstName": "Frank",
+    "lastName": "Miller",
+    "email": "frank@example.com",
+    "password": "Password123!"
+  },
+  "workspace": {}
+}
+
+### 10. Register User - First Name Too Long (Validation Error)
+POST {{baseUrl}}/register
+Content-Type: application/json
+
+{
+  "user": {
+    "firstName": "ThisIsAVeryLongFirstNameThatExceedsTheLimit",
+    "lastName": "Garcia",
+    "email": "longname@example.com",
+    "password": "Password123!"
+  },
+  "workspace": {
+    "name": "Garcia's Workspace"
+  }
+}
+
+### 11. Register User - Last Name Too Long (Validation Error)
+POST {{baseUrl}}/register
+Content-Type: application/json
+
+{
+  "user": {
+    "firstName": "Henry",
+    "lastName": "ThisIsAVeryLongLastNameThatExceedsTheLimit",
+    "email": "longlastname@example.com",
+    "password": "Password123!"
+  },
+  "workspace": {
+    "name": "Henry's Workspace"
+  }
+}
+
+### 12. Register User - Duplicate Email (Business Logic Error)
+POST {{baseUrl}}/register
+Content-Type: application/json
+
+{
+  "user": {
+    "firstName": "John",
+    "lastName": "Duplicate",
+    "email": "john.doe@example.com",
+    "password": "DifferentPass123!"
+  },
+  "workspace": {
+    "name": "Duplicate User Workspace"
+  }
+}
+
+### 13. Register User - Valid with Special Characters in Name
+POST {{baseUrl}}/register
+Content-Type: application/json
+
+{
+  "user": {
+    "firstName": "José",
+    "lastName": "García-López",
+    "email": "jose.garcia@example.com",
+    "password": "SecurePass123!##$5^5",
+    "phone": "+34-123-456-789"
+  },
+  "workspace": {
+    "name": "José's International Business"
+  }
+}
+
+### 14. Register User - Edge Case: Minimum Valid Password Length
+POST {{baseUrl}}/register
+Content-Type: application/json
+
+{
+  "user": {
+    "firstName": "Kate",
+    "lastName": "Williams",
+    "email": "kate.williams@example.com",
+    "password": "Pass1234",
+    "phone": "555-0123"
+  },
+  "workspace": {
+    "name": "Kate's Startup"
+  }
+}
+
+### 15. Register User - Edge Case: Maximum Name Lengths
+POST {{baseUrl}}/register
+Content-Type: application/json
+
+{
+  "user": {
+    "firstName": "ABCDEFGHIJKLMNOPQRSTUVWXY",
+    "lastName": "ABCDEFGHIJKLMNOPQRSTUVWXY",
+    "email": "maxlength@example.com",
+    "password": "Password123!$3%%$#%@#$%"
+  },
+  "workspace": {
+    "name": "Maximum Length Test Workspace"
+  }
+}
+
+### 16. Register User - International Phone Number
+POST {{baseUrl}}/register
+Content-Type: application/json
+
+
+{
+  "user": {
+    "firstName": "Yuki",
+    "lastName": "Tanaka",
+    "email": "yuki.tanaka@example.com",
+    "password": "SecurePass123!%$%$#%",
+    "phone": "+81-3-1234-5678"
+  },
+  "workspace": {
+    "name": "Tanaka Enterprises"
+  }
+}
+
+### 17. Register User - Empty Phone Number (Optional Field)
+POST {{baseUrl}}/register
+Content-Type: application/json
+
+{
+  "user": {
+    "firstName": "Mike",
+    "lastName": "Davis",
+    "email": "mike.davis@example.com",
+    "password": "Password123!$#@%$%"
+  },
+  "workspace": {
+    "name": "Mike's Consulting"
+  }
+}
+
+### 18. Register User - Workspace with Special Characters
+POST {{baseUrl}}/register
+Content-Type: application/json
+
+{
+  "user": {
+    "firstName": "Sarah",
+    "lastName": "O'Connor",
+    "email": "sarah.oconnor@example.com",
+    "password": "SecurePass123!@#$@",
+    "phone": "+1-555-987-6543"
+  },
+  "workspace": {
+    "name": "O'Connor & Associates LLC"
+  }
+}
+
+### 19. Register User - Test with Different Email Domains
+POST {{baseUrl}}/register
+Content-Type: application/json
+
+{
+  "user": {
+    "firstName": "Alex",
+    "lastName": "Martinez",
+    "email": "alex.martinez@company.co.uk",
+    "password": "Password123!%@$%$@#"
+  },
+  "workspace": {
+    "name": "Martinez Global Ltd"
+  }
+}
+
+### 20. Register User - Test Case Sensitivity in Names
+POST {{baseUrl}}/register
+Content-Type: application/json
+
+{
+  "user": {
+    "firstName": "McDonald",
+    "lastName": "O'Brien-Smith",
+    "email": "mcdonald.obrien@example.com",
+    "password": "SecurePass123!%@$#@#$"
+  },
+  "workspace": {
+    "name": "McDonald's Marketing Solutions"
+  }
+}

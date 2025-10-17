@@ -44,6 +44,7 @@
     "express-validator": "^7.2.1",
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.2",
+    "stytch": "^12.42.1",
     "zod": "^4.0.14"
   }
 }

@@ -7,12 +7,15 @@ const userErrorsMsg = {
   INCORRECT_PASSWORD: "Incorrect password",
   UNAUTHORIZED: "Unauthorized access",
   USER_NOT_AUTHORIZED: "User not authorized to perform this action",
+  PASSWORD_WEAK: "Password is weak",
+  FAILED_TO_CREATE_USER: "Failed to create user",
 };
 
 const workspaceErrorsMsg = {
   WORKSPACE_NOT_FOUND: "Workspace not found",
   WORKSPACE_ALREADY_EXISTS: "Workspace already exists",
   INVALID_WORKSPACE_DATA: "Invalid workspace data",
+  FAILED_TO_CREATE_WORKSPACE: "Failed to create workspace",
 };
 
 const commonErrorsMsg = {

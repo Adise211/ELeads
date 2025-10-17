@@ -18,6 +18,7 @@ import { hashPassword, comparePassword, rolePermissionMap } from "../lib/auth.he
 import { generateAccessToken, generateRefreshToken } from "../lib/auth.helper.js";
 import { RegisterUserFields, SuccessResponse } from "../server.types.js";
 import { omitFields } from "../lib/data.helper.js";
+import { stytchService } from "../services/stytch.service.js";
 
 export const registerUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -29,14 +30,22 @@ export const registerUser = async (req: Request, res: Response, next: NextFuncti
     // TODO: make this dynamic based on the workspace (new -> admin, existing -> by link)
     let userRole: UserRole = UserRole.ADMIN;
 
+    // 1. Check if password is strong enough
+    const passwordStrength = await stytchService.checkPasswordStrength(password);
+    if (!passwordStrength || !passwordStrength.valid_password) {
+      console.error("[REGISTER USER] password strength check failed: ", passwordStrength);
+      throw new AppError(userErrorsMsg.PASSWORD_WEAK, consts.httpCodes.BAD_REQUEST);
+    }
+
+    // 2. Hash password
     const hashedPassword = await hashPassword(password);
     const isUserExisting = await getUserByEmail(email);
 
     if (isUserExisting) {
-      // If user already exists, return an error
+      // 3. Check if user already exists
       res.status(consts.httpCodes.BAD_REQUEST).json({ message: userErrorsMsg.USER_ALREADY_EXISTS });
     } else {
-      // Create a new workspace
+      // 4. Create a new workspace
       if (workspace.name) {
         const workspaceName = workspace.name || `${firstName}'s Workspace`;
         createdWorkspace = await createWorkspace(workspaceName);
@@ -46,28 +55,68 @@ export const registerUser = async (req: Request, res: Response, next: NextFuncti
         throw new AppError(workspaceErrorsMsg.WORKSPACE_NOT_FOUND, consts.httpCodes.BAD_REQUEST);
       }
 
-      // Create a new user
-      if (createdWorkspace) {
-        createdUser = await createUser({
-          firstName,
-          lastName,
-          email,
-          password: hashedPassword,
-          role: userRole,
-          phone,
-          permissions: rolePermissionMap[userRole],
-        });
-        if (createdUser) {
-          // Add the user to the workspace
-          await addUserToWorkspace(createdWorkspace.id, createdUser.id);
-        }
-        // Return the created user and workspace
-        res.status(consts.httpCodes.CREATED).json({
-          success: true,
-          message: "User registered successfully",
-          data: {},
-        });
+      if (!createdWorkspace) {
+        throw new AppError(
+          workspaceErrorsMsg.FAILED_TO_CREATE_WORKSPACE,
+          consts.httpCodes.INTERNAL_SERVER_ERROR
+        );
       }
+      // 5. Create a new user
+      createdUser = await createUser({
+        firstName,
+        lastName,
+        email,
+        password: hashedPassword,
+        role: userRole,
+        phone,
+        permissions: rolePermissionMap[userRole],
+      });
+
+      if (!createdUser) {
+        throw new AppError(
+          userErrorsMsg.FAILED_TO_CREATE_USER,
+          consts.httpCodes.INTERNAL_SERVER_ERROR
+        );
+      }
+      // 6. Add the user to the workspace
+      await addUserToWorkspace(createdWorkspace.id, createdUser.id);
+      console.log("[REGISTER USER] - user was created in DB!");
+
+      // 7. Create a user in Stytch and set session token in cookie
+      const stytchResponse = await stytchService.createUserInStytch({
+        email,
+        password,
+        sessionDurationMin: 60, // in minutes (1 hour)
+      });
+
+      if (
+        stytchResponse &&
+        (stytchResponse as any)?.status_code === 200 &&
+        (stytchResponse as any)?.session_token
+      ) {
+        res.cookie(
+          process.env.COOKIE_STYTCH_SESSION_TOKEN_NAME as string,
+          (stytchResponse as any)?.session_token,
+          {
+            httpOnly: true, // accessible only by the web server
+            secure: process.env.NODE_ENV === "production", // HTTPS only in production
+            sameSite: "strict",
+            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in ms
+          }
+        );
+        console.log("[REGISTER USER] - user was created in Stytch!");
+      } else {
+        // Continue with the registration process even if createUserInStytch fails
+        console.error("[REGISTER USER] createUserInStytch failed: ", stytchResponse);
+      }
+      console.log("--------------------------------");
+
+      // 8. Return the created user and workspace
+      res.status(consts.httpCodes.CREATED).json({
+        success: true,
+        message: "User registered successfully",
+        data: {},
+      });
     }
   } catch (error) {
     next(error);
