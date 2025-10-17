@@ -232,6 +232,25 @@ const revokeOrLogoutUserFromStytch = async (sessionToken: string) => {
   }
 };
 
+export const resetExistingUserPasswordInStytch = async (data: {
+  email: string;
+  existingPassword: string;
+  newPassword: string;
+  sessionDurationMin: number;
+}) => {
+  try {
+    const response = await stytchClient.passwords.existingPassword.reset({
+      email: data.email,
+      existing_password: data.existingPassword,
+      new_password: data.newPassword,
+      session_duration_minutes: data.sessionDurationMin,
+    });
+    return response;
+  } catch (error) {
+    console.error("Error resetting existing user password in Stytch: ", error);
+  }
+};
+
 export const stytchService = {
   migratePasswordToStytch,
   checkPasswordStrength,
@@ -239,4 +258,5 @@ export const stytchService = {
   createOrLoginUserInStytch,
   verifyStytchSession,
   revokeOrLogoutUserFromStytch,
+  resetExistingUserPasswordInStytch,
 };

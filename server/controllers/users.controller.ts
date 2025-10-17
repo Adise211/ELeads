@@ -236,6 +236,31 @@ export const changeUserPassword = async (req: Request, res: Response, next: Next
       throw new AppError(userErrorsMsg.USER_NOT_FOUND, consts.httpCodes.NOT_FOUND);
     }
 
+    // Reset password in Stytch after successful database update
+    try {
+      const stytchResetResponse = await stytchService.resetExistingUserPasswordInStytch({
+        email: user.email,
+        existingPassword: currentPassword,
+        newPassword: newPassword,
+        sessionDurationMin: 60, // 1 hour session duration
+      });
+
+      if (stytchResetResponse && (stytchResetResponse as any)?.status_code === 200) {
+        console.log("[CHANGE PASSWORD] - Password successfully updated in Stytch");
+      } else {
+        console.error(
+          "[CHANGE PASSWORD] - Failed to update password in Stytch:",
+          stytchResetResponse
+        );
+        // Note: We don't throw an error here as the database password was already updated successfully
+        // The user can still use the new password, but may need to re-authenticate
+      }
+    } catch (stytchError) {
+      console.error("[CHANGE PASSWORD] - Error updating password in Stytch:", stytchError);
+      // Note: We don't throw an error here as the database password was already updated successfully
+      // The user can still use the new password, but may need to re-authenticate
+    }
+
     const successResponse: SuccessResponse = {
       success: true,
       message: "Password changed successfully",
