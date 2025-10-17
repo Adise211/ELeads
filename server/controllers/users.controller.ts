@@ -15,8 +15,8 @@ import {
 import { userErrorsMsg, workspaceErrorsMsg } from "../utils/errorCodes.js";
 import { AppError } from "../middleware/errorHandler.middleware.js";
 import { hashPassword, comparePassword, rolePermissionMap } from "../lib/auth.helper.js";
-import { generateAccessToken, generateRefreshToken } from "../lib/auth.helper.js";
-import { RegisterUserFields, SuccessResponse } from "../server.types.js";
+// import { generateAccessToken, generateRefreshToken } from "../lib/auth.helper.js";
+import { RegisterUserFields, StytchCreatUserParams, SuccessResponse } from "../server.types.js";
 import { omitFields } from "../lib/data.helper.js";
 import { stytchService } from "../services/stytch.service.js";
 
@@ -82,32 +82,7 @@ export const registerUser = async (req: Request, res: Response, next: NextFuncti
       await addUserToWorkspace(createdWorkspace.id, createdUser.id);
       console.log("[REGISTER USER] - user was created in DB!");
 
-      // 7. Create a user in Stytch
-      const stytchResponse = await stytchService.createUserInStytch({
-        email,
-        password,
-        name: {
-          first_name: firstName,
-          last_name: lastName,
-        },
-        trusted_metadata: {
-          dbWorkspaceId: createdWorkspace.id,
-          dbUserId: createdUser.id,
-        },
-        sessionDurationMin: 60, // in minutes (1 hour)
-      });
-
-      if (
-        stytchResponse &&
-        (stytchResponse as any)?.status_code === 200 &&
-        (stytchResponse as any)?.session_token
-      ) {
-        console.log("[REGISTER USER] - user was created in Stytch!");
-      } else {
-        // Continue with the registration process even if createUserInStytch fails
-        console.error("[REGISTER USER] createUserInStytch failed: ", stytchResponse);
-      }
-      console.log("--------------------------------");
+      console.log("----------------END REGISTER USER----------------");
 
       // 8. Return the created user and workspace
       res.status(consts.httpCodes.CREATED).json({
@@ -123,19 +98,17 @@ export const registerUser = async (req: Request, res: Response, next: NextFuncti
 
 export const loginUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
+    console.log("[LOGIN USER] - login user request received");
     const { email, password } = req.body;
-    // Check if user exists
+    // 1. Check if user exists
     const user: User | null = await getUserByEmail(email);
     if (!user) {
       throw new AppError(userErrorsMsg.USER_NOT_FOUND, consts.httpCodes.UNAUTHORIZED);
     }
+    console.log("[LOGIN USER] - user found in DB");
 
-    // // Compare passwords
-    // const isPasswordCorrect = await comparePassword(password, user.password);
-    // if (!isPasswordCorrect) {
-    //   throw new AppError(userErrorsMsg.INCORRECT_PASSWORD, consts.httpCodes.UNAUTHORIZED);
-    // }
-    const stytchResponse = await stytchService.loginUserInStytch({
+    // 2. Login or cretae user in Stytch (user is exists in the DB)
+    const stytchData: StytchCreatUserParams = {
       email,
       password,
       name: {
@@ -143,28 +116,26 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
         last_name: user.lastName,
       },
       trusted_metadata: {
-        dbWorkspaceId: user.workspaceId || "",
         dbUserId: user.id || "",
+        dbUserEmail: user.email || "",
+        dbWorkspaceId: user.workspaceId || "",
+        dbUserRole: user.role ? [user.role] : [],
+        dbUserPermissions: user.permissions || [],
       },
       sessionDurationMin: 60, // in minutes (1 hour)
-    });
+    };
 
-    if (!stytchResponse) {
-      // Register user in Stytch
-      console.log("[LOGIN USER] - user not found in Stytch, even after retry..");
-      res.status(consts.httpCodes.UNAUTHORIZED).json({ message: userErrorsMsg.USER_NOT_FOUND });
-    } else {
+    const stytchResponse = await stytchService.loginUserInStytch(stytchData);
+
+    if (
+      stytchResponse &&
+      (stytchResponse as any)?.status_code === 200 &&
+      (stytchResponse as any)?.session_token
+    ) {
+      // 3. If login is successful set the session token in a cookie
       console.log("[LOGIN USER] - user found in Stytch, logging in user...");
-      // If password is correct, create a payload with user data
-      // const payload = {
-      //   userId: user.id,
-      //   workspaceId: user.workspaceId,
-      //   email: user.email,
-      //   permissions: user.permissions,
-      // };
-
       res.cookie(
-        process.env.COOKIE_STYTCH_SESSION_TOKEN_NAME as string,
+        process.env.STYTCH_SESSION_TOKEN_NAME as string,
         (stytchResponse as any)?.session_token,
         {
           httpOnly: true, // accessible only by the web server
@@ -173,38 +144,21 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
           maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in ms
         }
       );
-      // Generate access and refresh tokens
-      // const accessToken = generateAccessToken(payload);
-      // const refreshToken = generateRefreshToken(payload);
-      // const accessTokenCookieName = process.env.COOKIE_ACCESS_TOKEN_NAME as string;
-      // const refreshTokenCookieName = process.env.COOKIE_REFRESH_TOKEN_NAME as string;
 
-      // // set access token in cookie
-      // res.cookie(accessTokenCookieName, accessToken, {
-      //   httpOnly: true, // accessible only by the web server
-      //   secure: process.env.NODE_ENV === "production", // HTTPS only in production
-      //   sameSite: "strict",
-      //   maxAge: 1 * 60 * 60 * 1000, // 1 hour in ms
-      // });
-
-      // set refresh token in cookie
-      // res.cookie(refreshTokenCookieName, refreshToken, {
-      //   httpOnly: true, // accessible only by the web server
-      //   secure: process.env.NODE_ENV === "production", // HTTPS only in production
-      //   sameSite: "strict",
-      //   maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in ms
-      // });
-
-      // If login is successful
+      // 4. Return the success response
       const successResponse: SuccessResponse = {
         success: true,
         message: "User logged in successfully",
         data: {},
       };
       console.log("[LOGIN USER] - user logged in successfully!");
-      console.log("--------------------------------");
       res.status(consts.httpCodes.SUCCESS).json(successResponse);
+    } else {
+      // 5. If login is unsuccessful, throw an error
+      console.log("[LOGIN USER] - user not found in Stytch, even after retry..");
+      throw new AppError(userErrorsMsg.USER_NOT_FOUND, consts.httpCodes.UNAUTHORIZED);
     }
+    console.log("----------------END LOGIN USER----------------");
   } catch (error) {
     next(error);
   }
@@ -231,27 +185,31 @@ export const getAuthenticatedUser = async (req: Request, res: Response, next: Ne
 
 export const logoutUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const accessTokenCookieName = process.env.COOKIE_ACCESS_TOKEN_NAME as string;
-    const refreshTokenCookieName = process.env.COOKIE_REFRESH_TOKEN_NAME as string;
+    const sessionTokenCookieName = process.env.STYTCH_SESSION_TOKEN_NAME as string;
+    const sessionToken = req.cookies[sessionTokenCookieName];
+    if (!sessionToken) {
+      throw new AppError(userErrorsMsg.INVALID_USER_DATA, consts.httpCodes.NOT_FOUND);
+    }
 
-    // clear access token cookie
-    res.clearCookie(accessTokenCookieName, {
-      httpOnly: true,
-      sameSite: "strict",
-      secure: process.env.NODE_ENV === "production",
-    });
-    // clear refresh token cookie
-    res.clearCookie(refreshTokenCookieName, {
-      httpOnly: true,
-      sameSite: "strict",
-      secure: process.env.NODE_ENV === "production",
-    });
+    // revoke or logout user from Stytch
+    const stytchResponse = await stytchService.revokeOrLogoutUserFromStytch(sessionToken);
+    if (stytchResponse && (stytchResponse as any)?.status_code === 200) {
+      // clear session token cookie
+      res.clearCookie(sessionTokenCookieName, {
+        httpOnly: true,
+        sameSite: "strict",
+        secure: process.env.NODE_ENV === "production",
+      });
 
-    const successResponse: SuccessResponse = {
-      success: true,
-      message: "User logged out successfully",
-    };
-    res.status(consts.httpCodes.SUCCESS).json(successResponse);
+      const successResponse: SuccessResponse = {
+        success: true,
+        message: "User logged out successfully",
+      };
+      console.log("[LOGOUT USER] - user logged out successfully");
+      res.status(consts.httpCodes.SUCCESS).json(successResponse);
+    } else {
+      throw new AppError("Failed to logout user", consts.httpCodes.INTERNAL_SERVER_ERROR);
+    }
   } catch (error) {
     next(error);
   }

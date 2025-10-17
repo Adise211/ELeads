@@ -7,10 +7,10 @@ import {
   // getClientSchema,
 } from "../lib/validation-schema.js";
 import { validate } from "../middleware/validation.middleware.js";
-import { authenticateToken } from "../middleware/auth.middleware.js";
+import { authenticateStytchSession } from "../middleware/auth.middleware.js";
 
 const router = Router();
 
-router.post("/create", authenticateToken, validate(createClientSchema), createClient);
+router.post("/create", authenticateStytchSession, validate(createClientSchema), createClient);
 
 export default router;

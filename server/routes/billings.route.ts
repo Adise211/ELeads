@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { authenticateToken } from "../middleware/auth.middleware.js";
+import { authenticateStytchSession } from "../middleware/auth.middleware.js";
 import { validate } from "../middleware/validation.middleware.js";
 import {
   createBillingSchema,
@@ -10,8 +10,8 @@ import { createBilling, deleteBilling, updateBilling } from "../controllers/bill
 
 const router = Router();
 
-router.post("/create", authenticateToken, validate(createBillingSchema), createBilling);
-router.put("/update", authenticateToken, validate(updateBillingSchema), updateBilling);
-router.delete("/delete/:id", authenticateToken, deleteBilling);
+router.post("/create", authenticateStytchSession, validate(createBillingSchema), createBilling);
+router.put("/update", authenticateStytchSession, validate(updateBillingSchema), updateBilling);
+router.delete("/delete/:id", authenticateStytchSession, deleteBilling);
 
 export default router;

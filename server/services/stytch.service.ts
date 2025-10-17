@@ -1,6 +1,8 @@
 import { consts } from "@eleads/shared";
 import { loadStytch } from "../lib/loadStytch.js";
 import { AppError } from "../middleware/errorHandler.middleware.js";
+import { Permission } from "@prisma/client";
+import { StytchCreatUserParams } from "../server.types.js";
 
 const stytchClient = loadStytch();
 
@@ -91,29 +93,19 @@ const checkPasswordStrength = async (password: string) => {
  * @param data.trusted_metadata - The trusted metadata of the user
  * @param data.trusted_metadata.dbWorkspaceId - The ID of the workspace
  * @param data.trusted_metadata.dbUserId - The ID of the user
+ * @param data.trusted_metadata.dbUserRole - The role of the user
+ * @param data.trusted_metadata.dbUserPermissions - The permissions of the user
  * @param data.sessionDurationMin - The duration of the session in minutes
  * @returns The response from the Stytch API
  */
-const createUserInStytch = async (data: {
-  email: string;
-  password: string;
-  name?: {
-    first_name?: string;
-    last_name?: string;
-  };
-  trusted_metadata?: {
-    dbWorkspaceId?: string;
-    dbUserId?: string;
-  };
-  sessionDurationMin: number;
-}) => {
+const createUserInStytch = async (data: StytchCreatUserParams) => {
   try {
     console.log("[STYTCH SERVICE - CREATE USER] - creating user in Stytch...");
     // Validate input data - return error if missing required fields
-    if (!data.email || !data.password || !data.sessionDurationMin) {
+    if (!data.email || !data.password || !data.sessionDurationMin || !data.trusted_metadata) {
       return {
         error: true,
-        message: "Missing required fields: email, password or sessionDurationMin",
+        message: "Missing required fields: email, password, sessionDurationMin or trusted_metadata",
       };
     }
     const params = {
@@ -186,22 +178,12 @@ const initUserLoginWithPassword = async (data: {
  * @param data.trusted_metadata - The trusted metadata of the user
  * @param data.trusted_metadata.dbWorkspaceId - The ID of the workspace
  * @param data.trusted_metadata.dbUserId - The ID of the user
+ * @param data.trusted_metadata.dbUserRole - The role of the user
+ * @param data.trusted_metadata.dbUserPermissions - The permissions of the user
  * @param data.sessionDurationMin - The duration of the session in minutes
  * @returns The response from the Stytch API
  */
-const loginUserInStytch = async (data: {
-  email: string;
-  password: string;
-  name?: {
-    first_name?: string;
-    last_name?: string;
-  };
-  trusted_metadata?: {
-    dbWorkspaceId?: string;
-    dbUserId?: string;
-  };
-  sessionDurationMin: number;
-}) => {
+const loginUserInStytch = async (data: StytchCreatUserParams) => {
   try {
     // Check if user exists in Stytch
     const response = await initUserLoginWithPassword(data);
@@ -214,13 +196,7 @@ const loginUserInStytch = async (data: {
         response
       );
       // Create user in Stytch if not exists
-      const user = await createUserInStytch({
-        email: data.email,
-        password: data.password,
-        name: data.name,
-        trusted_metadata: data.trusted_metadata,
-        sessionDurationMin: data.sessionDurationMin,
-      });
+      const user = await createUserInStytch(data);
       return user;
     } else {
       console.log(
@@ -235,18 +211,32 @@ const loginUserInStytch = async (data: {
   }
 };
 
-// const verifyStytchSessionToken = async (token: string) => {
-//   try {
-//     const response = await stytchClient.sessions.authenticate({ token });
-//     return response;
-//   } catch (error) {
-//     console.error("Error verifying Stytch session token: ", error);
-//   }
-// };
+// Stytch session authentication
+export async function verifyStytchSession(sessionToken: string): Promise<any> {
+  try {
+    const stytchClient = loadStytch();
+    const response = await stytchClient.sessions.authenticate({ session_token: sessionToken });
+    return response;
+  } catch (error) {
+    console.error("Error verifying Stytch session: ", error);
+    return null;
+  }
+}
+
+const revokeOrLogoutUserFromStytch = async (sessionToken: string) => {
+  try {
+    const response = await stytchClient.sessions.revoke({ session_token: sessionToken });
+    return response;
+  } catch (error) {
+    console.error("Error revoking or logging out user from Stytch: ", error);
+  }
+};
 
 export const stytchService = {
   migratePasswordToStytch,
   checkPasswordStrength,
   createUserInStytch,
   loginUserInStytch,
+  verifyStytchSession,
+  revokeOrLogoutUserFromStytch,
 };

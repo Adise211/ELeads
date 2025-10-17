@@ -9,14 +9,14 @@ Content-Type: application/json
 
 {
   "user": {
-    "firstName": "John777",
-    "lastName": "Doe777",
-    "email": "john.doe777@example.com",
+    "firstName": "John888",
+    "lastName": "Doe888",
+    "email": "john.doe888@example.com",
     "password": "SecurePass123!##!@$",
     "phone": "+1234567890"
   },
   "workspace": {
-    "name": "John777's Marketing Agency777"
+    "name": "John888's Marketing Agency888"
   }
 }
 
