@@ -2,7 +2,7 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import SideNavbar from "@/components/core/Navbar/SideNavbar";
 import { Outlet } from "react-router-dom";
 import { useAuthStore } from "@/stores/authStore";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { workspaceService } from "@/services";
 import { useWorkspaceStore } from "@/stores/workspaceStore";
 import { useUserDataStore } from "@/stores/userDataStore";
@@ -10,6 +10,7 @@ import { types } from "@eleads/shared";
 
 export default function DefaultLayout() {
   const { user } = useAuthStore();
+  const [isDataLoaded, setIsDataLoaded] = useState(false);
   const setWorkspaceLeads = useWorkspaceStore((state) => state.setWorkspaceLeads);
   const setWorkspaceUsers = useWorkspaceStore((state) => state.setWorkspaceUsers);
   const setWorkspaceBillings = useWorkspaceStore((state) => state.setWorkspaceBillings);
@@ -21,7 +22,7 @@ export default function DefaultLayout() {
   const setWorkspaceTotalRevenue = useWorkspaceStore((state) => state.setWorkspaceTotalRevenue);
 
   useEffect(() => {
-    if (user) {
+    if (user && !isDataLoaded) {
       function getLeads() {
         // get workspace leads
         workspaceService.getWorkspaceLeads().then((response) => {
@@ -111,19 +112,11 @@ export default function DefaultLayout() {
       getUsers();
       getBillingsAndRevenue();
       getClients();
+
+      // Mark data as loaded to prevent duplicate calls
+      setIsDataLoaded(true);
     }
-  }, [
-    user,
-    setWorkspaceLeads,
-    setWorkspaceUsers,
-    setWorkspaceBillings,
-    setWorkspaceClients,
-    setUserLeads,
-    setUserClients,
-    setUserBillings,
-    setUserTotalRevenue,
-    setWorkspaceTotalRevenue,
-  ]);
+  }, [user, isDataLoaded]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <SidebarProvider>

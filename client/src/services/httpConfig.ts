@@ -18,7 +18,7 @@ api.interceptors.response.use(
     // Handle specific error status codes globally
     if (error.response) {
       switch (error.response.status) {
-        case consts.httpCodes.UNAUTHORIZED:
+        case consts.httpCodes.UNAUTHORIZED || consts.httpCodes.FORBIDDEN:
           // Don't show error toast
           break;
         case consts.httpCodes.INTERNAL_SERVER_ERROR:

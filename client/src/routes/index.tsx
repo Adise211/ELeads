@@ -15,7 +15,49 @@ export const router = createBrowserRouter([
   {
     path: "/",
     element: <DefaultLayout />,
-    children: [{ index: true, element: <Navigate to="/home" /> }],
+    children: [
+      { index: true, element: <Navigate to="/home" /> },
+      {
+        path: "home",
+        element: (
+          <ProtectedRoute>
+            <HomePage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "billing",
+        element: (
+          <ProtectedRoute>
+            <BillingPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "clients",
+        element: (
+          <ProtectedRoute>
+            <ClientsPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "settings",
+        element: (
+          <ProtectedRoute>
+            <SettingsPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "leads",
+        element: (
+          <ProtectedRoute>
+            <LeadsPage />
+          </ProtectedRoute>
+        ),
+      },
+    ],
   },
   {
     path: "/login",
@@ -26,51 +68,6 @@ export const router = createBrowserRouter([
     path: "/signup",
     element: <BlankLayout />,
     children: [{ index: true, element: <SignupPage /> }],
-  },
-  {
-    path: "/home",
-    element: (
-      <ProtectedRoute>
-        <DefaultLayout />
-      </ProtectedRoute>
-    ),
-    children: [{ index: true, element: <HomePage /> }],
-  },
-  {
-    path: "/billing",
-    element: (
-      <ProtectedRoute>
-        <DefaultLayout />
-      </ProtectedRoute>
-    ),
-    children: [{ index: true, element: <BillingPage /> }],
-  },
-  {
-    path: "/clients",
-    element: (
-      <ProtectedRoute>
-        <DefaultLayout />
-      </ProtectedRoute>
-    ),
-    children: [{ index: true, element: <ClientsPage /> }],
-  },
-  {
-    path: "/settings",
-    element: (
-      <ProtectedRoute>
-        <DefaultLayout />
-      </ProtectedRoute>
-    ),
-    children: [{ index: true, element: <SettingsPage /> }],
-  },
-  {
-    path: "/leads",
-    element: (
-      <ProtectedRoute>
-        <DefaultLayout />
-      </ProtectedRoute>
-    ),
-    children: [{ index: true, element: <LeadsPage /> }],
   },
   {
     path: "*",
