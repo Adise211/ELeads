@@ -12,9 +12,12 @@ export const activitySchema: z.ZodType<ActivityDTO> = z.object({
 
 export const leadSchema: z.ZodType<LeadDTO> = z.object({
   firstName: z.string().min(1, { message: "First name is required" }),
-  lastName: z.string().min(1, { message: "Last name is required" }),
-  email: z.string().email({ message: "Invalid email address" }),
-  phone: z.string().min(1, { message: "Phone number is required" }),
+  lastName: z.string().optional(),
+  email: z
+    .string()
+    .min(1, { message: "Email is required" })
+    .email({ message: "Invalid email address" }),
+  phone: z.string().optional(),
   company: z.string().min(1, { message: "Company is required" }),
   jobTitle: z.string().optional(),
   industry: z.string().optional(),
@@ -24,7 +27,7 @@ export const leadSchema: z.ZodType<LeadDTO> = z.object({
   city: z.string().optional(),
   state: z.string().optional(),
   zipCode: z.string().optional(),
-  country: z.string().min(1, { message: "Country is required" }),
+  country: z.string().optional(),
   notes: z.array(noteSchema).optional(),
   activities: z.array(activitySchema).optional(),
   assignedToId: z.string().optional(),

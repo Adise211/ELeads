@@ -258,9 +258,7 @@ const LeadsActionBar = ({
               <Button variant="outline" onClick={() => setIsAddLeadOpen(false)}>
                 Cancel
               </Button>
-              <Button onClick={handleAddLead} disabled={!newLead.firstName || !newLead.email}>
-                Add Lead
-              </Button>
+              <Button onClick={handleAddLead}>Add Lead</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
