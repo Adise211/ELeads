@@ -1,70 +1,82 @@
-import { consts } from "@eleads/shared";
 import { loadStytch } from "../lib/loadStytch.js";
-import { AppError } from "../middleware/errorHandler.middleware.js";
-import { Permission } from "@prisma/client";
-import { StytchCreatUserParams } from "../server.types.js";
+import { StytchUpdateUserParams } from "../server.types.js";
 
 const stytchClient = loadStytch();
+const DEFAULT_SESSION_DURATION_IN_MINUTES =
+  Number(process.env.STYTCH_SESSION_DURATION_IN_MINUTES as string) || 60;
 
-interface StytchErrorResponse {
-  status_code: number;
-  request_id: string;
-  error_type?: string;
-  error_message?: string;
-  error_url?: string;
-  error_details?: string | undefined;
-}
-
-function newStytchError(stytchError: StytchErrorResponse) {
-  return new AppError(
-    stytchError.error_message || "Stytch authentication failed",
-    stytchError.status_code >= 400 && stytchError.status_code < 500
-      ? stytchError.status_code
-      : consts.httpCodes.INTERNAL_SERVER_ERROR
-  );
-}
-
-/**
- *
- * @param data - The data to migrate the password to Stytch
- * @param data.email - The email of the user
- * @param data.phone - The phone number of the user
- * @param data.userId - The ID of the user
- * @param data.workspaceId - The ID of the workspace
- * @param data.role - The role of the user
- * @param data.isEmailVerified - Whether the email is verified
- * @param data.isPhoneVerified - Whether the phone number is verified
- * @param hashedPassword
- * @returns The response from the Stytch API
- */
-const migratePasswordToStytch = async (data: Record<string, any>, hashedPassword: string) => {
+const sendOTPToUserViaEmail = async (email: string) => {
   try {
-    if (!data.email || !hashedPassword) {
-      return {
-        error: true,
-        message: "Missing required fields: email or hashedPassword",
-      };
-    }
-    const params = {
-      email: data.email, // Required
-      hash: hashedPassword, // Required
-      hash_type: "bcrypt",
-      phone_number: data.phone || "",
-      external_id: data.userId || "",
-      trusted_metadata: {
-        dbWorkspaceId: data.workspaceId || "",
-        dbUserId: data.userId || "",
-      },
-      roles: data.role ? [data.role] : [],
-      set_email_verified: data.isEmailVerified || false,
-      set_phone_number_verified: data.isPhoneVerified || false,
-    };
-
-    const response = await stytchClient.passwords.migrate(params);
+    const response = await stytchClient.otps.email.loginOrCreate({ email });
     return response;
   } catch (error) {
-    console.error("Error migrating password to Stytch: ", error);
-    // throw error;
+    console.error("Error sending OTP to user via email: ", error);
+  }
+};
+
+const verifyOTPCode = async (methodId: string, otp: string) => {
+  try {
+    const params = {
+      method_id: methodId,
+      code: otp,
+      session_duration_minutes: DEFAULT_SESSION_DURATION_IN_MINUTES,
+    };
+    const response = await stytchClient.otps.authenticate(params);
+    return response;
+  } catch (error) {
+    console.error("Error verifying OTP code: ", error);
+  }
+};
+
+const resetPasswordByExistingSession = async (sessionToken: string, newPassword: string) => {
+  try {
+    const response = await stytchClient.passwords.sessions.reset({
+      password: newPassword,
+      session_token: sessionToken,
+      session_duration_minutes: DEFAULT_SESSION_DURATION_IN_MINUTES,
+    });
+    return response;
+  } catch (error) {
+    console.error("Error resetting password by existing session: ", error);
+  }
+};
+
+const updateUserInfoInStytch = async (stytchUserId: string, data: StytchUpdateUserParams) => {
+  try {
+    const params = {
+      user_id: stytchUserId, // Required
+      name: {
+        first_name: data.name.firstName || "",
+        last_name: data.name.lastName || "",
+      },
+      trusted_metadata: {
+        dbUserId: data.dbUserId || "",
+        dbUserEmail: data.email || "",
+        dbWorkspaceId: data.workspaceId, // Required
+        dbUserPermissions: data.permissions || [],
+        dbUserRole: data.role || "",
+      },
+    };
+    console.log("[UPDATE USER INFO IN STYTCH] - Updating user info in Stytch: ", params);
+
+    const response = await stytchClient.users.update(params);
+    return response;
+  } catch (error) {
+    console.error("Error updating user info in Stytch: ", error);
+  }
+};
+
+const authenticateUserByPasswordInStytch = async (email: string, password: string) => {
+  try {
+    const params = {
+      email: email,
+      password: password,
+      session_duration_minutes: DEFAULT_SESSION_DURATION_IN_MINUTES,
+    };
+    const response = await stytchClient.passwords.authenticate(params);
+    return response;
+  } catch (error) {
+    console.error("Error authenticating password in Stytch: ", error);
   }
 };
 
@@ -79,135 +91,6 @@ const checkPasswordStrength = async (password: string) => {
     return response;
   } catch (error) {
     console.error("Error checking password strength: ", error);
-  }
-};
-
-/**
- *
- * @param data - The data to create a user in Stytch
- * @param data.email - The email of the user
- * @param data.password - The password of the user
- * @param data.name - The name of the user
- * @param data.name.first_name - The first name of the user
- * @param data.name.last_name - The last name of the user
- * @param data.trusted_metadata - The trusted metadata of the user
- * @param data.trusted_metadata.dbWorkspaceId - The ID of the workspace
- * @param data.trusted_metadata.dbUserId - The ID of the user
- * @param data.trusted_metadata.dbUserRole - The role of the user
- * @param data.trusted_metadata.dbUserPermissions - The permissions of the user
- * @param data.sessionDurationMin - The duration of the session in minutes
- * @returns The response from the Stytch API
- */
-const createUserInStytch = async (data: StytchCreatUserParams) => {
-  try {
-    console.log("[STYTCH SERVICE - CREATE USER] - creating user in Stytch...");
-    // Validate input data - return error if missing required fields
-    if (!data.email || !data.password || !data.sessionDurationMin || !data.trusted_metadata) {
-      return {
-        error: true,
-        message: "Missing required fields: email, password, sessionDurationMin or trusted_metadata",
-      };
-    }
-    const params = {
-      email: data.email,
-      password: data.password,
-      name: data.name,
-      trusted_metadata: data.trusted_metadata,
-      session_duration_minutes: data.sessionDurationMin,
-    };
-    const response = await stytchClient.passwords.create(params);
-    return response;
-  } catch (error) {
-    console.error("Error creating user in Stytch: ", error);
-  }
-};
-
-// Initialize user login with password
-const getAuthUserFromStytch = async (data: {
-  email: string;
-  password: string;
-  sessionDurationMin: number;
-}) => {
-  try {
-    const response = await stytchClient.passwords.authenticate({
-      email: data.email,
-      password: data.password,
-      session_duration_minutes: data.sessionDurationMin,
-    });
-    if (response.status_code === 200) {
-      return {
-        error: false,
-        isUserNeedToBeCreated: false,
-        message: "User authenticated successfully",
-        data: response,
-      };
-    }
-  } catch (error) {
-    console.error("Error logging user in Stytch: ", error);
-    if (
-      error &&
-      typeof error === "object" &&
-      "error_type" in error &&
-      error.error_type === "email_not_found"
-    ) {
-      return {
-        error: true,
-        isUserNeedToBeCreated: true,
-        message: "User not found in Stytch, need to be created",
-        data: null,
-      };
-    }
-    // Default fallback
-    return {
-      error: true,
-      isUserNeedToBeCreated: false,
-      message: "Authentication failed",
-      data: null,
-    };
-  }
-};
-
-/**
- *
- * @param data - The data to login a user in Stytch
- * @param data.email - The email of the user
- * @param data.password - The password of the user
- * @param data.name - The name of the user
- * @param data.name.first_name - The first name of the user
- * @param data.name.last_name - The last name of the user
- * @param data.trusted_metadata - The trusted metadata of the user
- * @param data.trusted_metadata.dbWorkspaceId - The ID of the workspace
- * @param data.trusted_metadata.dbUserId - The ID of the user
- * @param data.trusted_metadata.dbUserRole - The role of the user
- * @param data.trusted_metadata.dbUserPermissions - The permissions of the user
- * @param data.sessionDurationMin - The duration of the session in minutes
- * @returns The response from the Stytch API
- */
-const createOrLoginUserInStytch = async (data: StytchCreatUserParams) => {
-  try {
-    // Check if user exists in Stytch
-    const response = await getAuthUserFromStytch(data);
-    if (response && !response.error && !response.isUserNeedToBeCreated) {
-      console.log("[STYTCH SERVICE - LOGIN USER] - user is exists in Stytch");
-      return response.data;
-    } else if (response && response.error && response.isUserNeedToBeCreated) {
-      console.log(
-        "[STYTCH SERVICE - LOGIN USER] - user is NOT exists in Stytch, creating user in Stytch...",
-        response
-      );
-      // Create user in Stytch if not exists
-      const user = await createUserInStytch(data);
-      return user;
-    } else {
-      console.log(
-        "[STYTCH SERVICE - LOGIN USER] - failed to login user in Stytch, even after retry...",
-        response
-      );
-      // User not found in Stytch, even after retry
-      return null;
-    }
-  } catch (error) {
-    console.error("Error logging user in Stytch: ", error);
   }
 };
 
@@ -236,14 +119,13 @@ export const resetExistingUserPasswordInStytch = async (data: {
   email: string;
   existingPassword: string;
   newPassword: string;
-  sessionDurationMin: number;
 }) => {
   try {
     const response = await stytchClient.passwords.existingPassword.reset({
       email: data.email,
       existing_password: data.existingPassword,
       new_password: data.newPassword,
-      session_duration_minutes: data.sessionDurationMin,
+      session_duration_minutes: DEFAULT_SESSION_DURATION_IN_MINUTES,
     });
     return response;
   } catch (error) {
@@ -252,10 +134,12 @@ export const resetExistingUserPasswordInStytch = async (data: {
 };
 
 export const stytchService = {
-  migratePasswordToStytch,
+  sendOTPToUserViaEmail,
+  verifyOTPCode,
+  resetPasswordByExistingSession,
+  updateUserInfoInStytch,
+  authenticateUserByPasswordInStytch,
   checkPasswordStrength,
-  createUserInStytch,
-  createOrLoginUserInStytch,
   verifyStytchSession,
   revokeOrLogoutUserFromStytch,
   resetExistingUserPasswordInStytch,

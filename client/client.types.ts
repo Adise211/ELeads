@@ -10,6 +10,9 @@ export interface SignupFormData {
   email: string;
   password: string;
   phone: string;
+  // Email Verification
+  otp: string;
+  isEmailVerified: boolean;
   // Workspace Info
   workspaceType?: "new" | "existing";
   workspaceName?: string;

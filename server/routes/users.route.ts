@@ -6,10 +6,18 @@ import {
   registerUser,
   changeUserPassword,
   updateUserInfo,
+  sendOTPToUser,
+  testCachedOTP,
+  verifyOTPCode,
 } from "../controllers/users.controller.js";
 import { authenticateStytchSession } from "../middleware/auth.middleware.js";
 import { validate } from "../middleware/validation.middleware.js";
-import { loginUserSchema, registerUserSchema } from "../lib/validation-schema.js";
+import {
+  loginUserSchema,
+  registerUserSchema,
+  sendOTPToUserSchema,
+  verifyOTPCodeSchema,
+} from "../lib/validation-schema.js";
 
 const router = Router();
 
@@ -49,5 +57,15 @@ router.post("/change-password", authenticateStytchSession, changeUserPassword);
 // @desc: Update user info
 // @access: Private
 router.put("/update-info", authenticateStytchSession, updateUserInfo);
+
+// @path: /api/users/send-otp
+// @desc: Send OTP to user
+// @access: Public
+router.post("/send-otp", validate(sendOTPToUserSchema), sendOTPToUser);
+
+// @path: /api/users/verify-otp
+// @desc: Verify OTP code
+// @access: Public
+router.post("/verify-otp", verifyOTPCode);
 
 export default router;

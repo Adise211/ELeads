@@ -16,9 +16,30 @@ import { userErrorsMsg, workspaceErrorsMsg } from "../utils/errorCodes.js";
 import { AppError } from "../middleware/errorHandler.middleware.js";
 import { hashPassword, comparePassword, rolePermissionMap } from "../lib/auth.helper.js";
 // import { generateAccessToken, generateRefreshToken } from "../lib/auth.helper.js";
-import { RegisterUserFields, StytchCreatUserParams, SuccessResponse } from "../server.types.js";
+import { RegisterUserFields, StytchUpdateUserParams, SuccessResponse } from "../server.types.js";
 import { omitFields } from "../lib/data.helper.js";
 import { stytchService } from "../services/stytch.service.js";
+import cache from "../lib/node-cache.js";
+
+const getCachedDataForRegisterUser = (cachedDataKey: string) => {
+  try {
+    const cachedData = cache.get(cachedDataKey);
+
+    const { stytchSessionToken, stytchUserId } = cachedData as {
+      stytchSessionToken: string;
+      stytchUserId: string;
+    };
+
+    return { stytchSessionToken, stytchUserId };
+  } catch (error) {
+    console.error("[REGISTER USER] - Failed to get cached session token");
+
+    throw new AppError(
+      "Sorry, we could not signup you up. Please try again later.",
+      consts.httpCodes.INTERNAL_SERVER_ERROR
+    );
+  }
+};
 
 export const registerUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -29,6 +50,8 @@ export const registerUser = async (req: Request, res: Response, next: NextFuncti
     // Default user role is admin
     // TODO: make this dynamic based on the workspace (new -> admin, existing -> by link)
     let userRole: UserRole = UserRole.ADMIN;
+    const cachedData = getCachedDataForRegisterUser(email);
+    const { stytchSessionToken, stytchUserId } = cachedData;
 
     // 1. Check if password is strong enough
     const passwordStrength = await stytchService.checkPasswordStrength(password);
@@ -82,7 +105,46 @@ export const registerUser = async (req: Request, res: Response, next: NextFuncti
       await addUserToWorkspace(createdWorkspace.id, createdUser.id);
       console.log("[REGISTER USER] - user was created in DB!");
 
-      console.log("----------------END REGISTER USER----------------");
+      // 7. Register the user in Stytch
+      const addPasswordByResetResponse = await stytchService.resetPasswordByExistingSession(
+        stytchSessionToken,
+        password
+      );
+      if (addPasswordByResetResponse && (addPasswordByResetResponse as any)?.status_code === 200) {
+        console.log("[REGISTER USER] - Password added to Stytch successfully");
+        const params: StytchUpdateUserParams = {
+          dbUserId: createdUser.id,
+          email: createdUser.email,
+          name: { firstName: createdUser.firstName, lastName: createdUser.lastName },
+          workspaceId: createdWorkspace.id,
+          role: createdUser.role,
+          permissions: createdUser.permissions,
+        };
+        const updateUserInStytchResponse = await stytchService.updateUserInfoInStytch(
+          stytchUserId,
+          params
+        );
+        if (
+          updateUserInStytchResponse &&
+          (updateUserInStytchResponse as any)?.status_code === 200
+        ) {
+          console.log("[REGISTER USER] - User info updated in Stytch successfully");
+        } else {
+          console.error("[REGISTER USER] - Failed to update user info in Stytch");
+          throw new AppError(
+            "Sorry, we could not signup you up. Please try again later.",
+            consts.httpCodes.INTERNAL_SERVER_ERROR
+          );
+        }
+      } else {
+        console.error("[REGISTER USER] - Failed to add password to Stytch");
+        throw new AppError(
+          "Sorry, we could not signup you up. Please try again later.",
+          consts.httpCodes.INTERNAL_SERVER_ERROR
+        );
+      }
+
+      console.log("----------------END OF REGISTER USER----------------");
 
       // 8. Return the created user and workspace
       res.status(consts.httpCodes.CREATED).json({
@@ -105,27 +167,10 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
     if (!user) {
       throw new AppError(userErrorsMsg.USER_NOT_FOUND, consts.httpCodes.UNAUTHORIZED);
     }
+
     console.log("[LOGIN USER] - user found in DB");
-
-    // 2. Login or cretae user in Stytch (user is exists in the DB)
-    const stytchData: StytchCreatUserParams = {
-      email,
-      password,
-      name: {
-        first_name: user.firstName,
-        last_name: user.lastName,
-      },
-      trusted_metadata: {
-        dbUserId: user.id || "",
-        dbUserEmail: user.email || "",
-        dbWorkspaceId: user.workspaceId || "",
-        dbUserRole: user.role ? [user.role] : [],
-        dbUserPermissions: user.permissions || [],
-      },
-      sessionDurationMin: 60, // in minutes (1 hour)
-    };
-
-    const stytchResponse = await stytchService.createOrLoginUserInStytch(stytchData);
+    // 2. Authenticate user by password in Stytch
+    const stytchResponse = await stytchService.authenticateUserByPasswordInStytch(email, password);
 
     if (
       stytchResponse &&
@@ -158,7 +203,7 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
       console.log("[LOGIN USER] - user not found in Stytch, even after retry..");
       throw new AppError(userErrorsMsg.USER_NOT_FOUND, consts.httpCodes.UNAUTHORIZED);
     }
-    console.log("----------------END LOGIN USER----------------");
+    console.log("----------------END OF LOGIN USER----------------");
   } catch (error) {
     next(error);
   }
@@ -242,7 +287,6 @@ export const changeUserPassword = async (req: Request, res: Response, next: Next
         email: user.email,
         existingPassword: currentPassword,
         newPassword: newPassword,
-        sessionDurationMin: 60, // 1 hour session duration
       });
 
       if (stytchResetResponse && (stytchResetResponse as any)?.status_code === 200) {
@@ -287,6 +331,95 @@ export const updateUserInfo = async (req: Request, res: Response, next: NextFunc
       success: true,
       message: "User info updated successfully",
       data: safeUser,
+    };
+    res.status(consts.httpCodes.SUCCESS).json(successResponse);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const sendOTPToUser = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { email } = req.body;
+    // 1. Check if email exists
+    const isEmailExists = await getUserByEmail(email);
+    if (isEmailExists) {
+      throw new AppError(userErrorsMsg.USER_ALREADY_EXISTS, consts.httpCodes.BAD_REQUEST);
+    }
+    // 2. Send OTP to user
+    const stytchResponse = await stytchService.sendOTPToUserViaEmail(email);
+    if (stytchResponse && (stytchResponse as any)?.status_code === 200) {
+      // 3. Cache the OTP info
+      const cachedOTPInfo = {
+        stytchUserId: (stytchResponse as any)?.user_id,
+        stytchMethodId: (stytchResponse as any)?.email_id,
+      };
+      const isCached = cache.set(email, cachedOTPInfo, 60 * 5); // 5 minutes
+      console.log("[SEND OTP TO USER] - OTP cached successfully? ", isCached);
+      if (!isCached) {
+        throw new AppError("Failed to cache OTP", consts.httpCodes.INTERNAL_SERVER_ERROR);
+      }
+
+      // 4. Return the success response
+      const successResponse: SuccessResponse = {
+        success: true,
+        message: "OTP sent successfully",
+        data: {},
+      };
+      res.status(consts.httpCodes.SUCCESS).json(successResponse);
+    } else {
+      throw new AppError("Failed to send OTP", consts.httpCodes.INTERNAL_SERVER_ERROR);
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const verifyOTPCode = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { email, otp } = req.body;
+    const cachedOTPInfo = cache.get(email);
+    if (!cachedOTPInfo) {
+      throw new AppError("OTP not found", consts.httpCodes.NOT_FOUND);
+    }
+    const { stytchMethodId } = cachedOTPInfo as {
+      stytchMethodId: string;
+    };
+    const stytchResponse = await stytchService.verifyOTPCode(stytchMethodId, otp);
+    if (stytchResponse && (stytchResponse as any)?.status_code === 200) {
+      console.log("[VERIFY OTP CODE] - OTP verified successfully");
+      const cachedOTPInfo: Record<string, any> | undefined = cache.get(email);
+      if (cachedOTPInfo) {
+        cachedOTPInfo.stytchSessionToken = (stytchResponse as any)?.session_token;
+        const isCached = cache.set(email, cachedOTPInfo, 60 * 5); // 5 minutes
+        console.log("[VERIFY OTP CODE] - OTPsession token cached successfully? ", isCached);
+        if (!isCached) {
+          throw new AppError("Failed to verify OTP", consts.httpCodes.INTERNAL_SERVER_ERROR);
+        }
+      }
+      const successResponse: SuccessResponse = {
+        success: true,
+        message: "OTP verified successfully",
+        data: {},
+      };
+      res.status(consts.httpCodes.SUCCESS).json(successResponse);
+    } else {
+      throw new AppError("Failed to verify OTP", consts.httpCodes.INTERNAL_SERVER_ERROR);
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const testCachedOTP = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { email } = req.body;
+    const cachedData = cache.get(email);
+    console.log("[TEST CACHED OTP] - Cached data: ", cachedData);
+    const successResponse: SuccessResponse = {
+      success: true,
+      message: "Test cached OTP successfully",
+      data: cachedData,
     };
     res.status(consts.httpCodes.SUCCESS).json(successResponse);
   } catch (error) {
