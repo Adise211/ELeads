@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { authenticateStytchSession } from "../middleware/auth.middleware.js";
+import { authenticateStytchSession, checkPermission } from "../middleware/auth.middleware.js";
 import { validate } from "../middleware/validation.middleware.js";
 import {
   createBillingSchema,
@@ -7,11 +7,40 @@ import {
   updateBillingSchema,
 } from "../lib/validation-schema.js";
 import { createBilling, deleteBilling, updateBilling } from "../controllers/billings.controller.js";
+import { types } from "@eleads/shared";
 
 const router = Router();
 
-router.post("/create", authenticateStytchSession, validate(createBillingSchema), createBilling);
-router.put("/update", authenticateStytchSession, validate(updateBillingSchema), updateBilling);
-router.delete("/delete/:id", authenticateStytchSession, deleteBilling);
+// @path: /api/billings/create
+// @desc: Create a new billing
+// @access: Private
+router.post(
+  "/create",
+  validate(createBillingSchema),
+  authenticateStytchSession,
+  checkPermission([types.Permission.CREATE_BILLING, types.Permission.MANAGE_BILLING]),
+  createBilling
+);
+
+// @path: /api/billings/update
+// @desc: Update a billing
+// @access: Private
+router.put(
+  "/update",
+  authenticateStytchSession,
+  validate(updateBillingSchema),
+  checkPermission([types.Permission.EDIT_BILLING, types.Permission.MANAGE_BILLING]),
+  updateBilling
+);
+
+// @path: /api/billings/delete/:id
+// @desc: Delete a billing
+// @access: Private
+router.delete(
+  "/delete/:id",
+  authenticateStytchSession,
+  checkPermission([types.Permission.DELETE_BILLING, types.Permission.MANAGE_BILLING]),
+  deleteBilling
+);
 
 export default router;

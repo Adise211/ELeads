@@ -62,7 +62,7 @@ export async function authenticateStytchSession(req: Request, res: Response, nex
 
 // Note: Old authenticateStytchToken function removed - replaced with authenticateStytchSession
 
-export function checkPermission(action: Permission) {
+export function checkPermission(actions: Permission[]) {
   return (req: Request, res: Response, next: NextFunction) => {
     const { permissions, userId } = (req as any).user;
     const dataAssignedToId = (req as any).body?.assignedToId || req.query?.assignedToId || null;
@@ -70,7 +70,9 @@ export function checkPermission(action: Permission) {
     if (dataAssignedToId && dataAssignedToId === userId) {
       console.log("user is owner!");
       next();
-    } else if (permissions.includes(action)) {
+    } else if (
+      permissions.some((permission: Permission) => actions.includes(permission as Permission))
+    ) {
       // check if the user has the permission to access the data that he does not own
       console.log("user has permission!");
       next();

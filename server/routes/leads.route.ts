@@ -22,7 +22,7 @@ import {
   deleteNoteSchema,
 } from "../lib/validation-schema.js";
 import { validate } from "../middleware/validation.middleware.js";
-import { Permission } from "@eleads/shared/dist/types/index.js";
+import { types } from "@eleads/shared";
 
 const router = Router();
 
@@ -37,7 +37,7 @@ router.post("/create", authenticateStytchSession, validate(createLeadSchema), cr
 router.put(
   "/update",
   authenticateStytchSession,
-  checkPermission(Permission.EDIT_WORKSPACE_LEADS),
+  checkPermission([types.Permission.EDIT_WORKSPACE_LEADS]),
   validate(updateLeadSchema),
   updateUserLead
 );
@@ -48,7 +48,7 @@ router.put(
 router.delete(
   "/delete/:id",
   authenticateStytchSession,
-  checkPermission(Permission.DELETE_WORKSPACE_LEADS),
+  checkPermission([types.Permission.DELETE_WORKSPACE_LEADS]),
   deleteLead
 );
 
