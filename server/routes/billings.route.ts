@@ -16,9 +16,9 @@ const router = Router();
 // @access: Private
 router.post(
   "/create",
-  validate(createBillingSchema),
   authenticateStytchSession,
   checkPermission([types.Permission.CREATE_BILLING, types.Permission.MANAGE_BILLING]),
+  validate(createBillingSchema),
   createBilling
 );
 
@@ -28,8 +28,8 @@ router.post(
 router.put(
   "/update",
   authenticateStytchSession,
-  validate(updateBillingSchema),
   checkPermission([types.Permission.EDIT_BILLING, types.Permission.MANAGE_BILLING]),
+  validate(updateBillingSchema),
   updateBilling
 );
 

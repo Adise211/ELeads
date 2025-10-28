@@ -64,7 +64,7 @@ export const updateClient = async (data: types.ClientDTO, workspaceId: string, u
   return client;
 };
 
-export const deleteClient = async (id: string) => {
-  const client = await prisma.client.delete({ where: { id } });
+export const deleteClient = async (id: string, workspaceId: string, userId: string) => {
+  const client = await prisma.client.delete({ where: { id, workspaceId, assignedToId: userId } });
   return client;
 };
