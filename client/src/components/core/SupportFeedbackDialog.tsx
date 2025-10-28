@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Upload, X, Send } from "lucide-react";
+import { Send } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -27,13 +27,11 @@ interface SupportFeedbackDialogProps {
 interface FormData {
   subject: string;
   content: string;
-  attachment: File | null;
 }
 
 interface FormErrors {
   subject?: string;
   content?: string;
-  attachment?: string;
 }
 
 export function SupportFeedbackDialog({ isOpen, onClose, type }: SupportFeedbackDialogProps) {
@@ -41,7 +39,6 @@ export function SupportFeedbackDialog({ isOpen, onClose, type }: SupportFeedback
   const [formData, setFormData] = React.useState<FormData>({
     subject: "",
     content: "",
-    attachment: null,
   });
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [errors, setErrors] = React.useState<FormErrors>({});
@@ -63,32 +60,6 @@ export function SupportFeedbackDialog({ isOpen, onClose, type }: SupportFeedback
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: undefined }));
     }
-  };
-
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0] || null;
-    if (file) {
-      // Validate file type (images only)
-      const allowedTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
-      if (!allowedTypes.includes(file.type)) {
-        setErrors((prev) => ({
-          ...prev,
-          attachment: "Please upload an image file (JPEG, PNG, GIF, or WebP)",
-        }));
-        return;
-      }
-
-      // Validate file size (max 5MB)
-      const maxSize = 5 * 1024 * 1024; // 5MB
-      if (file.size > maxSize) {
-        setErrors((prev) => ({
-          ...prev,
-          attachment: "File size must be less than 5MB",
-        }));
-        return;
-      }
-    }
-    handleInputChange("attachment", file);
   };
 
   const validateForm = (): boolean => {
@@ -141,7 +112,7 @@ export function SupportFeedbackDialog({ isOpen, onClose, type }: SupportFeedback
       });
 
       // Reset form and close dialog
-      setFormData({ subject: "", content: "", attachment: null });
+      setFormData({ subject: "", content: "" });
       setErrors({});
       onClose();
 
@@ -164,7 +135,7 @@ export function SupportFeedbackDialog({ isOpen, onClose, type }: SupportFeedback
   };
 
   const handleClose = () => {
-    setFormData({ subject: "", content: "", attachment: null });
+    setFormData({ subject: "", content: "" });
     setErrors({});
     onClose();
   };
@@ -208,45 +179,6 @@ export function SupportFeedbackDialog({ isOpen, onClose, type }: SupportFeedback
               className={cn("min-h-[100px]", errors.content && "border-red-500")}
             />
             {errors.content && <p className="text-sm text-red-500">{errors.content}</p>}
-          </div>
-
-          <div className="space-y-2">
-            <label htmlFor="attachment" className="text-sm font-medium">
-              Attach Image (Optional)
-            </label>
-            <div className="relative">
-              <input
-                type="file"
-                id="attachment"
-                accept="image/*"
-                onChange={handleFileUpload}
-                className="hidden"
-              />
-              <Button
-                type="button"
-                variant="outline"
-                className="w-full justify-center gap-2"
-                onClick={() => document.getElementById("attachment")?.click()}
-              >
-                <Upload className="h-4 w-4" />
-                {formData.attachment ? formData.attachment.name : "Choose Image"}
-              </Button>
-              {formData.attachment && (
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0"
-                  onClick={() => handleInputChange("attachment", null)}
-                >
-                  <X className="h-3 w-3" />
-                </Button>
-              )}
-            </div>
-            {errors.attachment && <p className="text-sm text-red-500">{errors.attachment}</p>}
-            <p className="text-xs text-muted-foreground">
-              Supported formats: JPEG, PNG, GIF, WebP (max 5MB)
-            </p>
           </div>
 
           <DialogFooter>
