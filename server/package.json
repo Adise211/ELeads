@@ -15,6 +15,7 @@
     "generate:enums": "npx tsx scripts/generate-enums.ts",
     "migrate": "npx prisma migrate dev",
     "migrate:prod": "npx dotenv-cli -e .env.production -- npx prisma migrate deploy",
+    "migrate:staging": "npx dotenv-cli -e .env.staging -- npx prisma migrate deploy",
     "studio": "npx prisma studio"
   },
   "author": "Adise",
