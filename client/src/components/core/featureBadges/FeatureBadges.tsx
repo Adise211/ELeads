@@ -21,4 +21,4 @@ const FeatureBadges = ({ type, children }: FeatureBadgesProps) => {
   );
 };
 
-export { FeatureBadges };
+export default FeatureBadges;
