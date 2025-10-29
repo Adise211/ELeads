@@ -3,14 +3,17 @@ import { ClientDTO } from "../types/data-dto.js";
 import { ClientPriority, ClientStatus } from "../types/prisma-enums.js";
 // import { createBillingSchema } from "./billing.schema.js";
 const baseClientSchema = z.object({
-  name: z.optional(z.string()),
-  email: z.string().email({ message: "Invalid email address" }),
-  phone: z.string().min(1, { message: "Phone is required" }),
+  name: z.string().min(1, { message: "Name is required" }),
+  email: z
+    .string()
+    .min(1, { message: "Email is required" })
+    .email({ message: "Invalid email address" }),
+  phone: z.optional(z.string()),
   address: z.optional(z.string()),
   city: z.optional(z.string()),
   state: z.optional(z.string()),
   zipCode: z.optional(z.string()),
-  country: z.string().min(1, { message: "Country is required" }),
+  country: z.optional(z.string()),
   company: z.string().min(1, { message: "Company is required" }),
   industry: z.optional(z.string()),
   website: z.optional(z.string()),

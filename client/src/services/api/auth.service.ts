@@ -40,4 +40,47 @@ export const authService = {
     const response = await api.post("/users/refresh");
     return response.data;
   },
+
+  /**
+   * Change user password
+   */
+  changePassword: async (
+    currentPassword: string,
+    newPassword: string
+  ): Promise<SuccessResponse> => {
+    const response = await api.post("/users/change-password", {
+      currentPassword,
+      newPassword,
+    });
+    return response.data;
+  },
+
+  /**
+   * Update user information
+   */
+  updateUserInfo: async (userData: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone?: string;
+  }): Promise<SuccessResponse> => {
+    const response = await api.put("/users/update-info", userData);
+    return response.data;
+  },
+
+  /**
+   * Send OTP to user via email
+   */
+  sendOTPToUser: async (email: string): Promise<SuccessResponse> => {
+    const response = await api.post("/users/send-otp", { email });
+    return response.data;
+  },
+
+  /**
+   * Verify OTP code
+   */
+  verifyOTPCode: async (email: string, otp: string): Promise<SuccessResponse> => {
+    const response = await api.post("/users/verify-otp", { email, otp });
+    return response.data;
+  },
 };

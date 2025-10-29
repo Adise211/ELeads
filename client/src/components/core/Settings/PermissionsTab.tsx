@@ -20,8 +20,9 @@ import { useState } from "react";
 import { consts, types } from "@eleads/shared";
 import { useAuthStore } from "@/stores/authStore";
 import ProtectedUI from "@/components/providers/ProtectedUI";
+import { formatPermissionDisplay } from "@/utils/utilFunc";
 
-interface WorkspaceUser {
+export interface WorkspaceUser {
   id: string;
   email: string;
   firstName: string;
@@ -32,10 +33,10 @@ interface WorkspaceUser {
 }
 
 interface PermissionsTabProps {
-  workspaceUsers: WorkspaceUser[];
+  settingsWorkspaceUsers: WorkspaceUser[];
 }
 
-const PermissionsTab = ({ workspaceUsers }: PermissionsTabProps) => {
+const PermissionsTab = ({ settingsWorkspaceUsers }: PermissionsTabProps) => {
   const [editingUser, setEditingUser] = useState<WorkspaceUser | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedRole, setSelectedRole] = useState<string>("");
@@ -46,7 +47,7 @@ const PermissionsTab = ({ workspaceUsers }: PermissionsTabProps) => {
   const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
 
   const handleEditUser = (userId: string) => {
-    const user = workspaceUsers.find((u) => u.id === userId);
+    const user = settingsWorkspaceUsers.find((u) => u.id === userId);
     if (user) {
       setEditingUser(user);
       setSelectedRole(user.role);
@@ -85,24 +86,24 @@ const PermissionsTab = ({ workspaceUsers }: PermissionsTabProps) => {
     setIsInviteDialogOpen(false);
   };
 
-  const roleOptions = [
-    { value: "USER", label: "User" },
-    { value: "MANAGER", label: "Manager" },
-    { value: "ADMIN", label: "Admin" },
-  ];
+  const roleOptions = Object.entries(consts.roleOptions).map(([key, value]) => ({
+    value: value,
+    label: key.charAt(0) + key.slice(1).toLowerCase(),
+  }));
 
-  const permissionOptions = [
-    { value: "read:users", label: "Read Users" },
-    { value: "write:users", label: "Write Users" },
-    { value: "admin:workspace", label: "Admin Workspace" },
-    { value: "read:leads", label: "Read Leads" },
-    { value: "write:leads", label: "Write Leads" },
-  ];
+  const permissionOptions = Object.entries(consts.permissionsOptions).map(([key, value]) => ({
+    value: value,
+    label: key
+      .replace(/_/g, " ")
+      .toLowerCase()
+      .replace(/\b\w/g, (l) => l.toUpperCase()),
+    disabled: value === consts.permissionsOptions.MANAGE_OWN_LEADS,
+  }));
 
   const getPermissionOptions = (currentPermissions: string[]) => {
     return permissionOptions.map((option) => ({
       ...option,
-      disabled: currentPermissions.includes(option.value),
+      disabled: option.disabled || currentPermissions.includes(option.value),
     }));
   };
 
@@ -116,7 +117,7 @@ const PermissionsTab = ({ workspaceUsers }: PermissionsTabProps) => {
       <div className="flex flex-wrap gap-1 items-center">
         {visiblePermissions.map((permission) => (
           <Badge key={permission} variant="outline" className="text-xs">
-            {permission}
+            {formatPermissionDisplay(permission)}
           </Badge>
         ))}
         {remainingCount > 0 && (
@@ -132,7 +133,7 @@ const PermissionsTab = ({ workspaceUsers }: PermissionsTabProps) => {
                 <div className="flex flex-wrap gap-1 max-w-xs">
                   {remainingPermissions.map((permission) => (
                     <Badge key={permission} variant="secondary" className="text-xs">
-                      {permission}
+                      {formatPermissionDisplay(permission)}
                     </Badge>
                   ))}
                 </div>
@@ -162,7 +163,7 @@ const PermissionsTab = ({ workspaceUsers }: PermissionsTabProps) => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {workspaceUsers.map((workspaceUser) => (
+            {settingsWorkspaceUsers.map((workspaceUser) => (
               <TableRow key={workspaceUser.id}>
                 <TableCell>
                   <div className="flex items-center gap-3">
@@ -274,7 +275,7 @@ const PermissionsTab = ({ workspaceUsers }: PermissionsTabProps) => {
                   {currentPermissions.map((permission) => (
                     <div key={permission} className="flex items-center gap-1">
                       <Badge variant="outline" className="text-xs">
-                        {permission}
+                        {formatPermissionDisplay(permission)}
                       </Badge>
                       <ButtonIcon
                         onClick={() => handleRemovePermission(permission)}

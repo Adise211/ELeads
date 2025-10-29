@@ -10,6 +10,17 @@ export const registerUserSchema = z.object({
   body: schemas.registerUserSchema,
 });
 
+export const sendOTPToUserSchema = z.object({
+  body: schemas.sendOTPToUserSchema,
+});
+
+export const verifyOTPCodeSchema = z.object({
+  body: z.object({
+    email: z.string().email(),
+    otp: z.string().min(1, { message: "OTP is required" }),
+  }),
+});
+
 // Lead
 export const createLeadSchema = z.object({
   body: schemas.leadSchema,

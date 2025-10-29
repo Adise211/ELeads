@@ -1,0 +1,147 @@
+PRISMA DECIMAL TYPE HANDLING - INTERNAL DOCUMENTATION
+======================================================
+
+OVERVIEW
+--------
+This document explains the unique approach our application uses to handle Prisma's Decimal type, 
+which is essential for maintaining precision in financial calculations while providing consistent 
+number types to the client-side application.
+
+PROBLEM STATEMENT
+-----------------
+Prisma's Decimal type fields are automatically converted to strings when retrieved from the database 
+to preserve precision and avoid JavaScript floating-point arithmetic issues. This creates a type 
+inconsistency where:
+
+1. Client sends: number (e.g., 100.50)
+2. Server receives: number (100.50)
+3. Prisma saves to DB: Decimal (100.50)
+4. Prisma returns from DB: string ("100.50") ← ISSUE HERE
+5. Client receives: string ("100.50") ← UNEXPECTED
+
+This behavior affects any field defined as Decimal in our Prisma schema, specifically:
+- billedAmount (Billing model)
+- userCommission (Billing model)
+
+WHY PRISMA CONVERTS DECIMAL TO STRING
+------------------------------------
+Prisma converts Decimal fields to strings because:
+- JavaScript's number type uses IEEE 754 floating-point representation
+- Floating-point arithmetic can cause precision loss (e.g., 0.1 + 0.2 = 0.30000000000000004)
+- Financial applications require exact decimal precision
+- Strings preserve the exact decimal value without rounding errors
+
+OUR SOLUTION APPROACH
+--------------------
+We implement a conversion layer in our model functions that:
+1. Receives the Prisma result with Decimal fields as strings
+2. Converts the Decimal string fields back to numbers using Number()
+3. Returns the object with consistent number types
+
+IMPLEMENTATION DETAILS
+----------------------
+
+Location: /server/models/billings.model.ts
+Function: createBilling()
+```typescript
+export const createBilling = async (data: types.BillingDTO, workspaceId: string) => {
+  const { client, ...billingData } = data;
+  const billing = await prisma.billing.create({
+    data: {
+      ...billingData,
+      clientId: billingData.clientId!,
+      workspaceId: workspaceId,
+    },
+    include: {
+      client: true,
+    },
+  });
+  
+  // Convert Decimal fields back to numbers - Only for the fields that are Decimal (because Prisma converts Decimal to string)
+  return {
+    ...billing,
+    billedAmount: Number(billing.billedAmount),
+    userCommission: Number(billing.userCommission),
+  };
+};
+```
+
+Location: /server/models/workspace.model.ts
+Function: getWorkspaceBillings()
+```typescript
+export const getWorkspaceBillings = async (workspaceId: string) => {
+  const billings = await prisma.billing.findMany({
+    where: {
+      workspaceId,
+    },
+    include: {
+      client: true,
+    },
+  });
+  
+  // Convert Decimal fields back to numbers for each billing
+  return billings.map((billing) => ({
+    ...billing,
+    billedAmount: Number(billing.billedAmount),
+    userCommission: Number(billing.userCommission),
+  }));
+};
+```
+
+BENEFITS OF THIS APPROACH
+------------------------
+1. Maintains type consistency between client and server
+2. Preserves the precision benefits of Prisma's Decimal type in the database
+3. Client-side code continues to work with numbers as expected
+4. No breaking changes to existing API contracts
+5. Transparent conversion at the model layer
+
+FIELDS AFFECTED
+---------------
+The following Prisma schema fields use Decimal type and require this conversion:
+- Billing.billedAmount (Decimal @db.Decimal(10, 2))
+- Billing.userCommission (Decimal @db.Decimal(10, 2))
+
+DEVELOPMENT GUIDELINES
+----------------------
+When adding new billing-related functions that return data:
+
+1. ALWAYS convert Decimal fields to numbers before returning
+2. Use Number() for conversion (not parseFloat() to avoid precision issues)
+3. Apply conversion for both single records and arrays
+4. Update this documentation when adding new Decimal fields
+
+Example for new functions:
+```typescript
+// For single record
+return {
+  ...record,
+  billedAmount: Number(record.billedAmount),
+  userCommission: Number(record.userCommission),
+};
+
+// For array of records
+return records.map(record => ({
+  ...record,
+  billedAmount: Number(record.billedAmount),
+  userCommission: Number(record.userCommission),
+}));
+```
+
+TESTING CONSIDERATIONS
+----------------------
+When testing billing functionality:
+1. Verify that API responses contain numbers, not strings
+2. Test edge cases with decimal precision (e.g., 99.99, 0.01)
+3. Ensure client-side calculations work correctly with returned number types
+
+ALTERNATIVES CONSIDERED
+-----------------------
+1. Change DTO types to expect strings - REJECTED (breaks client expectations)
+2. Use transformation middleware - REJECTED (adds complexity)
+3. Use different database type - REJECTED (loses precision benefits)
+
+This approach was chosen as the most maintainable and least disruptive solution.
+
+LAST UPDATED: [Current Date]
+MAINTAINED BY: Development Team

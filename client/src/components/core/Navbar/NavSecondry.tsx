@@ -12,6 +12,8 @@ import {
 
 export function NavSecondary({
   items,
+  onSupportClick,
+  onFeedbackClick,
   ...props
 }: {
   items: {
@@ -19,19 +21,40 @@ export function NavSecondary({
     url: string;
     icon: LucideIcon;
   }[];
+  onSupportClick?: () => void;
+  onFeedbackClick?: () => void;
 } & React.ComponentPropsWithoutRef<typeof SidebarGroup>) {
+  const handleItemClick = (item: { title: string; url: string }) => {
+    if (item.title === "Support" && onSupportClick) {
+      onSupportClick();
+    } else if (item.title === "Feedback" && onFeedbackClick) {
+      onFeedbackClick();
+    }
+  };
+
+  const isDialogItem = (title: string) => {
+    return title === "Support" || title === "Feedback";
+  };
+
   return (
     <SidebarGroup {...props}>
       <SidebarGroupContent>
         <SidebarMenu>
           {items.map((item) => (
             <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton asChild size="sm">
-                <Link to={item.url}>
+              {isDialogItem(item.title) ? (
+                <SidebarMenuButton size="sm" onClick={() => handleItemClick(item)}>
                   <item.icon />
                   <span>{item.title}</span>
-                </Link>
-              </SidebarMenuButton>
+                </SidebarMenuButton>
+              ) : (
+                <SidebarMenuButton asChild size="sm">
+                  <Link to={item.url}>
+                    <item.icon />
+                    <span>{item.title}</span>
+                  </Link>
+                </SidebarMenuButton>
+              )}
             </SidebarMenuItem>
           ))}
         </SidebarMenu>

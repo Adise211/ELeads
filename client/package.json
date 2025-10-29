@@ -6,12 +6,14 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b tsconfig.json && vite build",
+    "build:staging": "tsc -b tsconfig.json && vite build",
     "lint": "eslint .",
     "start": "serve -s dist",
     "preview": "vite preview"
   },
   "dependencies": {
     "@eleads/shared": "file:../shared",
+    "@emailjs/browser": "^4.4.1",
     "@mantine/form": "^8.2.1",
     "@radix-ui/react-alert-dialog": "^1.1.14",
     "@radix-ui/react-avatar": "^1.1.10",

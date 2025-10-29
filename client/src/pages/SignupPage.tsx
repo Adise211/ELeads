@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import PersonalInfoStep from "@/components/core/Auth/PersonalInfoStep";
+import EmailVerificationStep from "@/components/core/Auth/EmailVerificationStep";
+import PasswordStep from "@/components/core/Auth/PasswordStep";
 import WorkspaceStep from "@/components/core/Auth/WorkspaceStep";
 import { ChevronRight } from "lucide-react";
 import type { SignupFormData } from "../../client.types";
@@ -21,6 +23,8 @@ const SignupPage = () => {
     email: "",
     password: "",
     phone: "",
+    otp: "",
+    isEmailVerified: false,
     workspaceType: "new",
     workspaceName: "",
     workspaceId: "",
@@ -34,8 +38,24 @@ const SignupPage = () => {
     setCurrentStep(2);
   };
 
-  const handleWorkspaceBack = () => {
+  const handleEmailVerificationNext = () => {
+    setCurrentStep(3);
+  };
+
+  const handleEmailVerificationBack = () => {
     setCurrentStep(1);
+  };
+
+  const handlePasswordNext = () => {
+    setCurrentStep(4);
+  };
+
+  const handlePasswordBack = () => {
+    setCurrentStep(2);
+  };
+
+  const handleWorkspaceBack = () => {
+    setCurrentStep(3);
   };
 
   const handleComplete = async () => {
@@ -93,10 +113,10 @@ const SignupPage = () => {
       <div className="relative z-10 w-full max-w-md mx-auto px-4">
         {/* Step indicator */}
         <div className="mb-8">
-          <div className="flex items-center justify-center space-x-4">
+          <div className="flex items-center justify-center space-x-1 sm:space-x-2">
             <div className="flex items-center">
               <div
-                className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${
+                className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm font-medium transition-colors ${
                   currentStep >= 1
                     ? "bg-primary text-primary-foreground"
                     : "bg-muted text-muted-foreground"
@@ -104,18 +124,18 @@ const SignupPage = () => {
               >
                 1
               </div>
-              <span className="ml-2 text-sm font-medium text-foreground hidden sm:inline">
-                Personal Info
+              <span className="ml-1 sm:ml-2 text-xs sm:text-sm font-medium text-foreground hidden md:inline">
+                Personal
               </span>
             </div>
 
-            <div className="flex-1 h-px bg-border relative">
-              <ChevronRight className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground bg-background" />
+            <div className="flex-1 h-px bg-border relative max-w-4 sm:max-w-8">
+              <ChevronRight className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 w-3 h-3 sm:w-4 sm:h-4 text-muted-foreground bg-background" />
             </div>
 
             <div className="flex items-center">
               <div
-                className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${
+                className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm font-medium transition-colors ${
                   currentStep >= 2
                     ? "bg-primary text-primary-foreground"
                     : "bg-muted text-muted-foreground"
@@ -123,7 +143,45 @@ const SignupPage = () => {
               >
                 2
               </div>
-              <span className="ml-2 text-sm font-medium text-foreground hidden sm:inline">
+              <span className="ml-1 sm:ml-2 text-xs sm:text-sm font-medium text-foreground hidden md:inline">
+                Email
+              </span>
+            </div>
+
+            <div className="flex-1 h-px bg-border relative max-w-4 sm:max-w-8">
+              <ChevronRight className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 w-3 h-3 sm:w-4 sm:h-4 text-muted-foreground bg-background" />
+            </div>
+
+            <div className="flex items-center">
+              <div
+                className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm font-medium transition-colors ${
+                  currentStep >= 3
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-muted text-muted-foreground"
+                }`}
+              >
+                3
+              </div>
+              <span className="ml-1 sm:ml-2 text-xs sm:text-sm font-medium text-foreground hidden md:inline">
+                Password
+              </span>
+            </div>
+
+            <div className="flex-1 h-px bg-border relative max-w-4 sm:max-w-8">
+              <ChevronRight className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 w-3 h-3 sm:w-4 sm:h-4 text-muted-foreground bg-background" />
+            </div>
+
+            <div className="flex items-center">
+              <div
+                className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm font-medium transition-colors ${
+                  currentStep >= 4
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-muted text-muted-foreground"
+                }`}
+              >
+                4
+              </div>
+              <span className="ml-1 sm:ml-2 text-xs sm:text-sm font-medium text-foreground hidden md:inline">
                 Workspace
               </span>
             </div>
@@ -137,7 +195,6 @@ const SignupPage = () => {
               firstName: formData.firstName,
               lastName: formData.lastName,
               email: formData.email,
-              password: formData.password,
               phone: formData.phone,
             }}
             onUpdate={updateFormData}
@@ -146,6 +203,30 @@ const SignupPage = () => {
         )}
 
         {currentStep === 2 && (
+          <EmailVerificationStep
+            formData={{
+              email: formData.email,
+              otp: formData.otp,
+              isEmailVerified: formData.isEmailVerified,
+            }}
+            onUpdate={updateFormData}
+            onNext={handleEmailVerificationNext}
+            onBack={handleEmailVerificationBack}
+          />
+        )}
+
+        {currentStep === 3 && (
+          <PasswordStep
+            formData={{
+              password: formData.password,
+            }}
+            onUpdate={updateFormData}
+            onNext={handlePasswordNext}
+            onBack={handlePasswordBack}
+          />
+        )}
+
+        {currentStep === 4 && (
           <WorkspaceStep
             formData={{
               workspaceType: formData.workspaceType ?? "new",

@@ -10,10 +10,11 @@
   ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build:shared": "npm run build --workspaces=shared",
-    "build:client": "npm run build --workspaces=client",
-    "build:server": "npm run build --workspaces=server",
+    "build:shared": "cd shared && npm run build",
+    "build:client": "cd client && npm run build",
+    "build:server": "cd server && npm run build",
     "build": "npm run build:shared && npm run build:client && npm run build:server",
+    "build:client-only": "npm run build:shared && npm run build:client",
     "update:shared": "cd shared && npm run build && cd ../server && npm install && cd ../client && npm install"
   },
   "author": "Adise",

@@ -13,6 +13,7 @@ import BillingDialog from "./BillingDialog";
 import { types, schemas } from "@eleads/shared";
 
 const DEFAULT_INVOICE: types.BillingDTO = {
+  clientId: "",
   billedAmount: 0,
   currency: "USD",
   billingCycle: "one-time",
@@ -107,7 +108,7 @@ const BillingActionBar = ({
         </Button>
       </div>
 
-      {/* Billing Dialog */}
+      {/* Create Billing Dialog */}
       <BillingDialog
         isOpen={isCreateInvoiceOpen}
         onOpenChange={setIsCreateInvoiceOpen}
@@ -115,6 +116,7 @@ const BillingActionBar = ({
         onInvoiceChange={setNewInvoice}
         onSubmit={handleCreateInvoice}
         errors={errors}
+        isEditMode={false}
       />
     </div>
   );

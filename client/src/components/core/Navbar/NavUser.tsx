@@ -1,4 +1,4 @@
-import { Bell, ChevronsUpDown, LogOut, Sparkles, User } from "lucide-react";
+import { Bell, ChevronsUpDown, LogOut, User } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -18,6 +18,9 @@ import {
 import { authService } from "@/services";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/stores/authStore";
+import FeatureBadges from "@/components/core/FeatureBadges/FeatureBadges";
+import { FEATURE_FLAGS_OPTIONS } from "@/utils/localConsts";
+import type { FeatureBadgeType } from "@/utils/localTypes";
 
 export function NavUser({
   user,
@@ -83,21 +86,23 @@ export function NavUser({
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <DropdownMenuItem>
+            {/* <DropdownMenuGroup>
+              <DropdownMenuItem >
                 <Sparkles />
                 Upgrade to Pro
               </DropdownMenuItem>
             </DropdownMenuGroup>
-            <DropdownMenuSeparator />
+            <DropdownMenuSeparator /> */}
             <DropdownMenuGroup>
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate("/settings")}>
                 <User />
                 Account
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem disabled={true}>
                 <Bell />
-                Notifications
+                <FeatureBadges type={FEATURE_FLAGS_OPTIONS.SOON as FeatureBadgeType}>
+                  Notifications
+                </FeatureBadges>
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />

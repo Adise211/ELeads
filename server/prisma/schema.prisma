@@ -54,6 +54,7 @@ model Workspace {
   workspaceLeads Lead[]
   clients        Client[]
   billings       Billing[]
+  isActive       Boolean   @default(true)
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 }
@@ -139,21 +140,22 @@ model Billing {
   billingAttachments String[]
   workspace          Workspace     @relation(fields: [workspaceId], references: [id])
   workspaceId        String
+  isActive           Boolean       @default(true)
   createdAt          DateTime      @default(now())
   updatedAt          DateTime      @updatedAt
 }
 
 model Client {
   id            String         @id @default(cuid())
-  name          String?
-  email         String?
+  name          String         @default("")
+  email         String         @default("")
   phone         String?
   address       String?
   city          String?
   state         String?
   zipCode       String?
   country       String?
-  company       String?
+  company       String         @default("")
   industry      String?
   website       String?
   billing       Billing[]
@@ -166,6 +168,7 @@ model Client {
   // Lead Relationship
   convertedFrom Lead?          @relation(fields: [leadId], references: [id])
   leadId        String?        @unique
+  isActive      Boolean        @default(true)
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
 }

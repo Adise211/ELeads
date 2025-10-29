@@ -21,7 +21,7 @@ export const billingsService = {
    * Delete a billing
    */
   deleteBilling: async (id: string): Promise<SuccessResponse> => {
-    const response = await api.delete(`/billings/${id}`);
+    const response = await api.delete(`/billings/delete/${id}`);
     return response.data;
   },
   /**

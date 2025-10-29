@@ -23,7 +23,7 @@ const ProtectedUI = ({
   const userId = useAuthStore((state) => state.user?.id);
 
   const showUIElement = useMemo(() => {
-    // User without therequired permission and does not own the item
+    // User without the required permission and does not own the item
 
     // User does not have the required permissions
     if (allowedPermissions && !isUserHasPermission(allowedPermissions)) {

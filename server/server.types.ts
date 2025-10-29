@@ -1,4 +1,4 @@
-import { LeadStatus } from "@prisma/client";
+import { LeadStatus, Permission, UserRole } from "@prisma/client";
 
 // Custom error interface
 export interface CustomError extends Error {
@@ -53,3 +53,37 @@ export interface CreateLeadInput {
   country?: string;
   workspaceId: string;
 }
+
+export interface StytchCreatUserParams {
+  email: string;
+  password: string;
+  name?: {
+    first_name?: string;
+    last_name?: string;
+  };
+  trusted_metadata: {
+    dbUserId: string;
+    dbUserEmail: string;
+    dbWorkspaceId: string;
+    dbUserRole: string[];
+    dbUserPermissions: Permission[];
+  };
+  sessionDurationMin: number;
+}
+export interface StytchErrorResponse {
+  status_code: number;
+  request_id: string;
+  error_type?: string;
+  error_message?: string;
+  error_url?: string;
+  error_details?: string | undefined;
+}
+
+export type StytchUpdateUserParams = {
+  dbUserId: string;
+  email: string;
+  name: { firstName?: string; lastName?: string };
+  workspaceId: string;
+  role?: UserRole;
+  permissions?: Permission[];
+};

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -11,32 +11,10 @@ import {
   NotificationsTab,
   PreferenceTab,
 } from "@/components/core/Settings";
+import type { WorkspaceUser } from "@/components/core/Settings/PermissionsTab";
 import { useAuthStore } from "@/stores/authStore";
 import { types } from "@eleads/shared";
-
-// Mock data - replace with actual API calls
-// const mockUser = {
-//   id: "user-123",
-//   email: "john.doe@company.com",
-//   firstName: "John",
-//   lastName: "Doe",
-//   role: "ADMIN",
-//   avatarUrl:
-//     "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
-//   isActive: true,
-//   phone: "+1 (555) 123-4567",
-//   workspaceId: "workspace-456",
-//   permissions: ["read:users", "write:users", "admin:workspace"],
-//   createdAt: new Date("2024-01-15"),
-//   updatedAt: new Date("2024-01-20"),
-// };
-
-// const mockWorkspace = {
-//   id: "workspace-456",
-//   name: "Acme Corporation",
-//   createdAt: new Date("2024-01-01"),
-//   updatedAt: new Date("2024-01-20"),
-// };
+import { workspaceService } from "@/services/api/workspace.service";
 
 const mockWorkspaceUsers = [
   {
@@ -73,45 +51,49 @@ const mockWorkspaceUsers = [
 
 const TestPage = () => {
   const { user, setUser } = useAuthStore();
-
-  // const [workspace, setWorkspace] = useState(mockWorkspace);
+  const [settingsWorkspaceUsers, setSettingsWorkspaceUsers] = useState<WorkspaceUser[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingUsers, setIsLoadingUsers] = useState(true);
 
-  // const handleSaveWorkspace = async () => {
-  //   setIsLoading(true);
-  //   // Simulate API call
-  //   setTimeout(() => {
-  //     setIsLoading(false);
-  //     showSuccessToast("Workspace settings have been successfully updated.");
-  //   }, 1000);
-  // };
+  // Fetch workspace users on component mount
+  useEffect(() => {
+    const fetchWorkspaceUsers = async () => {
+      try {
+        setIsLoadingUsers(true);
+        const response = await workspaceService.getWorkspaceUsers();
+        if (response.success && response.data) {
+          // Transform the data to match our interface
+          const transformedUsers = response.data.map((user: types.UserDTO) => ({
+            id: user.id,
+            email: user.email,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            role: user.role,
+            avatarUrl:
+              user.avatarUrl ||
+              `https://ui-avatars.com/api/?name=${user.firstName}+${user.lastName}`,
+            permissions: user.permissions || [],
+          }));
+          setSettingsWorkspaceUsers(transformedUsers);
+        }
+      } catch (error) {
+        console.error("Failed to fetch workspace users:", error);
+        // Fallback to mock data if API fails
+        setSettingsWorkspaceUsers(mockWorkspaceUsers);
+      } finally {
+        setIsLoadingUsers(false);
+      }
+    };
 
-  // const handlePasswordChange = async () => {
-  //   setIsLoading(true);
-  //   // Simulate API call
-  //   setTimeout(() => {
-  //     setIsLoading(false);
-  //     showSuccessToast("Your password has been successfully changed.");
-  //   }, 1000);
-  // };
+    fetchWorkspaceUsers();
+  }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-subtle p-6">
-      <div className="max-w-4xl mx-auto space-y-6">
-        {/* Header */}
-        {/* <div className="flex items-center gap-3 mb-8">
-          <div className="p-2 bg-gradient-primary rounded-lg shadow-glow">
-            <SettingsIcon className="h-6 w-6 text-primary-foreground" />
-          </div>
-          <div>
-            <h1 className="text-3xl font-bold text-foreground">Settings</h1>
-            <p className="text-muted-foreground">Manage your account and workspace preferences</p>
-          </div>
-        </div> */}
-
+    <div className="max-h-screen h-[calc(100vh-28px)] bg-gradient-subtle p-6">
+      <div className="max-w-7xl h-full mx-auto space-y-6">
         {/* Upper Card - Current User Info */}
-        <Card className="shadow-elegant border-border/50">
-          <CardContent className="p-6">
+        <Card className="shadow-elegant border-border/50 h-[25%]">
+          <CardContent className="p-6 h-full">
             <div className="flex items-center gap-6">
               <div className="relative">
                 <Avatar className="h-20 w-20 border-4 border-primary/20">
@@ -163,7 +145,7 @@ const TestPage = () => {
         </Card>
 
         {/* Lower Card - Tabbed Settings */}
-        <Card className="shadow-elegant border-border/50 overflow-hidden h-[520px]">
+        <Card className="shadow-elegant border-border/50 overflow-hidden h-[72%]">
           <Tabs defaultValue="account" className="w-full h-full">
             <div className="px-6 pt-6">
               <TabsList className="grid w-full grid-cols-4 bg-muted/50">
@@ -189,7 +171,7 @@ const TestPage = () => {
             {/* Account Tab */}
             <TabsContent
               value="account"
-              className="px-6 pb-6 space-y-6 h-[calc(600px-120px)] overflow-y-auto"
+              className="px-6 pb-6 space-y-6 h-[calc(100%-120px)] overflow-y-auto"
             >
               <AccountTab
                 user={user as types.UserDTO}
@@ -202,15 +184,26 @@ const TestPage = () => {
             {/* Permissions Tab */}
             <TabsContent
               value="permissions"
-              className="px-6 pb-6 space-y-6 h-[calc(600px-120px)] overflow-y-auto"
+              className="px-6 pb-6 space-y-6 h-[calc(100%-120px)] overflow-y-auto"
             >
-              <PermissionsTab workspaceUsers={mockWorkspaceUsers} />
+              {isLoadingUsers ? (
+                <div className="flex items-center justify-center h-full">
+                  <div className="text-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+                    <p className="text-muted-foreground">Loading workspace users...</p>
+                  </div>
+                </div>
+              ) : (
+                <PermissionsTab
+                  settingsWorkspaceUsers={settingsWorkspaceUsers as WorkspaceUser[]}
+                />
+              )}
             </TabsContent>
 
             {/* Notifications Tab */}
             <TabsContent
               value="notifications"
-              className="px-6 pb-6 space-y-6 h-[calc(600px-120px)] overflow-y-auto"
+              className="px-6 pb-6 space-y-6 h-[calc(100%-120px)] overflow-y-auto"
             >
               <NotificationsTab />
             </TabsContent>
@@ -218,7 +211,7 @@ const TestPage = () => {
             {/* Preference Tab */}
             <TabsContent
               value="preference"
-              className="px-6 pb-6 space-y-6 h-[calc(600px-120px)] overflow-y-auto"
+              className="px-6 pb-6 space-y-6 h-[calc(100%-120px)] overflow-y-auto"
             >
               <PreferenceTab />
             </TabsContent>

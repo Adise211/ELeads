@@ -1,6 +1,9 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import FeatureBadges from "@/components/core/FeatureBadges/FeatureBadges";
+import { FEATURE_FLAGS_OPTIONS } from "@/utils/localConsts";
+import type { FeatureBadgeType } from "@/utils/localTypes";
 
 const PreferenceTab = () => {
   return (
@@ -22,17 +25,21 @@ const PreferenceTab = () => {
         </div>
         <div className="flex items-center justify-between">
           <div>
-            <p className="font-medium">Dark Mode</p>
+            <FeatureBadges type={FEATURE_FLAGS_OPTIONS.SOON as FeatureBadgeType}>
+              <p className="font-medium">Dark Mode</p>
+            </FeatureBadges>
             <p className="text-sm text-muted-foreground">Switch between light and dark themes</p>
           </div>
-          <Switch />
+          <Switch disabled={true} />
         </div>
         <div className="flex items-center justify-between">
           <div>
-            <p className="font-medium">Compact View</p>
+            <FeatureBadges type={FEATURE_FLAGS_OPTIONS.SOON as FeatureBadgeType}>
+              <p className="font-medium">Compact View</p>
+            </FeatureBadges>
             <p className="text-sm text-muted-foreground">Use a more compact layout</p>
           </div>
-          <Switch />
+          <Switch disabled={true} />
         </div>
       </div>
     </div>

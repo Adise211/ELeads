@@ -39,11 +39,11 @@ export type WorkspaceDTO = {
 
 export type LeadDTO = {
   id?: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-  company: string;
+  firstName: string; // required
+  lastName?: string;
+  email: string; // required
+  phone?: string;
+  company: string; // required
   jobTitle?: string;
   industry?: string;
   status: LeadStatus;
@@ -52,7 +52,7 @@ export type LeadDTO = {
   city?: string;
   state?: string;
   zipCode?: string;
-  country: string;
+  country?: string;
   notes?: NoteDTO[];
   activities?: ActivityDTO[];
   assignedToId?: string;
@@ -84,14 +84,14 @@ export type NoteDTO = {
 
 export type ClientDTO = {
   id?: string;
-  name?: string;
+  name: string;
   email: string;
-  phone: string;
+  phone?: string;
   address?: string;
   city?: string;
   state?: string;
   zipCode?: string;
-  country: string;
+  country?: string;
   company: string;
   industry?: string;
   website?: string;
