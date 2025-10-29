@@ -1,5 +1,5 @@
 import { Switch } from "@/components/ui/switch";
-import { FeatureBadges } from "@/components/core/FeatureBadges";
+import { FeatureBadges } from "../FeatureBadges";
 import { FEATURE_FLAGS_OPTIONS } from "@/utils/localConsts";
 import type { FeatureBadgeType } from "@/utils/localTypes";
 
