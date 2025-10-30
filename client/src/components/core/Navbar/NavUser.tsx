@@ -18,9 +18,9 @@ import {
 import { authService } from "@/services";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/stores/authStore";
-import FeatureBadge from "@/components/core/FeatureBadges/FeatureBadge.tsx";
-import { FEATURE_FLAGS_OPTIONS } from "@/utils/localConsts";
-import type { FeatureBadgeType } from "@/utils/localTypes";
+// import FeatureBadge from "@/components/core/FeatureBadges/FeatureBadge.tsx";
+// import { FEATURE_FLAGS_OPTIONS } from "@/utils/localConsts";
+// import type { FeatureBadgeType } from "@/utils/localTypes";
 
 export function NavUser({
   user,
@@ -100,9 +100,9 @@ export function NavUser({
               </DropdownMenuItem>
               <DropdownMenuItem disabled={true}>
                 <Bell />
-                <FeatureBadge type={FEATURE_FLAGS_OPTIONS.SOON as FeatureBadgeType}>
-                  Notifications
-                </FeatureBadge>
+                {/* <FeatureBadge type={FEATURE_FLAGS_OPTIONS.SOON as FeatureBadgeType}> */}
+                Notifications
+                {/* </FeatureBadge> */}
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
