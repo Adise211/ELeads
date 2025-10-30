@@ -3,7 +3,7 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 
-const backendOrigin = process.env.VITE_BACKEND_ORIGIN;
+const backendOrigin = import.meta.env.VITE_BACKEND_ORIGIN;
 
 // https://vite.dev/config/
 export default defineConfig({
