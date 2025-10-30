@@ -1,5 +1,5 @@
 import { Switch } from "@/components/ui/switch";
-import FeatureBadges from "@/components/core/FeatureBadges/FeatureBadges";
+import FeatureBadge from "@/components/core/FeatureBadges/FeatureBadge";
 import { FEATURE_FLAGS_OPTIONS } from "@/utils/localConsts";
 import type { FeatureBadgeType } from "@/utils/localTypes";
 
@@ -11,9 +11,9 @@ const NotificationsTab = () => {
         <div className="flex items-center justify-between">
           {/* Email Notifications */}
           <div>
-            <FeatureBadges type={FEATURE_FLAGS_OPTIONS.SOON as FeatureBadgeType}>
+            <FeatureBadge type={FEATURE_FLAGS_OPTIONS.SOON as FeatureBadgeType}>
               <p className="font-medium">Email Notifications</p>
-            </FeatureBadges>
+            </FeatureBadge>
             <p className="text-sm text-muted-foreground">Receive notifications via email</p>
           </div>
           <Switch defaultChecked disabled={true} />
@@ -21,9 +21,9 @@ const NotificationsTab = () => {
         <div className="flex items-center justify-between">
           {/* Lead Updates */}
           <div>
-            <FeatureBadges type={FEATURE_FLAGS_OPTIONS.SOON as FeatureBadgeType}>
+            <FeatureBadge type={FEATURE_FLAGS_OPTIONS.SOON as FeatureBadgeType}>
               <p className="font-medium">Lead Updates</p>
-            </FeatureBadges>
+            </FeatureBadge>
             <p className="text-sm text-muted-foreground">Get notified when leads are updated</p>
           </div>
           <Switch defaultChecked disabled={true} />
@@ -31,9 +31,9 @@ const NotificationsTab = () => {
         {/* Activity Reminders */}
         <div className="flex items-center justify-between">
           <div>
-            <FeatureBadges type={FEATURE_FLAGS_OPTIONS.SOON as FeatureBadgeType}>
+            <FeatureBadge type={FEATURE_FLAGS_OPTIONS.SOON as FeatureBadgeType}>
               <p className="font-medium">Activity Reminders</p>
-            </FeatureBadges>
+            </FeatureBadge>
             <p className="text-sm text-muted-foreground">
               Receive reminders for scheduled activities
             </p>
@@ -43,9 +43,9 @@ const NotificationsTab = () => {
         {/* Workspace Changes */}
         <div className="flex items-center justify-between">
           <div>
-            <FeatureBadges type={FEATURE_FLAGS_OPTIONS.SOON as FeatureBadgeType}>
+            <FeatureBadge type={FEATURE_FLAGS_OPTIONS.SOON as FeatureBadgeType}>
               <p className="font-medium">Workspace Changes</p>
-            </FeatureBadges>
+            </FeatureBadge>
             <p className="text-sm text-muted-foreground">Get notified about workspace updates</p>
           </div>
           <Switch defaultChecked disabled={true} />

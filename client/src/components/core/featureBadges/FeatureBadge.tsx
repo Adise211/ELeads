@@ -1,14 +1,14 @@
 import type { FeatureBadgeType } from "@/utils/localTypes";
 import { FEATURE_FLAGS_OPTIONS } from "@/utils/localConsts";
-import { NewBadge } from "./NewBadge";
-import { SoonBadge } from "./SoonBadge";
+import NewBadge from "./NewBadge";
+import SoonBadge from "./SoonBadge";
 
-interface FeatureBadgesProps {
+interface FeatureBadgeProps {
   type: FeatureBadgeType;
   children?: React.ReactNode;
 }
 
-const FeatureBadges = ({ type, children }: FeatureBadgesProps) => {
+const FeatureBadge = ({ type, children }: FeatureBadgeProps) => {
   return (
     <div className="flex items-center gap-2">
       {children && children}
@@ -21,4 +21,4 @@ const FeatureBadges = ({ type, children }: FeatureBadgesProps) => {
   );
 };
 
-export default FeatureBadges;
+export default FeatureBadge;

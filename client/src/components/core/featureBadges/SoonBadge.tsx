@@ -34,4 +34,4 @@ const SoonBadge = React.forwardRef<HTMLSpanElement, SoonBadgeProps>(
 
 SoonBadge.displayName = "SoonBadge";
 
-export { SoonBadge };
+export default SoonBadge;

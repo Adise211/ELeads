@@ -1,3 +1,3 @@
-export { SoonBadge } from "./SoonBadge";
-export { NewBadge } from "./NewBadge";
-export { default as FeatureBadges } from "./FeatureBadges";
+export { default as SoonBadge } from "./SoonBadge";
+export { default as NewBadge } from "./NewBadge";
+export { default as FeatureBadge } from "./FeatureBadge";
