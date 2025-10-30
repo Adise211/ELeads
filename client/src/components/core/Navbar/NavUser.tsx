@@ -18,7 +18,7 @@ import {
 import { authService } from "@/services";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/stores/authStore";
-import FeatureBadge from "@/components/core/FeatureBadges/FeatureBadge";
+import FeatureBadge from "@/components/core/FeatureBadges/FeatureBadge.tsx";
 import { FEATURE_FLAGS_OPTIONS } from "@/utils/localConsts";
 import type { FeatureBadgeType } from "@/utils/localTypes";
 

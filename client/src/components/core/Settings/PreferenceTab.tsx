@@ -1,7 +1,7 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import FeatureBadge from "@/components/core/FeatureBadges/FeatureBadge";
+import FeatureBadge from "@/components/core/FeatureBadges/FeatureBadge.tsx";
 import { FEATURE_FLAGS_OPTIONS } from "@/utils/localConsts";
 import type { FeatureBadgeType } from "@/utils/localTypes";
 
