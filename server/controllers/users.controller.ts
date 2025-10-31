@@ -50,8 +50,6 @@ export const registerUser = async (req: Request, res: Response, next: NextFuncti
     // Default user role is admin
     // TODO: make this dynamic based on the workspace (new -> admin, existing -> by link)
     let userRole: UserRole = UserRole.ADMIN;
-    const cachedData = getCachedDataForRegisterUser(email);
-    const { stytchSessionToken, stytchUserId } = cachedData;
 
     // 1. Check if password is strong enough
     const passwordStrength = await stytchService.checkPasswordStrength(password);
@@ -106,6 +104,9 @@ export const registerUser = async (req: Request, res: Response, next: NextFuncti
       console.log("[REGISTER USER] - user was created in DB!");
       // 7. Register the user in Stytch - if feature flag is enabled
       if (consts.featureFlags.AUTH_BY_STYTCH) {
+        const cachedData = getCachedDataForRegisterUser(email);
+        const { stytchSessionToken, stytchUserId } = cachedData;
+    
         const addPasswordByResetResponse = await stytchService.resetPasswordByExistingSession(
           stytchSessionToken,
           password

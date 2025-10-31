@@ -9,12 +9,13 @@ import type { SignupFormData } from "../../client.types";
 import { authService } from "@/services";
 import { showSuccessToast } from "@/utils/toast";
 import { useNavigate } from "react-router-dom";
-import { schemas } from "@eleads/shared";
+import { schemas, consts } from "@eleads/shared";
 import AppAlert from "@/components/ui/app-alert";
 import { AxiosError } from "axios";
 
 const SignupPage = () => {
   const navigate = useNavigate();
+  const { VERIFY_EMAIL_BY_OTP } = consts.featureFlags;
   const [currentStep, setCurrentStep] = useState(1);
   const [errorMessage, setErrorMessage] = useState("");
   const [formData, setFormData] = useState<SignupFormData>({
@@ -47,15 +48,17 @@ const SignupPage = () => {
   };
 
   const handlePasswordNext = () => {
-    setCurrentStep(4);
+    // Total steps: 3 if email verification disabled, 4 if enabled
+    setCurrentStep(VERIFY_EMAIL_BY_OTP ? 4 : 3);
   };
 
   const handlePasswordBack = () => {
-    setCurrentStep(2);
+    // Go back to email verification if enabled, otherwise to personal info
+    setCurrentStep(VERIFY_EMAIL_BY_OTP ? 2 : 1);
   };
 
   const handleWorkspaceBack = () => {
-    setCurrentStep(3);
+    setCurrentStep(VERIFY_EMAIL_BY_OTP ? 3 : 2);
   };
 
   const handleComplete = async () => {
@@ -129,6 +132,29 @@ const SignupPage = () => {
               </span>
             </div>
 
+            {VERIFY_EMAIL_BY_OTP && (
+              <>
+                <div className="flex-1 h-px bg-border relative max-w-4 sm:max-w-8">
+                  <ChevronRight className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 w-3 h-3 sm:w-4 sm:h-4 text-muted-foreground bg-background" />
+                </div>
+
+                <div className="flex items-center">
+                  <div
+                    className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm font-medium transition-colors ${
+                      currentStep >= 2
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted text-muted-foreground"
+                    }`}
+                  >
+                    2
+                  </div>
+                  <span className="ml-1 sm:ml-2 text-xs sm:text-sm font-medium text-foreground hidden md:inline">
+                    Email
+                  </span>
+                </div>
+              </>
+            )}
+
             <div className="flex-1 h-px bg-border relative max-w-4 sm:max-w-8">
               <ChevronRight className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 w-3 h-3 sm:w-4 sm:h-4 text-muted-foreground bg-background" />
             </div>
@@ -136,31 +162,12 @@ const SignupPage = () => {
             <div className="flex items-center">
               <div
                 className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm font-medium transition-colors ${
-                  currentStep >= 2
+                  currentStep >= (VERIFY_EMAIL_BY_OTP ? 3 : 2)
                     ? "bg-primary text-primary-foreground"
                     : "bg-muted text-muted-foreground"
                 }`}
               >
-                2
-              </div>
-              <span className="ml-1 sm:ml-2 text-xs sm:text-sm font-medium text-foreground hidden md:inline">
-                Email
-              </span>
-            </div>
-
-            <div className="flex-1 h-px bg-border relative max-w-4 sm:max-w-8">
-              <ChevronRight className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 w-3 h-3 sm:w-4 sm:h-4 text-muted-foreground bg-background" />
-            </div>
-
-            <div className="flex items-center">
-              <div
-                className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm font-medium transition-colors ${
-                  currentStep >= 3
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted text-muted-foreground"
-                }`}
-              >
-                3
+                {VERIFY_EMAIL_BY_OTP ? 3 : 2}
               </div>
               <span className="ml-1 sm:ml-2 text-xs sm:text-sm font-medium text-foreground hidden md:inline">
                 Password
@@ -174,12 +181,12 @@ const SignupPage = () => {
             <div className="flex items-center">
               <div
                 className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm font-medium transition-colors ${
-                  currentStep >= 4
+                  currentStep >= (VERIFY_EMAIL_BY_OTP ? 4 : 3)
                     ? "bg-primary text-primary-foreground"
                     : "bg-muted text-muted-foreground"
                 }`}
               >
-                4
+                {VERIFY_EMAIL_BY_OTP ? 4 : 3}
               </div>
               <span className="ml-1 sm:ml-2 text-xs sm:text-sm font-medium text-foreground hidden md:inline">
                 Workspace
@@ -202,7 +209,7 @@ const SignupPage = () => {
           />
         )}
 
-        {currentStep === 2 && (
+        {VERIFY_EMAIL_BY_OTP && currentStep === 2 && (
           <EmailVerificationStep
             formData={{
               email: formData.email,
@@ -215,7 +222,7 @@ const SignupPage = () => {
           />
         )}
 
-        {currentStep === 3 && (
+        {currentStep === (VERIFY_EMAIL_BY_OTP ? 3 : 2) && (
           <PasswordStep
             formData={{
               password: formData.password,
@@ -226,7 +233,7 @@ const SignupPage = () => {
           />
         )}
 
-        {currentStep === 4 && (
+        {currentStep === (VERIFY_EMAIL_BY_OTP ? 4 : 3) && (
           <WorkspaceStep
             formData={{
               workspaceType: formData.workspaceType ?? "new",
