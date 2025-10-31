@@ -36,3 +36,14 @@ export const leadStatusOptions: Record<LeadStatus, string> = {
   INPROGRESS: "INPROGRESS",
   LOST: "LOST",
 };
+
+export const featureFlags: Record<string, boolean> = {
+  AUTH_BY_STYTCH: true,
+};
+
+export const featureFlagTextOptions: Record<string, string> = {
+  SOON: "Soon",
+  NEW: "New",
+  ALPHA: "Alpha",
+  BETA: "Beta",
+};

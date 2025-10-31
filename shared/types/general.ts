@@ -11,3 +11,5 @@ export interface ErrorResponse {
   error?: any;
   stack?: string;
 }
+
+export type FeatureBadgeType = "Soon" | "New" | "Alpha" | "Beta";

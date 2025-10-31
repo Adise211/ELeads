@@ -4,6 +4,7 @@ import { stytchService } from "../services/stytch.service.js";
 import { AppError } from "../middleware/errorHandler.middleware.js";
 import { httpCodes, userErrorsMsg } from "../utils/errorCodes.js";
 import { Permission } from "@prisma/client";
+import { consts } from "@eleads/shared";
 
 // New Stytch session authentication function
 export async function authenticateStytchSession(req: Request, res: Response, next: NextFunction) {
@@ -14,7 +15,9 @@ export async function authenticateStytchSession(req: Request, res: Response, nex
 
     if (!sessionToken) {
       // Try to get session token from cookies
-      const sessionTokenCookieName = process.env.STYTCH_SESSION_TOKEN_NAME as string;
+      const sessionTokenCookieName = consts.featureFlags.AUTH_BY_STYTCH
+        ? (process.env.STYTCH_SESSION_TOKEN_NAME as string)
+        : (process.env.COOKIE_ACCESS_TOKEN_NAME as string);
       sessionToken = req.cookies?.[sessionTokenCookieName];
     }
 
@@ -23,36 +26,44 @@ export async function authenticateStytchSession(req: Request, res: Response, nex
       next(new AppError("Unauthorized", httpCodes.UNAUTHORIZED));
       return;
     }
+    if (consts.featureFlags.AUTH_BY_STYTCH) {
+      // Authenticate the session with Stytch
+      const sessionResponse = await stytchService.verifyStytchSession(sessionToken);
 
-    // Authenticate the session with Stytch
-    const sessionResponse = await stytchService.verifyStytchSession(sessionToken);
-
-    if (sessionResponse && sessionResponse.status_code === 200) {
-      if (!sessionResponse.user.trusted_metadata) {
-        console.log("[AUTH MIDDLEWARE] No trusted metadata provided");
-        res.status(httpCodes.INTERNAL_SERVER_ERROR).json({
-          success: false,
-          message: "Internal server error",
-          data: null,
-        });
-        return;
+      if (sessionResponse && sessionResponse.status_code === 200) {
+        if (!sessionResponse.user.trusted_metadata) {
+          console.log("[AUTH MIDDLEWARE] No trusted metadata provided");
+          res.status(httpCodes.INTERNAL_SERVER_ERROR).json({
+            success: false,
+            message: "Internal server error",
+            data: null,
+          });
+          return;
+        }
+        // Extract user information from the Stytch session response
+        const user = {
+          userId: sessionResponse.user.trusted_metadata.dbUserId,
+          email: sessionResponse.user.trusted_metadata.dbUserEmail,
+          sessionId: sessionResponse.session.session_id,
+          workspaceId: sessionResponse.user.trusted_metadata.dbWorkspaceId,
+          permissions: sessionResponse.user.trusted_metadata.dbUserPermissions,
+          // Add any other user data you need from the Stytch response
+          // You might want to map Stytch user data to your application's user structure
+        };
+        console.log("[AUTH MIDDLEWARE] User authenticated with Stytch");
+        (req as any).user = user;
+        next();
+      } else {
+        console.log("[AUTH MIDDLEWARE] Invalid session token");
+        next(new AppError("Unauthorized", httpCodes.FORBIDDEN));
       }
-      // Extract user information from the Stytch session response
-      const user = {
-        userId: sessionResponse.user.trusted_metadata.dbUserId,
-        email: sessionResponse.user.trusted_metadata.dbUserEmail,
-        sessionId: sessionResponse.session.session_id,
-        workspaceId: sessionResponse.user.trusted_metadata.dbWorkspaceId,
-        permissions: sessionResponse.user.trusted_metadata.dbUserPermissions,
-        // Add any other user data you need from the Stytch response
-        // You might want to map Stytch user data to your application's user structure
-      };
+    } else {
+      // Authenticate the session with DB
+      const user = verifyAccessToken(sessionToken);
 
       (req as any).user = user;
+      console.log("[AUTH MIDDLEWARE] User authenticated with DB");
       next();
-    } else {
-      console.log("[AUTH MIDDLEWARE] Invalid session token");
-      next(new AppError("Unauthorized", httpCodes.FORBIDDEN));
     }
   } catch (err) {
     console.log("[AUTH MIDDLEWARE] Invalid or expired session token");
