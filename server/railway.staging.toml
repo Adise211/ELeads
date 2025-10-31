@@ -1,6 +1,6 @@
 [build]
 builder = "nixpacks"
-buildCommand = "npm install && cd shared && npm run build && cd ../server && npm install && npx prisma generate && npm run build"
+buildCommand = "npm install && cd shared && npm run build && cd ../server && npm install && npx prisma generate && npm run build:staging"
 
 [deploy]
 startCommand = "cd server && npm run migrate:staging && npm start"
