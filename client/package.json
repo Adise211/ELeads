@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b tsconfig.json && vite build",
-    "build:staging": "vite build",
+    "build": "tsc -b tsconfig.json && vite build --mode production",
+    "build:staging": "vite build --mode staging",
     "lint": "eslint .",
     "start": "serve -s dist",
     "preview": "vite preview"

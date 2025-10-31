@@ -1,10 +1,27 @@
 import dotenv from "dotenv";
+
 // Load environment variables based on NODE_ENV
-if (process.env.NODE_ENV === "production") {
-  dotenv.config({ path: ".env.production" });
-} else {
-  dotenv.config({ path: ".env" });
+function loadEnvironmentVariables() {
+  try {
+    const nodeEnv = process.env.NODE_ENV || "development"; // Default to 'development' if not set
+    switch (nodeEnv) {
+      case "production":
+        dotenv.config({ path: ".env.production" });
+        break;
+      case "staging":
+        dotenv.config({ path: ".env.staging" });
+        break;
+      default:
+        dotenv.config({ path: ".env" });
+        break;
+    }
+  } catch (error) {
+    console.error("Error loading environment variables", error);
+    process.exit(1);
+  }
 }
+
+loadEnvironmentVariables();
 
 import express from "express";
 import cookieParser from "cookie-parser";
