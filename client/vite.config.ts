@@ -7,7 +7,11 @@ import tailwindcss from "@tailwindcss/vite";
 export default defineConfig(({ mode }) => {
   // Load env vars for the current mode at build time
   const env = loadEnv(mode, process.cwd(), "");
-  const backendOrigin = env.VITE_BACKEND_ORIGIN || process.env.VITE_BACKEND_ORIGIN || "";
+  const backendOrigin =
+    env.VITE_BACKEND_ORIGIN ||
+    process.env.VITE_BACKEND_ORIGIN ||
+    import.meta.env.VITE_BACKEND_ORIGIN ||
+    "";
 
   return {
     plugins: [react(), tailwindcss()],
