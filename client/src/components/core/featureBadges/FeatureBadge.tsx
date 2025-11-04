@@ -1,10 +1,9 @@
-import type { FeatureBadgeType } from "@/utils/localTypes";
-import { FEATURE_FLAGS_OPTIONS } from "@/utils/localConsts";
+import { types, consts } from "@eleads/shared";
 import NewBadge from "./NewBadge";
 import SoonBadge from "./SoonBadge";
 
 interface FeatureBadgeProps {
-  type: FeatureBadgeType;
+  type: types.FeatureBadgeType;
   children?: React.ReactNode;
 }
 
@@ -13,8 +12,8 @@ const FeatureBadge = ({ type, children }: FeatureBadgeProps) => {
     <div className="flex items-center gap-2">
       {children && children}
 
-      {type === FEATURE_FLAGS_OPTIONS.SOON && <SoonBadge />}
-      {type === FEATURE_FLAGS_OPTIONS.NEW && <NewBadge />}
+      {type === consts.featureFlagTextOptions.SOON && <SoonBadge />}
+      {type === consts.featureFlagTextOptions.NEW && <NewBadge />}
       {/* {type === FEATURE_FLAGS_OPTIONS.ALPAH && <AlphaBadge />}
       {type === FEATURE_FLAGS_OPTIONS.BETA && <BetaBadge />} */}
     </div>

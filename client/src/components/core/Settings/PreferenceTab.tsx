@@ -1,10 +1,8 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-// import FeatureBadge from "@/components/core/FeatureBadges/FeatureBadge.tsx";
-// import { FEATURE_FLAGS_OPTIONS } from "@/utils/localConsts";
-// import type { FeatureBadgeType } from "@/utils/localTypes";
-
+import FeatureBadge from "@/components/core/FeatureBadges/FeatureBadge";
+import { consts, types } from "@eleads/shared";
 const PreferenceTab = () => {
   return (
     <div>
@@ -25,18 +23,18 @@ const PreferenceTab = () => {
         </div>
         <div className="flex items-center justify-between">
           <div>
-            {/* <FeatureBadge type={FEATURE_FLAGS_OPTIONS.SOON as FeatureBadgeType}> */}
-            <p className="font-medium">Dark Mode</p>
-            {/* </FeatureBadge> */}
+            <FeatureBadge type={consts.featureFlagTextOptions.SOON as types.FeatureBadgeType}>
+              <p className="font-medium text-gray-500">Dark Mode</p>
+            </FeatureBadge>
             <p className="text-sm text-muted-foreground">Switch between light and dark themes</p>
           </div>
           <Switch disabled={true} />
         </div>
         <div className="flex items-center justify-between">
           <div>
-            {/* <FeatureBadge type={FEATURE_FLAGS_OPTIONS.SOON as FeatureBadgeType}> */}
-            <p className="font-medium">Compact View</p>
-            {/* </FeatureBadge> */}
+            <FeatureBadge type={consts.featureFlagTextOptions.SOON as types.FeatureBadgeType}>
+              <p className="font-medium text-gray-500">Compact View</p>
+            </FeatureBadge>
             <p className="text-sm text-muted-foreground">Use a more compact layout</p>
           </div>
           <Switch disabled={true} />
