@@ -238,7 +238,7 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
       res.cookie(accessTokenCookieName, accessToken, {
         httpOnly: true, // accessible only by the web server
         secure: process.env.NODE_ENV === "production" || process.env.NODE_ENV === "staging", // HTTPS only in production/staging
-        sameSite: "lax",
+        sameSite: "strict",
         maxAge: 1 * 60 * 60 * 1000, // 1 hour in ms
       });
 
@@ -246,15 +246,9 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
       res.cookie(refreshTokenCookieName, refreshToken, {
         httpOnly: true, // accessible only by the web server
         secure: process.env.NODE_ENV === "production" || process.env.NODE_ENV === "staging", // HTTPS only in production/staging
-        sameSite: "lax",
+        sameSite: "strict",
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in ms
       });
-      // console.log(
-      //   `[LOGIN USER] - setting access token in cookie: ${accessTokenCookieName}: ${accessToken ? "present" : "missing"}, refresh token: ${refreshTokenCookieName}: ${refreshToken ? "present" : "missing"}`
-      // );
-      // console.log(
-      //   `[LOGIN USER] - access token: ${req.cookies[accessTokenCookieName] ? "present" : "missing"}, refresh token: ${req.cookies[refreshTokenCookieName] ? "present" : "missing"}`
-      // );
 
       // If login is successful
       const successResponse: SuccessResponse = {
@@ -262,6 +256,9 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
         message: "User logged in successfully",
       };
       console.log("[LOGIN USER] - user logged in successfully with DB!");
+      console.log(
+        `[LOGIN USER] - access token: ${accessToken ? "present" : "missing"}, refresh token: ${refreshToken ? "present" : "missing"}`
+      );
       res.status(consts.httpCodes.SUCCESS).json(successResponse);
     }
     console.log("----------------END OF LOGIN USER----------------");

@@ -20,7 +20,8 @@ export async function authenticateStytchSession(req: Request, res: Response, nex
         : (process.env.COOKIE_ACCESS_TOKEN_NAME as string);
       console.log(`[AUTH MIDDLEWARE] getting session token from cookie: ${sessionTokenCookieName}`);
       sessionToken = req.cookies?.[sessionTokenCookieName];
-      console.log(`[AUTH MIDDLEWARE] session token: ${sessionToken ? "present" : "missing"}`);
+      // console.log(`[AUTH MIDDLEWARE] session token: ${sessionToken ? "present" : "missing"}`);
+      console.log(`[AUTH MIDDLEWARE] session token: ${req.cookies?.[sessionTokenCookieName]}`);
     }
 
     if (!sessionToken) {
