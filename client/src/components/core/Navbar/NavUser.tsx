@@ -19,7 +19,8 @@ import { authService } from "@/services";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/stores/authStore";
 import { consts, types } from "@eleads/shared";
-import FeatureBadge from "@/components/core/FeatureBadges/FeatureBadge";
+import FeatureBadge from "@/components/core/FeatBadges/FeatureBadge";
+
 export function NavUser({
   user,
 }: {

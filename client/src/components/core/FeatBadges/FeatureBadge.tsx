@@ -1,6 +1,6 @@
 import { types, consts } from "@eleads/shared";
-import NewBadge from "../FeatBadges/NewBadge";
-import SoonBadge from "../FeatBadges/SoonBadge";
+import NewBadge from "./NewBadge";
+import SoonBadge from "./SoonBadge";
 
 interface FeatureBadgeProps {
   type: types.FeatureBadgeType;
