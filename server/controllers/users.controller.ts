@@ -191,7 +191,7 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
           (stytchResponse as any)?.session_token,
           {
             httpOnly: true, // accessible only by the web server
-            secure: process.env.NODE_ENV === "production", // HTTPS only in production
+            secure: process.env.NODE_ENV === "production" || process.env.NODE_ENV === "staging", // HTTPS only in production/staging
             sameSite: "strict",
             maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in ms
           }
@@ -237,16 +237,16 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
       // set access token in cookie
       res.cookie(accessTokenCookieName, accessToken, {
         httpOnly: true, // accessible only by the web server
-        secure: process.env.NODE_ENV === "production", // HTTPS only in production
-        sameSite: "strict",
+        secure: process.env.NODE_ENV === "production" || process.env.NODE_ENV === "staging", // HTTPS only in production/staging
+        sameSite: "lax",
         maxAge: 1 * 60 * 60 * 1000, // 1 hour in ms
       });
 
       // set refresh token in cookie
       res.cookie(refreshTokenCookieName, refreshToken, {
         httpOnly: true, // accessible only by the web server
-        secure: process.env.NODE_ENV === "production", // HTTPS only in production
-        sameSite: "strict",
+        secure: process.env.NODE_ENV === "production" || process.env.NODE_ENV === "staging", // HTTPS only in production/staging
+        sameSite: "lax",
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in ms
       });
       // console.log(
