@@ -197,11 +197,6 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
           }
         );
 
-        // const isLoggedIn = await localFuncHelpers.loginUserWithStytch(email, password)(res);
-        // if (!isLoggedIn) {
-        //   throw new AppError(userErrorsMsg.USER_NOT_FOUND, consts.httpCodes.UNAUTHORIZED);
-        // }
-
         // 4. Return the success response
         const successResponse: SuccessResponse = {
           success: true,
