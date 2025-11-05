@@ -1,0 +1,24 @@
+## CORS AND COOKIE CONFIGURATION ##
+
+### Cookies
+- SameSite: 'none' - Required for cross-origin requests (frontend and backend on different domains)
+- Secure: true - Enabled in production/staging (HTTPS only)
+- HttpOnly: true - Prevents JavaScript access to cookies (XSS protection)
+- Domain: Optional via COOKIE_DOMAIN env var (for subdomain sharing)
+- MaxAge: 7 days for session tokens, 1 hour for access tokens
+
+### CORS
+- Origin: Configured via FRONTEND_ORIGIN env var
+- Credentials: true - Allows cookies to be sent with cross-origin requests
+- Security: Strict origin validation prevents unauthorized domains
+
+### Additional Security
+- Helmet.js: Security headers middleware
+- Rate limiting: 100 requests per 15 minutes per IP
+- Cookie-parser: Enabled for cookie handling
+
+
+### Notes
+- Cookies are set with sameSite: 'none' since we are using different domains for frontend and backend
+- CORS is configured with allowd origin of the frontend
+- Even if the sameSite config is 'none' (allows cross-origin requests) the app secured with strict CORS configuration

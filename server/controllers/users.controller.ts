@@ -192,7 +192,7 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
           {
             httpOnly: true, // accessible only by the web server
             secure: process.env.NODE_ENV === "production" || process.env.NODE_ENV === "staging", // HTTPS only in production/staging
-            sameSite: "strict",
+            sameSite: "none", // allow cookies to be sent in cross-origin requests since we are using different domains for frontend and backend - the app secure by CORS configuration (see in server.ts file)
             maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in ms
           }
         );
@@ -238,7 +238,7 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
       res.cookie(accessTokenCookieName, accessToken, {
         httpOnly: true, // accessible only by the web server
         secure: process.env.NODE_ENV === "production" || process.env.NODE_ENV === "staging", // HTTPS only in production/staging
-        sameSite: "strict",
+        sameSite: "none", // allow cookies to be sent in cross-origin requests since we are using different domains for frontend and backend - the app secure by CORS configuration (see in server.ts file)
         maxAge: 1 * 60 * 60 * 1000, // 1 hour in ms
       });
 
@@ -246,7 +246,7 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
       res.cookie(refreshTokenCookieName, refreshToken, {
         httpOnly: true, // accessible only by the web server
         secure: process.env.NODE_ENV === "production" || process.env.NODE_ENV === "staging", // HTTPS only in production/staging
-        sameSite: "strict",
+        sameSite: "none", // allow cookies to be sent in cross-origin requests since we are using different domains for frontend and backend - the app secure by CORS configuration (see in server.ts file)
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in ms
       });
 
@@ -300,8 +300,8 @@ export const logoutUser = async (req: Request, res: Response, next: NextFunction
         // clear session token cookie
         res.clearCookie(stytchCookieName, {
           httpOnly: true,
-          sameSite: "strict",
-          secure: process.env.NODE_ENV === "production",
+          sameSite: "none", // allow cookies to be sent in cross-origin requests since we are using different domains for frontend and backend - the app secure by CORS configuration (see in server.ts file)
+          secure: process.env.NODE_ENV === "production" || process.env.NODE_ENV === "staging", // HTTPS only in production/staging
         });
 
         const successResponse: SuccessResponse = {
@@ -322,14 +322,14 @@ export const logoutUser = async (req: Request, res: Response, next: NextFunction
       // clear access token cookie
       res.clearCookie(accessTokenCookieName, {
         httpOnly: true,
-        sameSite: "strict",
-        secure: process.env.NODE_ENV === "production",
+        sameSite: "none", // allow cookies to be sent in cross-origin requests since we are using different domains for frontend and backend - the app secure by CORS configuration (see in server.ts file)
+        secure: process.env.NODE_ENV === "production" || process.env.NODE_ENV === "staging", // HTTPS only in production/staging
       });
       // clear refresh token cookie
       res.clearCookie(refreshTokenCookieName, {
         httpOnly: true,
-        sameSite: "strict",
-        secure: process.env.NODE_ENV === "production",
+        sameSite: "none", // allow cookies to be sent in cross-origin requests since we are using different domains for frontend and backend - the app secure by CORS configuration (see in server.ts file)
+        secure: process.env.NODE_ENV === "production" || process.env.NODE_ENV === "staging", // HTTPS only in production/staging
       });
       console.log("[LOGOUT USER] - access token and refresh token cleared successfully from DB");
 
