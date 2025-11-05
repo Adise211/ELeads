@@ -106,7 +106,7 @@ export const registerUser = async (req: Request, res: Response, next: NextFuncti
       if (consts.featureFlags.AUTH_BY_STYTCH) {
         const cachedData = getCachedDataForRegisterUser(email);
         const { stytchSessionToken, stytchUserId } = cachedData;
-    
+
         const addPasswordByResetResponse = await stytchService.resetPasswordByExistingSession(
           stytchSessionToken,
           password
@@ -249,6 +249,12 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
         sameSite: "strict",
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in ms
       });
+      // console.log(
+      //   `[LOGIN USER] - setting access token in cookie: ${accessTokenCookieName}: ${accessToken ? "present" : "missing"}, refresh token: ${refreshTokenCookieName}: ${refreshToken ? "present" : "missing"}`
+      // );
+      // console.log(
+      //   `[LOGIN USER] - access token: ${req.cookies[accessTokenCookieName] ? "present" : "missing"}, refresh token: ${req.cookies[refreshTokenCookieName] ? "present" : "missing"}`
+      // );
 
       // If login is successful
       const successResponse: SuccessResponse = {

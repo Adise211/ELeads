@@ -18,11 +18,13 @@ export async function authenticateStytchSession(req: Request, res: Response, nex
       const sessionTokenCookieName = consts.featureFlags.AUTH_BY_STYTCH
         ? (process.env.STYTCH_SESSION_TOKEN_NAME as string)
         : (process.env.COOKIE_ACCESS_TOKEN_NAME as string);
+      console.log(`[AUTH MIDDLEWARE] getting session token from cookie: ${sessionTokenCookieName}`);
       sessionToken = req.cookies?.[sessionTokenCookieName];
+      console.log(`[AUTH MIDDLEWARE] session token: ${sessionToken ? "present" : "missing"}`);
     }
 
     if (!sessionToken) {
-      console.log("[AUTH MIDDLEWARE] No session token provided");
+      console.log("[AUTH MIDDLEWARE] No session token provided!");
       next(new AppError("Unauthorized", httpCodes.UNAUTHORIZED));
       return;
     }
