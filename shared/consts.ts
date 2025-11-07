@@ -39,7 +39,7 @@ export const leadStatusOptions: Record<LeadStatus, string> = {
 
 export const featureFlags: Record<string, boolean> = {
   AUTH_BY_STYTCH: false,
-  VERIFY_EMAIL_BY_OTP: false,
+  VERIFY_EMAIL_BY_OTP: true,
 };
 
 export const featureFlagTextOptions: Record<string, string> = {

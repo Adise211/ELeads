@@ -83,4 +83,12 @@ export const authService = {
     const response = await api.post("/users/verify-otp", { email, otp });
     return response.data;
   },
+
+  /**
+   * Generate custom OTP code
+   */
+  generateCustomOTPCode: async (email: string): Promise<SuccessResponse> => {
+    const response = await api.post("/users/generate-custom-otp", { email });
+    return response.data;
+  },
 };

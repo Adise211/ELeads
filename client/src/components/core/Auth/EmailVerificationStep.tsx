@@ -7,6 +7,9 @@ import { Mail, ArrowLeft, CheckCircle, Clock, RefreshCw } from "lucide-react";
 import { authService } from "@/services";
 import { showSuccessToast, showErrorToast } from "@/utils/toast";
 import { AxiosError } from "axios";
+import { consts } from "@eleads/shared";
+import { SendEmail } from "../EmailService";
+import type { EmailServiceForOTPTemplateParams } from "client.types";
 
 interface EmailVerificationStepProps {
   formData: {
@@ -14,6 +17,7 @@ interface EmailVerificationStepProps {
     otp: string;
     isEmailVerified: boolean;
   };
+  otpExpiresAt: Date | "";
   onUpdate: (data: Partial<EmailVerificationStepProps["formData"]>) => void;
   onNext: () => void;
   onBack: () => void;
@@ -21,6 +25,7 @@ interface EmailVerificationStepProps {
 
 export default function EmailVerificationStep({
   formData,
+  otpExpiresAt,
   onUpdate,
   onNext,
   onBack,
@@ -36,13 +41,44 @@ export default function EmailVerificationStep({
     const sendInitialOTP = async () => {
       if (!hasSentInitialOTP && formData.email) {
         setIsResending(true);
+
         try {
-          const response = await authService.sendOTPToUser(formData.email);
-          if (response.success) {
-            showSuccessToast(response.message || "Verification code sent to your email!");
-            setHasSentInitialOTP(true);
-            setResendCooldown(60);
+          let response;
+          if (consts.featureFlags.AUTH_BY_STYTCH) {
+            response = await authService.sendOTPToUser(formData.email);
+            if (response.success) {
+              showSuccessToast(response.message || "Verification code sent to your email!");
+              setHasSentInitialOTP(true);
+              setResendCooldown(60);
+            }
+          } else {
+            // response = await authService.generateCustomOTPCode(formData.email);
+            // console.log("generate custom otp code response", response);
+            // if (response.success) {
+            const templateParams: EmailServiceForOTPTemplateParams = {
+              code: formData.otp,
+              expires_in: 5, // Minutes
+              expires_at: otpExpiresAt ? otpExpiresAt.toLocaleDateString() : "",
+              to_email: formData.email,
+              from_name: "ELeads",
+            };
+            const sendEmailResponse = await SendEmail({
+              serviceId: import.meta.env.VITE_EMAILJS_SERVICE_ID as string,
+              templateId: import.meta.env.VITE_EMAILJS_OTP_TEMPLATE_ID as string,
+              templateParams,
+            });
+            console.log("send email response", sendEmailResponse);
+            if (sendEmailResponse?.status === 200) {
+              showSuccessToast("Verification code sent to your email!");
+              setHasSentInitialOTP(true);
+              setResendCooldown(60);
+            } else {
+              console.log("failed to send verification code", sendEmailResponse);
+              throw new Error("Failed to send verification code.");
+            }
           }
+          //}
+          //return;
         } catch (error) {
           const errorMessage =
             error instanceof AxiosError

@@ -18,6 +18,7 @@ const SignupPage = () => {
   const { VERIFY_EMAIL_BY_OTP } = consts.featureFlags;
   const [currentStep, setCurrentStep] = useState(1);
   const [errorMessage, setErrorMessage] = useState("");
+  const [otpExpiresAt, setOtpExpiresAt] = useState<Date | "">("");
   const [formData, setFormData] = useState<SignupFormData>({
     firstName: "",
     lastName: "",
@@ -35,8 +36,32 @@ const SignupPage = () => {
     setFormData((prev) => ({ ...prev, ...updates }));
   };
 
-  const handlePersonalInfoNext = () => {
-    setCurrentStep(2);
+  const handlePersonalInfoNext = async () => {
+    console.log("in handlePersonalInfoNext");
+    // if email verification by OTP is enabled, generate a custom OTP code and move to the email verification step
+    if (VERIFY_EMAIL_BY_OTP) {
+      console.log("generating custom OTP code before moving to the email verification step");
+      try {
+        const response = await authService.generateCustomOTPCode(formData.email);
+        console.log("response from generate custom OTP code", response);
+        if (response.success) {
+          setOtpExpiresAt(new Date(response.data.expiresAt));
+          setErrorMessage(""); // clear the error message
+          setCurrentStep(2);
+        }
+      } catch (error) {
+        console.log("Error in generating custom OTP code", error);
+        setErrorMessage(
+          error instanceof AxiosError
+            ? error?.response?.data.message
+            : "Failed to generate custom OTP code"
+        );
+      }
+    } else {
+      console.log("moving to the email verification step without generating custom OTP code");
+      setCurrentStep(2);
+      setErrorMessage(""); // clear the error message
+    }
   };
 
   const handleEmailVerificationNext = () => {
@@ -216,6 +241,7 @@ const SignupPage = () => {
               otp: formData.otp,
               isEmailVerified: formData.isEmailVerified,
             }}
+            otpExpiresAt={otpExpiresAt}
             onUpdate={updateFormData}
             onNext={handleEmailVerificationNext}
             onBack={handleEmailVerificationBack}

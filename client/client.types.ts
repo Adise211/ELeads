@@ -18,3 +18,11 @@ export interface SignupFormData {
   workspaceName?: string;
   workspaceId?: string;
 }
+
+export type EmailServiceForOTPTemplateParams = {
+  code: string;
+  expires_in: number;
+  expires_at: string;
+  to_email: string;
+  from_name: string;
+};

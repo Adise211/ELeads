@@ -541,6 +541,12 @@ export const testCachedOTP = async (req: Request, res: Response, next: NextFunct
 export const generateCustomOTPCode = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { email } = req.body;
+    // 1. Check if email exists
+    const isEmailExists = await getUserByEmail(email);
+    if (isEmailExists) {
+      throw new AppError(userErrorsMsg.USER_ALREADY_EXISTS, consts.httpCodes.BAD_REQUEST);
+    }
+    // 2. Generate a custom OTP code
     const otp = crypto.randomInt(100000, 999999);
 
     const cachedCustomOTPInfo = {
