@@ -17,7 +17,10 @@ interface EmailVerificationStepProps {
     otp: string;
     isEmailVerified: boolean;
   };
-  otpExpiresAt: Date | "";
+  generateCustomOTPData: {
+    otp: string;
+    expiresAt: Date;
+  } | null;
   onUpdate: (data: Partial<EmailVerificationStepProps["formData"]>) => void;
   onNext: () => void;
   onBack: () => void;
@@ -25,7 +28,7 @@ interface EmailVerificationStepProps {
 
 export default function EmailVerificationStep({
   formData,
-  otpExpiresAt,
+  generateCustomOTPData,
   onUpdate,
   onNext,
   onBack,
@@ -56,9 +59,11 @@ export default function EmailVerificationStep({
             // console.log("generate custom otp code response", response);
             // if (response.success) {
             const templateParams: EmailServiceForOTPTemplateParams = {
-              code: formData.otp,
+              code: generateCustomOTPData?.otp || "",
               expires_in: 5, // Minutes
-              expires_at: otpExpiresAt ? otpExpiresAt.toLocaleDateString() : "",
+              expires_at: generateCustomOTPData?.expiresAt
+                ? new Date(generateCustomOTPData.expiresAt).toLocaleString()
+                : "",
               to_email: formData.email,
               from_name: "ELeads",
             };

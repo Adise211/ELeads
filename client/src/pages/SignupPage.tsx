@@ -18,7 +18,10 @@ const SignupPage = () => {
   const { VERIFY_EMAIL_BY_OTP } = consts.featureFlags;
   const [currentStep, setCurrentStep] = useState(1);
   const [errorMessage, setErrorMessage] = useState("");
-  const [otpExpiresAt, setOtpExpiresAt] = useState<Date | "">("");
+  const [generateCustomOTPData, setGenerateCustomOTPData] = useState<{
+    otp: string;
+    expiresAt: Date;
+  } | null>(null);
   const [formData, setFormData] = useState<SignupFormData>({
     firstName: "",
     lastName: "",
@@ -45,7 +48,11 @@ const SignupPage = () => {
         const response = await authService.generateCustomOTPCode(formData.email);
         console.log("response from generate custom OTP code", response);
         if (response.success) {
-          setOtpExpiresAt(new Date(response.data.expiresAt));
+          setGenerateCustomOTPData((prev) => ({
+            ...prev,
+            otp: response.data.otp,
+            expiresAt: response.data.expiresAt,
+          }));
           setErrorMessage(""); // clear the error message
           setCurrentStep(2);
         }
@@ -241,7 +248,7 @@ const SignupPage = () => {
               otp: formData.otp,
               isEmailVerified: formData.isEmailVerified,
             }}
-            otpExpiresAt={otpExpiresAt}
+            generateCustomOTPData={generateCustomOTPData}
             onUpdate={updateFormData}
             onNext={handleEmailVerificationNext}
             onBack={handleEmailVerificationBack}
