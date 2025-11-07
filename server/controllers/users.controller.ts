@@ -20,6 +20,7 @@ import { RegisterUserFields, StytchUpdateUserParams, SuccessResponse } from "../
 import { omitFields } from "../lib/data.helper.js";
 import { stytchService } from "../services/stytch.service.js";
 import cache from "../lib/node-cache.js";
+import crypto from "node:crypto";
 
 const getCachedDataForRegisterUser = (cachedDataKey: string) => {
   try {
@@ -232,7 +233,7 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
       // set access token in cookie
       res.cookie(accessTokenCookieName, accessToken, {
         httpOnly: true, // accessible only by the web server
-        secure: process.env.NODE_ENV === "production" || process.env.NODE_ENV === "staging", // HTTPS only in production/staging
+        secure: true, // since sameSite is 'none'
         sameSite: "none", // allow cookies to be sent in cross-origin requests since we are using different domains for frontend and backend - the app secure by CORS configuration (see in server.ts file)
         maxAge: 1 * 60 * 60 * 1000, // 1 hour in ms
       });
@@ -240,7 +241,7 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
       // set refresh token in cookie
       res.cookie(refreshTokenCookieName, refreshToken, {
         httpOnly: true, // accessible only by the web server
-        secure: process.env.NODE_ENV === "production" || process.env.NODE_ENV === "staging", // HTTPS only in production/staging
+        secure: true, // since sameSite is 'none'
         sameSite: "none", // allow cookies to be sent in cross-origin requests since we are using different domains for frontend and backend - the app secure by CORS configuration (see in server.ts file)
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in ms
       });
@@ -296,7 +297,7 @@ export const logoutUser = async (req: Request, res: Response, next: NextFunction
         res.clearCookie(stytchCookieName, {
           httpOnly: true,
           sameSite: "none", // allow cookies to be sent in cross-origin requests since we are using different domains for frontend and backend - the app secure by CORS configuration (see in server.ts file)
-          secure: process.env.NODE_ENV === "production" || process.env.NODE_ENV === "staging", // HTTPS only in production/staging
+          secure: true, // since sameSite is 'none'
         });
 
         const successResponse: SuccessResponse = {
@@ -318,7 +319,7 @@ export const logoutUser = async (req: Request, res: Response, next: NextFunction
       res.clearCookie(accessTokenCookieName, {
         httpOnly: true,
         sameSite: "none", // allow cookies to be sent in cross-origin requests since we are using different domains for frontend and backend - the app secure by CORS configuration (see in server.ts file)
-        secure: process.env.NODE_ENV === "production" || process.env.NODE_ENV === "staging", // HTTPS only in production/staging
+        secure: true, // since sameSite is 'none'
       });
       // clear refresh token cookie
       res.clearCookie(refreshTokenCookieName, {
@@ -459,31 +460,56 @@ export const verifyOTPCode = async (req: Request, res: Response, next: NextFunct
     const { email, otp } = req.body;
     const cachedOTPInfo = cache.get(email);
     if (!cachedOTPInfo) {
-      throw new AppError("OTP not found", consts.httpCodes.NOT_FOUND);
+      throw new AppError(
+        "OTP not found! Please generate a new OTP code or try again later.",
+        consts.httpCodes.NOT_FOUND
+      );
     }
-    const { stytchMethodId } = cachedOTPInfo as {
-      stytchMethodId: string;
-    };
-    const stytchResponse = await stytchService.verifyOTPCode(stytchMethodId, otp);
-    if (stytchResponse && (stytchResponse as any)?.status_code === 200) {
-      console.log("[VERIFY OTP CODE] - OTP verified successfully");
-      const cachedOTPInfo: Record<string, any> | undefined = cache.get(email);
-      if (cachedOTPInfo) {
-        cachedOTPInfo.stytchSessionToken = (stytchResponse as any)?.session_token;
-        const isCached = cache.set(email, cachedOTPInfo, 60 * 5); // 5 minutes
-        console.log("[VERIFY OTP CODE] - OTPsession token cached successfully? ", isCached);
-        if (!isCached) {
-          throw new AppError("Failed to verify OTP", consts.httpCodes.INTERNAL_SERVER_ERROR);
+    // Auth by Stytch - if feature flag is enabled
+    if (consts.featureFlags.AUTH_BY_STYTCH) {
+      const { stytchMethodId } = cachedOTPInfo as {
+        stytchMethodId: string;
+      };
+      const stytchResponse = await stytchService.verifyOTPCode(stytchMethodId, otp);
+      if (stytchResponse && (stytchResponse as any)?.status_code === 200) {
+        console.log("[VERIFY OTP CODE] - OTP verified successfully with Stytch");
+        const cachedOTPInfo: Record<string, any> | undefined = cache.get(email);
+        if (cachedOTPInfo) {
+          cachedOTPInfo.stytchSessionToken = (stytchResponse as any)?.session_token;
+          const isCached = cache.set(email, cachedOTPInfo, 60 * 5); // 5 minutes
+          console.log("[VERIFY OTP CODE] - OTPsession token cached successfully? ", isCached);
+          if (!isCached) {
+            throw new AppError("Failed to verify OTP", consts.httpCodes.INTERNAL_SERVER_ERROR);
+          }
         }
+        const successResponse: SuccessResponse = {
+          success: true,
+          message: "OTP verified successfully",
+          data: {},
+        };
+        res.status(consts.httpCodes.SUCCESS).json(successResponse);
+      } else {
+        throw new AppError("Failed to verify OTP", consts.httpCodes.INTERNAL_SERVER_ERROR);
       }
+    } else {
+      const { otp, expiresAt } = cachedOTPInfo as { otp: string; expiresAt: number };
+      if (otp !== otp) {
+        throw new AppError("Invalid OTP code", consts.httpCodes.UNAUTHORIZED);
+      }
+      if (expiresAt < Date.now()) {
+        throw new AppError(
+          "OTP code has expired! Please generate a new OTP code.",
+          consts.httpCodes.NOT_FOUND
+        );
+      }
+      console.log("[VERIFY OTP CODE] - OTP verified successfully with custom OTP code");
+
       const successResponse: SuccessResponse = {
         success: true,
         message: "OTP verified successfully",
         data: {},
       };
       res.status(consts.httpCodes.SUCCESS).json(successResponse);
-    } else {
-      throw new AppError("Failed to verify OTP", consts.httpCodes.INTERNAL_SERVER_ERROR);
     }
   } catch (error) {
     next(error);
@@ -494,11 +520,43 @@ export const testCachedOTP = async (req: Request, res: Response, next: NextFunct
   try {
     const { email } = req.body;
     const cachedData = cache.get(email);
+    if (!cachedData) {
+      throw new AppError(
+        "Cached OTP not found! Please generate a new OTP code.",
+        consts.httpCodes.NOT_FOUND
+      );
+    }
     console.log("[TEST CACHED OTP] - Cached data: ", cachedData);
     const successResponse: SuccessResponse = {
       success: true,
       message: "Test cached OTP successfully",
       data: cachedData,
+    };
+    res.status(consts.httpCodes.SUCCESS).json(successResponse);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const generateCustomOTPCode = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { email } = req.body;
+    const otp = crypto.randomInt(100000, 999999);
+
+    const cachedCustomOTPInfo = {
+      otp,
+      expiresAt: Date.now() + 1000 * 60 * 5, // 5 minutes in ms
+    };
+
+    const isCached = cache.set(email, cachedCustomOTPInfo, 60 * 5); // 5 minutes
+    if (!isCached) {
+      throw new AppError("Failed to generate OTP code", consts.httpCodes.INTERNAL_SERVER_ERROR);
+    }
+
+    const successResponse: SuccessResponse = {
+      success: true,
+      message: "OTP code generated successfully",
+      data: { otp, expiresAt: cachedCustomOTPInfo.expiresAt }, // 5 minutes in ms
     };
     res.status(consts.httpCodes.SUCCESS).json(successResponse);
   } catch (error) {

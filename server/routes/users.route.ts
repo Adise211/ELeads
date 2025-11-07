@@ -9,6 +9,7 @@ import {
   sendOTPToUser,
   testCachedOTP,
   verifyOTPCode,
+  generateCustomOTPCode,
 } from "../controllers/users.controller.js";
 import { authenticateStytchSession } from "../middleware/auth.middleware.js";
 import { validate } from "../middleware/validation.middleware.js";
@@ -67,5 +68,10 @@ router.post("/send-otp", validate(sendOTPToUserSchema), sendOTPToUser);
 // @desc: Verify OTP code
 // @access: Public
 router.post("/verify-otp", verifyOTPCode);
+
+// @path: /api/users/generate-custom-otp
+// @desc: Generate custom OTP code
+// @access: Public
+router.post("/generate-custom-otp", validate(sendOTPToUserSchema), generateCustomOTPCode);
 
 export default router;
