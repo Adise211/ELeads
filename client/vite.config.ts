@@ -32,7 +32,8 @@ export default defineConfig(({ mode }) => {
       },
     },
     optimizeDeps: {
-      include: ["@eleads/shared"],
+      exclude: ["@eleads/shared"],
+      force: true, // Force re-optimization
     },
   };
 });
