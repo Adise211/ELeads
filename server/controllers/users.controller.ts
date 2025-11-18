@@ -457,7 +457,9 @@ export const sendOTPToUser = async (req: Request, res: Response, next: NextFunct
 
 export const verifyOTPCode = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { email, otp } = req.body;
+    const { email, otp: otpString } = req.body;
+    const otp = Number(otpString); // convert string to number
+
     const cachedOTPInfo = cache.get(email);
     if (!cachedOTPInfo) {
       throw new AppError(
@@ -467,10 +469,11 @@ export const verifyOTPCode = async (req: Request, res: Response, next: NextFunct
     }
     // Auth by Stytch - if feature flag is enabled
     if (consts.featureFlags.AUTH_BY_STYTCH) {
+      console.log("[VERIFY OTP CODE] - verifying OTP code with Stytch");
       const { stytchMethodId } = cachedOTPInfo as {
         stytchMethodId: string;
       };
-      const stytchResponse = await stytchService.verifyOTPCode(stytchMethodId, otp);
+      const stytchResponse = await stytchService.verifyOTPCode(stytchMethodId, otp.toString()); // convert number to string
       if (stytchResponse && (stytchResponse as any)?.status_code === 200) {
         console.log("[VERIFY OTP CODE] - OTP verified successfully with Stytch");
         const cachedOTPInfo: Record<string, any> | undefined = cache.get(email);
@@ -492,8 +495,11 @@ export const verifyOTPCode = async (req: Request, res: Response, next: NextFunct
         throw new AppError("Failed to verify OTP", consts.httpCodes.INTERNAL_SERVER_ERROR);
       }
     } else {
-      const { otp, expiresAt } = cachedOTPInfo as { otp: string; expiresAt: number };
-      if (otp !== otp) {
+      console.log("[VERIFY OTP CODE] - verifying OTP code with custom OTP code");
+      const { otp: cachedOTP, expiresAt } = cachedOTPInfo as { otp: string; expiresAt: number };
+      console.log("[VERIFY OTP CODE] - is the same OTP code? ", otp === Number(cachedOTP)); // convert string to number
+      if (otp !== Number(cachedOTP)) {
+        // convert string to number
         throw new AppError("Invalid OTP code", consts.httpCodes.UNAUTHORIZED);
       }
       if (expiresAt < Date.now()) {
