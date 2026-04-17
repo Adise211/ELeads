@@ -1,3 +1,4 @@
+// User errors
 const userErrorsMsg = {
   USER_NOT_FOUND: "User not found",
   USER_ALREADY_EXISTS: "User already exists",
@@ -11,6 +12,7 @@ const userErrorsMsg = {
   FAILED_TO_CREATE_USER: "Failed to create user",
 };
 
+// Workspace errors
 const workspaceErrorsMsg = {
   WORKSPACE_NOT_FOUND: "Workspace not found",
   WORKSPACE_ALREADY_EXISTS: "Workspace already exists",
@@ -18,6 +20,7 @@ const workspaceErrorsMsg = {
   FAILED_TO_CREATE_WORKSPACE: "Failed to create workspace",
 };
 
+// Common errors
 const commonErrorsMsg = {
   DATABASE_ERROR: "Database operation failed",
   UNAUTHORIZED: "Unauthorized access",
@@ -26,6 +29,7 @@ const commonErrorsMsg = {
   INTERNAL_SERVER_ERROR: "Internal server error",
 };
 
+// Prisma errors
 const prismaErrorCodes = {
   USER_NOT_FOUND: "P2001",
   USER_ALREADY_EXISTS: "P2002",
@@ -42,6 +46,7 @@ const prismaErrorCodes = {
   RECORD_NOT_FOUND: "P2013",
 };
 
+// HTTP codes
 const httpCodes = {
   SUCCESS: 200,
   CREATED: 201,
